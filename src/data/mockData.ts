@@ -1,4 +1,4 @@
-import { StatusCatalog, User, Operator, Asset, Assignment, Repair, AssetStatusHistory } from './types';
+import { StatusCatalog, User, Operator, Asset, Assignment, Repair, AssetStatusHistory, Location } from './types';
 
 export const statuses: StatusCatalog[] = [
   { id: 1, code: 'DISPONIBLE', label: 'Disponible', is_terminal: false },
@@ -7,6 +7,14 @@ export const statuses: StatusCatalog[] = [
   { id: 4, code: 'DANADO_RECUPERABLE', label: 'Dañado (recuperable)', is_terminal: false },
   { id: 5, code: 'DANADO_IRRECUPERABLE', label: 'Dañado (irrecuperable)', is_terminal: true },
   { id: 6, code: 'DONADO', label: 'Donado', is_terminal: true },
+];
+
+export const locations: Location[] = [
+  { id: 1, country: 'España', site: 'Madrid', center: 'Oficina Central' },
+  { id: 2, country: 'España', site: 'Barcelona', center: 'Torre Diagonal' },
+  { id: 3, country: 'España', site: 'Valencia', center: 'Centro Tecnológico' },
+  { id: 4, country: 'España', site: 'Sevilla', center: 'Sede Sur' },
+  { id: 5, country: 'México', site: 'CDMX', center: 'Centro Norte' },
 ];
 
 export const operators: Operator[] = [
@@ -28,32 +36,32 @@ export const users: User[] = [
 
 export const assets: Asset[] = [
   // Equipos principales
-  { id: 1, asset_tag: 'IT-L001', serial_number: 'SN-DELL-XPS-001', category: 'EQUIPO', type: 'Laptop', brand: 'Dell', model: 'XPS 15 9530', status_id: 2, location: 'Madrid', notes: null, created_at: '2024-01-10T10:00:00', updated_at: '2024-06-15T14:00:00' },
-  { id: 2, asset_tag: 'IT-L002', serial_number: 'SN-LENOVO-T14-002', category: 'EQUIPO', type: 'Laptop', brand: 'Lenovo', model: 'ThinkPad T14s Gen 4', status_id: 2, location: 'Madrid', notes: null, created_at: '2024-01-10T10:00:00', updated_at: '2024-07-01T09:00:00' },
-  { id: 3, asset_tag: 'IT-L003', serial_number: 'SN-HP-ELITEBOOK-003', category: 'EQUIPO', type: 'Laptop', brand: 'HP', model: 'EliteBook 840 G10', status_id: 1, location: 'Madrid', notes: 'Recién formateado', created_at: '2024-01-15T11:00:00', updated_at: '2024-08-10T10:00:00' },
-  { id: 6, asset_tag: 'IT-L004', serial_number: 'SN-APPLE-MBP-006', category: 'EQUIPO', type: 'Laptop', brand: 'Apple', model: 'MacBook Pro 14" M3', status_id: 2, location: 'Valencia', notes: null, created_at: '2024-03-01T09:00:00', updated_at: '2024-07-20T16:00:00' },
-  { id: 7, asset_tag: 'IT-L005', serial_number: 'SN-DELL-LAT-007', category: 'EQUIPO', type: 'Laptop', brand: 'Dell', model: 'Latitude 5540', status_id: 3, location: 'Madrid', notes: 'Problema con la pantalla', created_at: '2024-03-15T10:00:00', updated_at: '2024-09-01T11:00:00' },
-  { id: 8, asset_tag: 'IT-T001', serial_number: 'SN-SAMSUNG-TAB-008', category: 'EQUIPO', type: 'Tablet', brand: 'Samsung', model: 'Galaxy Tab S9', status_id: 1, location: 'Madrid', notes: null, created_at: '2024-04-01T08:00:00', updated_at: '2024-04-01T08:00:00' },
-  { id: 9, asset_tag: 'IT-L006', serial_number: 'SN-LENOVO-X1-009', category: 'EQUIPO', type: 'Laptop', brand: 'Lenovo', model: 'ThinkPad X1 Carbon Gen 11', status_id: 4, location: 'Sevilla', notes: 'Caída accidental, carcasa rota', created_at: '2024-04-15T09:00:00', updated_at: '2024-09-15T14:00:00' },
-  { id: 10, asset_tag: 'IT-D001', serial_number: 'SN-DELL-OPT-010', category: 'EQUIPO', type: 'Desktop', brand: 'Dell', model: 'OptiPlex 7010', status_id: 2, location: 'Madrid', notes: null, created_at: '2024-05-01T08:00:00', updated_at: '2024-08-01T10:00:00' },
-  { id: 11, asset_tag: 'IT-L007', serial_number: 'SN-HP-PROBOOK-011', category: 'EQUIPO', type: 'Laptop', brand: 'HP', model: 'ProBook 450 G10', status_id: 5, location: 'Madrid', notes: 'Placa base quemada, sin reparación posible', created_at: '2024-05-15T11:00:00', updated_at: '2024-10-01T09:00:00' },
-  { id: 13, asset_tag: 'IT-L008', serial_number: 'SN-ASUS-ZEN-013', category: 'EQUIPO', type: 'Laptop', brand: 'ASUS', model: 'ZenBook 14 OLED', status_id: 1, location: 'Barcelona', notes: null, created_at: '2024-06-01T10:00:00', updated_at: '2024-06-01T10:00:00' },
-  { id: 15, asset_tag: 'IT-T002', serial_number: 'SN-APPLE-IPAD-015', category: 'EQUIPO', type: 'Tablet', brand: 'Apple', model: 'iPad Air M1', status_id: 1, location: 'Madrid', notes: null, created_at: '2024-07-01T09:00:00', updated_at: '2024-07-01T09:00:00' },
+  { id: 1, asset_tag: 'IT-L001', serial_number: 'SN-DELL-XPS-001', category: 'EQUIPO', type: 'Laptop', brand: 'Dell', model: 'XPS 15 9530', status_id: 2, location_id: 1, notes: null, tags: ['garantía', 'premium'], created_at: '2024-01-10T10:00:00', updated_at: '2024-06-15T14:00:00' },
+  { id: 2, asset_tag: 'IT-L002', serial_number: 'SN-LENOVO-T14-002', category: 'EQUIPO', type: 'Laptop', brand: 'Lenovo', model: 'ThinkPad T14s Gen 4', status_id: 2, location_id: 1, notes: null, tags: ['garantía'], created_at: '2024-01-10T10:00:00', updated_at: '2024-07-01T09:00:00' },
+  { id: 3, asset_tag: 'IT-L003', serial_number: 'SN-HP-ELITEBOOK-003', category: 'EQUIPO', type: 'Laptop', brand: 'HP', model: 'EliteBook 840 G10', status_id: 1, location_id: 1, notes: 'Recién formateado', tags: ['reformateado'], created_at: '2024-01-15T11:00:00', updated_at: '2024-08-10T10:00:00' },
+  { id: 6, asset_tag: 'IT-L004', serial_number: 'SN-APPLE-MBP-006', category: 'EQUIPO', type: 'Laptop', brand: 'Apple', model: 'MacBook Pro 14" M3', status_id: 2, location_id: 3, notes: null, tags: ['premium', 'desarrollo'], created_at: '2024-03-01T09:00:00', updated_at: '2024-07-20T16:00:00' },
+  { id: 7, asset_tag: 'IT-L005', serial_number: 'SN-DELL-LAT-007', category: 'EQUIPO', type: 'Laptop', brand: 'Dell', model: 'Latitude 5540', status_id: 3, location_id: 1, notes: 'Problema con la pantalla', tags: ['urgente'], created_at: '2024-03-15T10:00:00', updated_at: '2024-09-01T11:00:00' },
+  { id: 8, asset_tag: 'IT-T001', serial_number: 'SN-SAMSUNG-TAB-008', category: 'EQUIPO', type: 'Tablet', brand: 'Samsung', model: 'Galaxy Tab S9', status_id: 1, location_id: 1, notes: null, tags: [], created_at: '2024-04-01T08:00:00', updated_at: '2024-04-01T08:00:00' },
+  { id: 9, asset_tag: 'IT-L006', serial_number: 'SN-LENOVO-X1-009', category: 'EQUIPO', type: 'Laptop', brand: 'Lenovo', model: 'ThinkPad X1 Carbon Gen 11', status_id: 4, location_id: 4, notes: 'Caída accidental, carcasa rota', tags: ['dañado'], created_at: '2024-04-15T09:00:00', updated_at: '2024-09-15T14:00:00' },
+  { id: 10, asset_tag: 'IT-D001', serial_number: 'SN-DELL-OPT-010', category: 'EQUIPO', type: 'Desktop', brand: 'Dell', model: 'OptiPlex 7010', status_id: 2, location_id: 1, notes: null, tags: ['dirección'], created_at: '2024-05-01T08:00:00', updated_at: '2024-08-01T10:00:00' },
+  { id: 11, asset_tag: 'IT-L007', serial_number: 'SN-HP-PROBOOK-011', category: 'EQUIPO', type: 'Laptop', brand: 'HP', model: 'ProBook 450 G10', status_id: 5, location_id: 1, notes: 'Placa base quemada, sin reparación posible', tags: ['baja'], created_at: '2024-05-15T11:00:00', updated_at: '2024-10-01T09:00:00' },
+  { id: 13, asset_tag: 'IT-L008', serial_number: 'SN-ASUS-ZEN-013', category: 'EQUIPO', type: 'Laptop', brand: 'ASUS', model: 'ZenBook 14 OLED', status_id: 1, location_id: 2, notes: null, tags: ['nuevo'], created_at: '2024-06-01T10:00:00', updated_at: '2024-06-01T10:00:00' },
+  { id: 15, asset_tag: 'IT-T002', serial_number: 'SN-APPLE-IPAD-015', category: 'EQUIPO', type: 'Tablet', brand: 'Apple', model: 'iPad Air M1', status_id: 1, location_id: 1, notes: null, tags: [], created_at: '2024-07-01T09:00:00', updated_at: '2024-07-01T09:00:00' },
   // Periféricos
-  { id: 4, asset_tag: 'IT-M001', serial_number: 'SN-DELL-U2723-004', category: 'PERIFERICO', type: 'Monitor', brand: 'Dell', model: 'UltraSharp U2723QE', status_id: 2, location: 'Madrid', notes: null, created_at: '2024-02-01T08:00:00', updated_at: '2024-06-15T14:00:00' },
-  { id: 5, asset_tag: 'IT-M002', serial_number: 'SN-LG-27UK850-005', category: 'PERIFERICO', type: 'Monitor', brand: 'LG', model: '27UK850-W', status_id: 1, location: 'Barcelona', notes: null, created_at: '2024-02-01T08:00:00', updated_at: '2024-02-01T08:00:00' },
-  { id: 12, asset_tag: 'IT-M003', serial_number: 'SN-BENQ-PD2700-012', category: 'PERIFERICO', type: 'Monitor', brand: 'BenQ', model: 'PD2700U', status_id: 6, location: null, notes: 'Donado a ONG TechForAll', created_at: '2024-01-01T08:00:00', updated_at: '2024-09-20T15:00:00' },
-  { id: 14, asset_tag: 'IT-P001', serial_number: 'SN-HP-LJ-014', category: 'PERIFERICO', type: 'Impresora', brand: 'HP', model: 'LaserJet Pro M404dn', status_id: 2, location: 'Madrid', notes: null, created_at: '2024-02-20T08:00:00', updated_at: '2024-06-01T09:00:00' },
-  { id: 16, asset_tag: 'IT-H001', serial_number: 'SN-JABRA-EV2-016', category: 'PERIFERICO', type: 'Headset', brand: 'Jabra', model: 'Evolve2 75', status_id: 2, location: 'Madrid', notes: null, created_at: '2024-03-10T08:00:00', updated_at: '2024-06-15T14:00:00' },
-  { id: 17, asset_tag: 'IT-H002', serial_number: 'SN-POLY-VOY-017', category: 'PERIFERICO', type: 'Headset', brand: 'Poly', model: 'Voyager Focus 2', status_id: 1, location: 'Madrid', notes: null, created_at: '2024-03-10T08:00:00', updated_at: '2024-03-10T08:00:00' },
-  { id: 18, asset_tag: 'IT-WC001', serial_number: 'SN-LOGI-C920-018', category: 'PERIFERICO', type: 'Webcam', brand: 'Logitech', model: 'C920 HD Pro', status_id: 2, location: 'Madrid', notes: null, created_at: '2024-04-01T08:00:00', updated_at: '2024-07-01T09:00:00' },
-  { id: 19, asset_tag: 'IT-WC002', serial_number: 'SN-LOGI-BRIO-019', category: 'PERIFERICO', type: 'Webcam', brand: 'Logitech', model: 'Brio 4K', status_id: 1, location: 'Barcelona', notes: null, created_at: '2024-04-15T08:00:00', updated_at: '2024-04-15T08:00:00' },
-  { id: 20, asset_tag: 'IT-DK001', serial_number: 'SN-DELL-WD19-020', category: 'PERIFERICO', type: 'Dock', brand: 'Dell', model: 'WD19S 180W', status_id: 2, location: 'Madrid', notes: null, created_at: '2024-01-15T08:00:00', updated_at: '2024-06-15T14:00:00' },
-  { id: 21, asset_tag: 'IT-DK002', serial_number: 'SN-LENOVO-40B0-021', category: 'PERIFERICO', type: 'Dock', brand: 'Lenovo', model: 'ThinkPad USB-C Dock Gen 2', status_id: 1, location: 'Valencia', notes: null, created_at: '2024-02-01T08:00:00', updated_at: '2024-02-01T08:00:00' },
-  { id: 22, asset_tag: 'IT-HD001', serial_number: 'SN-WD-MY4T-022', category: 'PERIFERICO', type: 'Disco externo', brand: 'Western Digital', model: 'My Passport 4TB', status_id: 2, location: 'Madrid', notes: null, created_at: '2024-05-01T08:00:00', updated_at: '2024-08-01T10:00:00' },
-  { id: 23, asset_tag: 'IT-HD002', serial_number: 'SN-SAMSUNG-T7-023', category: 'PERIFERICO', type: 'Disco externo', brand: 'Samsung', model: 'T7 Shield 2TB', status_id: 1, location: 'Madrid', notes: null, created_at: '2024-05-15T08:00:00', updated_at: '2024-05-15T08:00:00' },
-  { id: 24, asset_tag: 'IT-AD001', serial_number: 'SN-APPLE-ADP-024', category: 'PERIFERICO', type: 'Adaptador', brand: 'Apple', model: 'USB-C Digital AV Multiport', status_id: 2, location: 'Valencia', notes: null, created_at: '2024-03-01T08:00:00', updated_at: '2024-07-20T16:00:00' },
-  { id: 25, asset_tag: 'IT-SC001', serial_number: 'SN-FUJI-IX1600-025', category: 'PERIFERICO', type: 'Escáner', brand: 'Fujitsu', model: 'ScanSnap iX1600', status_id: 1, location: 'Madrid', notes: null, created_at: '2024-06-01T08:00:00', updated_at: '2024-06-01T08:00:00' },
+  { id: 4, asset_tag: 'IT-M001', serial_number: 'SN-DELL-U2723-004', category: 'PERIFERICO', type: 'Monitor', brand: 'Dell', model: 'UltraSharp U2723QE', status_id: 2, location_id: 1, notes: null, tags: ['4K'], created_at: '2024-02-01T08:00:00', updated_at: '2024-06-15T14:00:00' },
+  { id: 5, asset_tag: 'IT-M002', serial_number: 'SN-LG-27UK850-005', category: 'PERIFERICO', type: 'Monitor', brand: 'LG', model: '27UK850-W', status_id: 1, location_id: 2, notes: null, tags: ['4K'], created_at: '2024-02-01T08:00:00', updated_at: '2024-02-01T08:00:00' },
+  { id: 12, asset_tag: 'IT-M003', serial_number: 'SN-BENQ-PD2700-012', category: 'PERIFERICO', type: 'Monitor', brand: 'BenQ', model: 'PD2700U', status_id: 6, location_id: null, notes: 'Donado a ONG TechForAll', tags: ['donación'], created_at: '2024-01-01T08:00:00', updated_at: '2024-09-20T15:00:00' },
+  { id: 14, asset_tag: 'IT-P001', serial_number: 'SN-HP-LJ-014', category: 'PERIFERICO', type: 'Impresora', brand: 'HP', model: 'LaserJet Pro M404dn', status_id: 2, location_id: 1, notes: null, tags: ['compartido'], created_at: '2024-02-20T08:00:00', updated_at: '2024-06-01T09:00:00' },
+  { id: 16, asset_tag: 'IT-H001', serial_number: 'SN-JABRA-EV2-016', category: 'PERIFERICO', type: 'Headset', brand: 'Jabra', model: 'Evolve2 75', status_id: 2, location_id: 1, notes: null, tags: ['bluetooth'], created_at: '2024-03-10T08:00:00', updated_at: '2024-06-15T14:00:00' },
+  { id: 17, asset_tag: 'IT-H002', serial_number: 'SN-POLY-VOY-017', category: 'PERIFERICO', type: 'Headset', brand: 'Poly', model: 'Voyager Focus 2', status_id: 1, location_id: 1, notes: null, tags: [], created_at: '2024-03-10T08:00:00', updated_at: '2024-03-10T08:00:00' },
+  { id: 18, asset_tag: 'IT-WC001', serial_number: 'SN-LOGI-C920-018', category: 'PERIFERICO', type: 'Webcam', brand: 'Logitech', model: 'C920 HD Pro', status_id: 2, location_id: 1, notes: null, tags: [], created_at: '2024-04-01T08:00:00', updated_at: '2024-07-01T09:00:00' },
+  { id: 19, asset_tag: 'IT-WC002', serial_number: 'SN-LOGI-BRIO-019', category: 'PERIFERICO', type: 'Webcam', brand: 'Logitech', model: 'Brio 4K', status_id: 1, location_id: 2, notes: null, tags: ['4K'], created_at: '2024-04-15T08:00:00', updated_at: '2024-04-15T08:00:00' },
+  { id: 20, asset_tag: 'IT-DK001', serial_number: 'SN-DELL-WD19-020', category: 'PERIFERICO', type: 'Dock', brand: 'Dell', model: 'WD19S 180W', status_id: 2, location_id: 1, notes: null, tags: [], created_at: '2024-01-15T08:00:00', updated_at: '2024-06-15T14:00:00' },
+  { id: 21, asset_tag: 'IT-DK002', serial_number: 'SN-LENOVO-40B0-021', category: 'PERIFERICO', type: 'Dock', brand: 'Lenovo', model: 'ThinkPad USB-C Dock Gen 2', status_id: 1, location_id: 3, notes: null, tags: [], created_at: '2024-02-01T08:00:00', updated_at: '2024-02-01T08:00:00' },
+  { id: 22, asset_tag: 'IT-HD001', serial_number: 'SN-WD-MY4T-022', category: 'PERIFERICO', type: 'Disco externo', brand: 'Western Digital', model: 'My Passport 4TB', status_id: 2, location_id: 1, notes: null, tags: ['backup'], created_at: '2024-05-01T08:00:00', updated_at: '2024-08-01T10:00:00' },
+  { id: 23, asset_tag: 'IT-HD002', serial_number: 'SN-SAMSUNG-T7-023', category: 'PERIFERICO', type: 'Disco externo', brand: 'Samsung', model: 'T7 Shield 2TB', status_id: 1, location_id: 1, notes: null, tags: [], created_at: '2024-05-15T08:00:00', updated_at: '2024-05-15T08:00:00' },
+  { id: 24, asset_tag: 'IT-AD001', serial_number: 'SN-APPLE-ADP-024', category: 'PERIFERICO', type: 'Adaptador', brand: 'Apple', model: 'USB-C Digital AV Multiport', status_id: 2, location_id: 3, notes: null, tags: [], created_at: '2024-03-01T08:00:00', updated_at: '2024-07-20T16:00:00' },
+  { id: 25, asset_tag: 'IT-SC001', serial_number: 'SN-FUJI-IX1600-025', category: 'PERIFERICO', type: 'Escáner', brand: 'Fujitsu', model: 'ScanSnap iX1600', status_id: 1, location_id: 1, notes: null, tags: [], created_at: '2024-06-01T08:00:00', updated_at: '2024-06-01T08:00:00' },
 ];
 
 export const assignments: Assignment[] = [
@@ -64,6 +72,11 @@ export const assignments: Assignment[] = [
   { id: 5, asset_id: 10, user_id: 7, manual_user_name: null, manual_user_email: null, assigned_at: '2024-08-01T10:00:00', returned_at: null, assigned_by_operator_id: 1, delivery_mode: 'TECH_VALIDATED', delivery_reason_code: 'URGENT_DELIVERY', delivery_reason_text: 'Solicitud urgente de dirección', delivery_confirmed_at: '2024-08-01T10:15:00', delivery_pdf_path: '/uploads/pdfs/assignment_5.pdf', delivery_notified_at: '2024-08-01T10:20:00' },
   { id: 6, asset_id: 14, user_id: null, manual_user_name: 'Recepción Planta 2', manual_user_email: 'recepcion2@empresa.com', assigned_at: '2024-06-01T09:00:00', returned_at: null, assigned_by_operator_id: 2, delivery_mode: 'TECH_VALIDATED', delivery_reason_code: 'NO_ACCESS_TO_SIGN', delivery_reason_text: 'Equipo compartido instalado en zona común', delivery_confirmed_at: '2024-06-01T09:30:00', delivery_pdf_path: '/uploads/pdfs/assignment_6.pdf', delivery_notified_at: '2024-06-01T09:35:00' },
   { id: 7, asset_id: 3, user_id: 4, manual_user_name: null, manual_user_email: null, assigned_at: '2024-03-01T10:00:00', returned_at: '2024-08-10T10:00:00', assigned_by_operator_id: 1, delivery_mode: 'SIGNED', delivery_reason_code: null, delivery_reason_text: null, delivery_confirmed_at: '2024-03-01T10:30:00', delivery_pdf_path: '/uploads/pdfs/assignment_7.pdf', delivery_notified_at: '2024-03-01T10:35:00' },
+  { id: 8, asset_id: 16, user_id: 1, manual_user_name: null, manual_user_email: null, assigned_at: '2024-06-15T14:00:00', returned_at: null, assigned_by_operator_id: 1, delivery_mode: 'TECH_VALIDATED', delivery_reason_code: 'USER_UNAVAILABLE', delivery_reason_text: 'Entrega junto con laptop', delivery_confirmed_at: '2024-06-15T14:30:00', delivery_pdf_path: null, delivery_notified_at: null },
+  { id: 9, asset_id: 18, user_id: 2, manual_user_name: null, manual_user_email: null, assigned_at: '2024-07-01T09:00:00', returned_at: null, assigned_by_operator_id: 2, delivery_mode: 'SIGNED', delivery_reason_code: null, delivery_reason_text: null, delivery_confirmed_at: '2024-07-01T09:15:00', delivery_pdf_path: null, delivery_notified_at: null },
+  { id: 10, asset_id: 20, user_id: 1, manual_user_name: null, manual_user_email: null, assigned_at: '2024-06-15T14:00:00', returned_at: null, assigned_by_operator_id: 1, delivery_mode: 'TECH_VALIDATED', delivery_reason_code: 'USER_UNAVAILABLE', delivery_reason_text: null, delivery_confirmed_at: '2024-06-15T14:30:00', delivery_pdf_path: null, delivery_notified_at: null },
+  { id: 11, asset_id: 22, user_id: 7, manual_user_name: null, manual_user_email: null, assigned_at: '2024-08-01T10:00:00', returned_at: null, assigned_by_operator_id: 1, delivery_mode: 'SIGNED', delivery_reason_code: null, delivery_reason_text: null, delivery_confirmed_at: '2024-08-01T10:15:00', delivery_pdf_path: null, delivery_notified_at: null },
+  { id: 12, asset_id: 24, user_id: 5, manual_user_name: null, manual_user_email: null, assigned_at: '2024-07-20T16:00:00', returned_at: null, assigned_by_operator_id: 3, delivery_mode: 'SIGNED', delivery_reason_code: null, delivery_reason_text: null, delivery_confirmed_at: '2024-07-20T16:30:00', delivery_pdf_path: null, delivery_notified_at: null },
 ];
 
 export const repairs: Repair[] = [
@@ -108,6 +121,10 @@ export function getAssetById(id: number): Asset | undefined {
   return assets.find(a => a.id === id);
 }
 
+export function getLocationById(id: number): Location | undefined {
+  return locations.find(l => l.id === id);
+}
+
 export function getStatusClass(code: string): string {
   const map: Record<string, string> = {
     DISPONIBLE: 'status-available',
@@ -118,4 +135,18 @@ export function getStatusClass(code: string): string {
     DONADO: 'status-donated',
   };
   return map[code] || '';
+}
+
+export function getActiveAssignmentForAsset(assetId: number): Assignment | undefined {
+  return assignments.find(a => a.asset_id === assetId && !a.returned_at);
+}
+
+export function getAssignedUserName(assetId: number): string | null {
+  const assignment = getActiveAssignmentForAsset(assetId);
+  if (!assignment) return null;
+  if (assignment.user_id) {
+    const user = getUserById(assignment.user_id);
+    return user?.display_name || null;
+  }
+  return assignment.manual_user_name || null;
 }

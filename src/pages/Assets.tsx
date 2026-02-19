@@ -4,7 +4,7 @@ import {
   Search, Plus, Filter, MoreHorizontal, Monitor, Laptop, Tablet, Printer,
   Server as ServerIcon, Headphones, Camera, HardDrive, Usb, ScanLine, Cable,
   Settings2, GripVertical, Eye, EyeOff, RotateCcw, Download, RefreshCw, X,
-  ChevronUp, ChevronDown
+  ChevronUp, ChevronDown, Tag, MapPin, User
 } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Asset, AssetCategory } from '@/data/types';
@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { useRole } from '@/hooks/useRole';
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription,
@@ -116,9 +117,60 @@ const ALL_COLUMNS: ColumnDef[] = [
     key: 'location',
     label: 'Ubicación',
     defaultVisible: true,
-    getValue: (a) => a.location || '',
-    render: (a) => <span>{a.location || '—'}</span>,
-    width: 'min-w-[130px]',
+    getValue: (a, h) => {
+      if (!a.location_id) return '';
+      const loc = h.getLocationById(a.location_id);
+      return loc ? `${loc.country} ${loc.site} ${loc.center}` : '';
+    },
+    render: (a, h) => {
+      if (!a.location_id) return <span className="text-muted-foreground">—</span>;
+      const loc = h.getLocationById(a.location_id);
+      if (!loc) return <span className="text-muted-foreground">—</span>;
+      return (
+        <div className="flex items-center gap-1.5">
+          <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />
+          <span className="text-xs">{loc.country}, {loc.site}, {loc.center}</span>
+        </div>
+      );
+    },
+    width: 'min-w-[200px]',
+  },
+  {
+    key: 'assigned_to',
+    label: 'Asignado a',
+    defaultVisible: true,
+    getValue: (a, h) => h.getAssignedUserName(a.id) || 'Disponible',
+    render: (a, h) => {
+      const name = h.getAssignedUserName(a.id);
+      if (!name) {
+        const status = h.getStatusById(a.status_id);
+        return <span className="text-xs text-muted-foreground italic">{status?.code === 'DISPONIBLE' ? 'Disponible' : '—'}</span>;
+      }
+      return (
+        <div className="flex items-center gap-1.5">
+          <User className="w-3 h-3 text-muted-foreground shrink-0" />
+          <span className="text-xs font-medium">{name}</span>
+        </div>
+      );
+    },
+    width: 'min-w-[160px]',
+  },
+  {
+    key: 'tags',
+    label: 'Tags',
+    defaultVisible: true,
+    getValue: (a) => (a.tags || []).join(', '),
+    render: (a) => {
+      if (!a.tags || a.tags.length === 0) return <span className="text-muted-foreground">—</span>;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {a.tags.map(tag => (
+            <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">{tag}</Badge>
+          ))}
+        </div>
+      );
+    },
+    width: 'min-w-[150px]',
   },
   {
     key: 'notes',
@@ -365,7 +417,7 @@ function AssetDataGrid({
 }
 
 export default function AssetsPage() {
-  const { assets, statuses, getStatusById, getStatusClass } = useData();
+  const { assets, statuses, getStatusById, getStatusClass, getLocationById, getAssignedUserName } = useData();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'equipos' | 'perifericos'>('equipos');
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
@@ -373,7 +425,7 @@ export default function AssetsPage() {
   const [columnsConfig, setColumnsConfig] = useState<ColumnsConfig>(loadConfig);
   const { canManageAssets } = useRole();
 
-  const helpers = useMemo(() => ({ getStatusById, getStatusClass }), [getStatusById, getStatusClass]);
+  const helpers = useMemo(() => ({ getStatusById, getStatusClass, getLocationById, getAssignedUserName }), [getStatusById, getStatusClass, getLocationById, getAssignedUserName]);
 
   // Save config on change
   useEffect(() => { saveConfig(columnsConfig); }, [columnsConfig]);

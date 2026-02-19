@@ -27,6 +27,13 @@ export interface Operator {
 
 export type AssetCategory = 'EQUIPO' | 'PERIFERICO';
 
+export interface Location {
+  id: number;
+  country: string;
+  site: string;
+  center: string;
+}
+
 export interface Asset {
   id: number;
   asset_tag: string | null;
@@ -36,8 +43,9 @@ export interface Asset {
   brand: string | null;
   model: string | null;
   status_id: number;
-  location: string | null;
+  location_id: number | null;
   notes: string | null;
+  tags: string[];
   created_at: string;
   updated_at: string;
 }

@@ -5,8 +5,10 @@ import {
   assets as mockAssets,
   assignments as mockAssignments,
   repairs as mockRepairs,
+  locations as mockLocations,
 } from '@/data/mockData';
-import { StatusCatalog, User, Asset, Assignment, Repair } from '@/data/types';
+import { StatusCatalog, User, Asset, Assignment, Repair, Location } from '@/data/types';
+import { getActiveAssignmentForAsset, getAssignedUserName, getLocationById } from '@/data/mockData';
 
 export function useData() {
   const [statuses] = useState<StatusCatalog[]>(mockStatuses);
@@ -14,6 +16,7 @@ export function useData() {
   const [assets] = useState<Asset[]>(mockAssets);
   const [assignments] = useState<Assignment[]>(mockAssignments);
   const [repairs] = useState<Repair[]>(mockRepairs);
+  const [locations] = useState<Location[]>(mockLocations);
   const loading = false;
 
   const getStatusById = (id: number) => statuses.find(s => s.id === id);
@@ -36,8 +39,9 @@ export function useData() {
   const refresh = async () => {};
 
   return {
-    statuses, users, assets, assignments, repairs,
+    statuses, users, assets, assignments, repairs, locations,
     loading, refresh,
     getStatusById, getStatusByCode, getUserById, getAssetById, getStatusClass,
+    getLocationById, getAssignedUserName, getActiveAssignmentForAsset,
   };
 }
