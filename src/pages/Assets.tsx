@@ -10,6 +10,7 @@ import { useData } from '@/hooks/useData';
 import { Asset, AssetCategory } from '@/data/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import AssignAssetDialog from '@/components/AssignAssetDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -416,6 +417,8 @@ export default function AssetsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [columnsConfig, setColumnsConfig] = useState<ColumnsConfig>(loadConfig);
   const { canManageAssets } = useRole();
+  const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [assignAssetId, setAssignAssetId] = useState<number | null>(null);
 
   const helpers = useMemo(() => ({ getStatusById, getStatusClass, getLocationById, getAssignedUserName }), [getStatusById, getStatusClass, getLocationById, getAssignedUserName]);
 
@@ -499,7 +502,12 @@ export default function AssetsPage() {
         </div>
         <div className="flex items-center gap-2">
           {canManageAssets && (
-            <Button className="gap-2"><Plus className="w-4 h-4" /> Nuevo activo</Button>
+            <>
+              <Button variant="outline" className="gap-2" onClick={() => { setAssignAssetId(null); setShowAssignDialog(true); }}>
+                <User className="w-4 h-4" /> Asignar
+              </Button>
+              <Button className="gap-2"><Plus className="w-4 h-4" /> Nuevo activo</Button>
+            </>
           )}
         </div>
       </div>
@@ -585,6 +593,8 @@ export default function AssetsPage() {
           <p className="text-xs text-muted-foreground mt-3">{filtered.length} de {categoryAssets.length} registros</p>
         </TabsContent>
       </Tabs>
+
+      <AssignAssetDialog open={showAssignDialog} onOpenChange={setShowAssignDialog} preselectedAssetId={assignAssetId} />
     </div>
   );
 }

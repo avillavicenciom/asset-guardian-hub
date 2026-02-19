@@ -7,6 +7,7 @@ export const statuses: StatusCatalog[] = [
   { id: 4, code: 'DANADO_RECUPERABLE', label: 'Dañado (recuperable)', is_terminal: false },
   { id: 5, code: 'DANADO_IRRECUPERABLE', label: 'Dañado (irrecuperable)', is_terminal: true },
   { id: 6, code: 'DONADO', label: 'Donado', is_terminal: true },
+  { id: 7, code: 'POR_ASIGNAR', label: 'Por asignar', is_terminal: false },
 ];
 
 export const locations: Location[] = [
@@ -133,6 +134,7 @@ export function getStatusClass(code: string): string {
     DANADO_RECUPERABLE: 'status-damaged',
     DANADO_IRRECUPERABLE: 'status-irreparable',
     DONADO: 'status-donated',
+    POR_ASIGNAR: 'status-pending',
   };
   return map[code] || '';
 }

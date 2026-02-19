@@ -47,6 +47,7 @@ All colors MUST be HSL.
     --status-damaged: 0 72% 51%;
     --status-donated: 270 50% 55%;
     --status-irreparable: 0 40% 40%;
+    --status-pending: 30 80% 55%;
 
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
@@ -135,6 +136,10 @@ All colors MUST be HSL.
   .status-irreparable {
     background: hsl(var(--status-irreparable) / 0.12);
     color: hsl(var(--status-irreparable));
+  }
+  .status-pending {
+    background: hsl(var(--status-pending) / 0.12);
+    color: hsl(var(--status-pending));
   }
 
   .metric-card {
