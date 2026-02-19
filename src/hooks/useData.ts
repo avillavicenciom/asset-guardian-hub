@@ -32,6 +32,7 @@ export function useData() {
       DANADO_RECUPERABLE: 'status-damaged',
       DANADO_IRRECUPERABLE: 'status-irreparable',
       DONADO: 'status-donated',
+      POR_ASIGNAR: 'status-pending',
     };
     return map[code] || '';
   };
