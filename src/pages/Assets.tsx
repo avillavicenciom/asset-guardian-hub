@@ -1,16 +1,18 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import {
   Search, Plus, Filter, MoreHorizontal, Monitor, Laptop, Tablet, Printer,
   Server as ServerIcon, Headphones, Camera, HardDrive, Usb, ScanLine, Cable,
   Settings2, GripVertical, Eye, EyeOff, RotateCcw, Download, RefreshCw, X,
-  ChevronUp, ChevronDown, Tag, MapPin, User
+  ChevronUp, ChevronDown, Tag, MapPin, User, Upload
 } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Asset, AssetCategory } from '@/data/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import AssignAssetDialog from '@/components/AssignAssetDialog';
+import ImportAssetsDialog from '@/components/ImportAssetsDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -419,6 +421,9 @@ export default function AssetsPage() {
   const { canManageAssets } = useRole();
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [assignAssetId, setAssignAssetId] = useState<number | null>(null);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+
+  const existingSerials = useMemo(() => new Set(assets.map(a => a.serial_number.toLowerCase())), [assets]);
 
   const helpers = useMemo(() => ({ getStatusById, getStatusClass, getLocationById, getAssignedUserName }), [getStatusById, getStatusClass, getLocationById, getAssignedUserName]);
 
@@ -503,6 +508,9 @@ export default function AssetsPage() {
         <div className="flex items-center gap-2">
           {canManageAssets && (
             <>
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowImportDialog(true)}>
+                <Upload className="w-4 h-4" /> Importar CSV
+              </Button>
               <Button variant="outline" className="gap-2" onClick={() => { setAssignAssetId(null); setShowAssignDialog(true); }}>
                 <User className="w-4 h-4" /> Asignar
               </Button>
@@ -595,6 +603,15 @@ export default function AssetsPage() {
       </Tabs>
 
       <AssignAssetDialog open={showAssignDialog} onOpenChange={setShowAssignDialog} preselectedAssetId={assignAssetId} />
+      <ImportAssetsDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        existingSerials={existingSerials}
+        onImport={(newAssets) => {
+          toast.success(`${newAssets.length} activos importados`);
+          return { imported: newAssets, skipped: [] };
+        }}
+      />
     </div>
   );
 }
