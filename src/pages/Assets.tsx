@@ -59,12 +59,34 @@ const ALL_COLUMNS: ColumnDef[] = [
     width: 'min-w-[120px]',
   },
   {
-    key: 'name',
-    label: 'Nombre',
+    key: 'brand',
+    label: 'Marca',
     defaultVisible: true,
-    getValue: (a) => `${a.brand || ''} ${a.model || ''}`.trim(),
-    render: (a) => <span className="font-medium">{a.brand} {a.model}</span>,
-    width: 'min-w-[180px]',
+    getValue: (a) => a.brand || '',
+    width: 'min-w-[120px]',
+  },
+  {
+    key: 'model',
+    label: 'Modelo',
+    defaultVisible: true,
+    getValue: (a) => a.model || '',
+    width: 'min-w-[150px]',
+  },
+  {
+    key: 'serial',
+    label: 'Serial',
+    defaultVisible: true,
+    getValue: (a) => a.serial_number,
+    render: (a) => <span className="font-mono text-xs">{a.serial_number}</span>,
+    width: 'min-w-[170px]',
+  },
+  {
+    key: 'asset_tag',
+    label: 'ID Inventario',
+    defaultVisible: true,
+    getValue: (a) => a.asset_tag || '',
+    render: (a) => <span className="font-mono text-xs">{a.asset_tag || '—'}</span>,
+    width: 'min-w-[120px]',
   },
   {
     key: 'status',
@@ -84,34 +106,24 @@ const ALL_COLUMNS: ColumnDef[] = [
     width: 'min-w-[140px]',
   },
   {
-    key: 'serial',
-    label: 'Serial',
+    key: 'assigned_to',
+    label: 'Asignado a',
     defaultVisible: true,
-    getValue: (a) => a.serial_number,
-    render: (a) => <span className="font-mono text-xs">{a.serial_number}</span>,
-    width: 'min-w-[170px]',
-  },
-  {
-    key: 'asset_tag',
-    label: 'Etiqueta',
-    defaultVisible: true,
-    getValue: (a) => a.asset_tag || '',
-    render: (a) => <span className="text-xs">{a.asset_tag || '—'}</span>,
-    width: 'min-w-[100px]',
-  },
-  {
-    key: 'brand',
-    label: 'Marca',
-    defaultVisible: true,
-    getValue: (a) => a.brand || '',
-    width: 'min-w-[120px]',
-  },
-  {
-    key: 'model',
-    label: 'Modelo',
-    defaultVisible: false,
-    getValue: (a) => a.model || '',
-    width: 'min-w-[150px]',
+    getValue: (a, h) => h.getAssignedUserName(a.id) || 'Disponible',
+    render: (a, h) => {
+      const name = h.getAssignedUserName(a.id);
+      if (!name) {
+        const status = h.getStatusById(a.status_id);
+        return <span className="text-xs text-muted-foreground italic">{status?.code === 'DISPONIBLE' ? 'Disponible' : '—'}</span>;
+      }
+      return (
+        <div className="flex items-center gap-1.5">
+          <User className="w-3 h-3 text-muted-foreground shrink-0" />
+          <span className="text-xs font-medium">{name}</span>
+        </div>
+      );
+    },
+    width: 'min-w-[160px]',
   },
   {
     key: 'location',
@@ -134,26 +146,6 @@ const ALL_COLUMNS: ColumnDef[] = [
       );
     },
     width: 'min-w-[200px]',
-  },
-  {
-    key: 'assigned_to',
-    label: 'Asignado a',
-    defaultVisible: true,
-    getValue: (a, h) => h.getAssignedUserName(a.id) || 'Disponible',
-    render: (a, h) => {
-      const name = h.getAssignedUserName(a.id);
-      if (!name) {
-        const status = h.getStatusById(a.status_id);
-        return <span className="text-xs text-muted-foreground italic">{status?.code === 'DISPONIBLE' ? 'Disponible' : '—'}</span>;
-      }
-      return (
-        <div className="flex items-center gap-1.5">
-          <User className="w-3 h-3 text-muted-foreground shrink-0" />
-          <span className="text-xs font-medium">{name}</span>
-        </div>
-      );
-    },
-    width: 'min-w-[160px]',
   },
   {
     key: 'tags',
