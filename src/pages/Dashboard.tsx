@@ -2,12 +2,13 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Monitor, ArrowLeftRight, Wrench,
-  CheckCircle2, Filter, X, Search, Eye
+  CheckCircle2, Filter, X, Search, Eye, AlertTriangle, UserX
 } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const STATUS_COLORS = [
   'hsl(217, 70%, 50%)',
@@ -52,7 +53,7 @@ function MetricCard({ label, value, icon, subtitle }: MetricProps) {
 }
 
 export default function Dashboard() {
-  const { assets, assignments, repairs, statuses, getUserById } = useData();
+  const { assets, assignments, repairs, statuses, getUserById, users } = useData();
   const [brandFilter, setBrandFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [userFilter, setUserFilter] = useState<string>('all');
@@ -127,6 +128,16 @@ export default function Dashboard() {
       .slice(0, 5);
   }, [assignments, filteredAssetIds]);
 
+  const expiringUsers = useMemo(() => {
+    const now = new Date();
+    const in30Days = new Date(now.getTime() + 30 * 86400000);
+    return users.filter(u => {
+      if (!u.contract_end) return false;
+      const end = new Date(u.contract_end);
+      return end >= now && end <= in30Days;
+    }).sort((a, b) => new Date(a.contract_end!).getTime() - new Date(b.contract_end!).getTime());
+  }, [users]);
+
   const hasFilters = brandFilter !== 'all' || statusFilter !== 'all' || userFilter !== 'all' || dateFilter !== 'all';
 
   const clearFilters = () => {
@@ -148,6 +159,31 @@ export default function Dashboard() {
           <Input placeholder="Buscar equipo o usuario..." className="pl-9 w-64 bg-card" readOnly />
         </div>
       </div>
+
+      {/* Expiring Users Alert */}
+      {expiringUsers.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+          <Alert variant="destructive" className="mb-6 border-[hsl(38,92%,50%)]/30 bg-[hsl(38,92%,50%)]/5 text-foreground">
+            <AlertTriangle className="h-4 w-4 !text-[hsl(38,92%,50%)]" />
+            <AlertTitle className="text-sm font-semibold">
+              ⚠️ {expiringUsers.length} usuario{expiringUsers.length > 1 ? 's' : ''} con contrato por vencer
+            </AlertTitle>
+            <AlertDescription className="text-xs text-muted-foreground mt-1">
+              {expiringUsers.map(u => {
+                const daysLeft = Math.ceil((new Date(u.contract_end!).getTime() - Date.now()) / 86400000);
+                return (
+                  <span key={u.id} className="inline-flex items-center gap-1 mr-4">
+                    <span className="font-medium text-foreground">{u.display_name}</span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${daysLeft <= 3 ? 'bg-destructive/10 text-destructive' : 'bg-[hsl(38,92%,50%)]/10 text-[hsl(38,92%,50%)]'}`}>
+                      {daysLeft} día{daysLeft !== 1 ? 's' : ''}
+                    </span>
+                  </span>
+                );
+              })}
+            </AlertDescription>
+          </Alert>
+        </motion.div>
+      )}
 
       {/* Filters */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-xl border p-4 mb-6">
@@ -192,11 +228,12 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <MetricCard label="Total de Activos" value={totalAssets} icon={<Monitor className="w-5 h-5 text-primary" />} />
         <MetricCard label="Disponibles" value={available} subtitle={totalAssets > 0 ? `${((available / totalAssets) * 100).toFixed(1)}% del total` : undefined} icon={<CheckCircle2 className="w-5 h-5 text-accent" />} />
         <MetricCard label="En Reparación" value={openRepairs} subtitle={openRepairs > 0 ? 'Atención requerida' : undefined} icon={<Wrench className="w-5 h-5 text-[hsl(38,92%,50%)]" />} />
         <MetricCard label="Asignaciones Activas" value={activeAssignments} icon={<ArrowLeftRight className="w-5 h-5 text-[hsl(217,70%,50%)]" />} />
+        <MetricCard label="Contratos por Vencer" value={expiringUsers.length} subtitle={expiringUsers.length > 0 ? 'Próximos 30 días' : undefined} icon={<UserX className="w-5 h-5 text-destructive" />} />
       </div>
 
       {/* Charts */}
