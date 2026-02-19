@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Plus, Mail, Building2, MapPin, AlertTriangle, Clock } from 'lucide-react';
+import { Search, Plus, Upload, Mail, Building2, MapPin, AlertTriangle, Clock } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { User } from '@/data/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/hooks/useRole';
+import ImportUsersDialog from '@/components/ImportUsersDialog';
 
 function getDaysUntil(dateStr: string): number {
   const target = new Date(dateStr);
@@ -17,6 +18,7 @@ export default function UsersPage() {
   const { users } = useData();
   const [search, setSearch] = useState('');
   const { canManageUsers } = useRole();
+  const [importOpen, setImportOpen] = useState(false);
 
   const filtered = useMemo(() => {
     if (!search) return users;
@@ -37,7 +39,12 @@ export default function UsersPage() {
           <p className="text-sm text-muted-foreground mt-1">{users.length} usuarios registrados</p>
         </div>
         {canManageUsers && (
-          <Button className="gap-2"><Plus className="w-4 h-4" /> Nuevo usuario</Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}>
+              <Upload className="w-4 h-4" /> Importar CSV
+            </Button>
+            <Button className="gap-2"><Plus className="w-4 h-4" /> Nuevo usuario</Button>
+          </div>
         )}
       </div>
 
@@ -79,6 +86,14 @@ export default function UsersPage() {
           );
         })}
       </div>
+
+      <ImportUsersDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImport={(imported) => {
+          console.log('Usuarios importados:', imported);
+        }}
+      />
     </div>
   );
 }
