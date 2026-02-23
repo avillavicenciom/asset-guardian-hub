@@ -342,13 +342,13 @@ export default function Dashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {bottomVisible.map(card => {
                   if (!card.visible) return null;
-                  const span = card.id === 'pie-chart' ? 'lg:col-span-3' : 'lg:col-span-9';
+                  const span = card.id === 'pie-chart' ? 'lg:col-span-4' : 'lg:col-span-8';
                   return (
-                    <SortableCard key={card.id} id={card.id}>
-                      <div className={span}>
+                    <div key={card.id} className={span}>
+                      <SortableCard id={card.id}>
                         {cardRenderers[card.id]()}
-                      </div>
-                    </SortableCard>
+                      </SortableCard>
+                    </div>
                   );
                 })}
               </div>
