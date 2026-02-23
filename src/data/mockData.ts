@@ -11,11 +11,14 @@ export const statuses: StatusCatalog[] = [
 ];
 
 export const locations: Location[] = [
-  { id: 1, country: 'España', site: 'Madrid', center: 'Oficina Central' },
-  { id: 2, country: 'España', site: 'Barcelona', center: 'Torre Diagonal' },
-  { id: 3, country: 'España', site: 'Valencia', center: 'Centro Tecnológico' },
-  { id: 4, country: 'España', site: 'Sevilla', center: 'Sede Sur' },
-  { id: 5, country: 'México', site: 'CDMX', center: 'Centro Norte' },
+  { id: 1, country: 'España', site: 'Madrid', center: 'Oficina Central', location_type: 'OFICINA', floor: 'Planta 3', notes: 'Sede principal' },
+  { id: 2, country: 'España', site: 'Barcelona', center: 'Torre Diagonal', location_type: 'OFICINA', floor: 'Planta 8', notes: null },
+  { id: 3, country: 'España', site: 'Valencia', center: 'Centro Tecnológico', location_type: 'OFICINA', floor: null, notes: null },
+  { id: 4, country: 'España', site: 'Sevilla', center: 'Sede Sur', location_type: 'OFICINA', floor: 'Planta 1', notes: null },
+  { id: 5, country: 'México', site: 'CDMX', center: 'Centro Norte', location_type: 'OFICINA', floor: null, notes: null },
+  { id: 6, country: 'España', site: 'Madrid', center: 'Almacén Sótano', location_type: 'ALMACEN', floor: 'Sótano -1', notes: 'Almacén principal de equipos nuevos' },
+  { id: 7, country: 'España', site: 'Madrid', center: 'Almacén Planta 5', location_type: 'ALMACEN', floor: 'Planta 5', notes: 'Almacén auxiliar' },
+  { id: 8, country: 'España', site: 'Madrid', center: 'CPD Principal', location_type: 'DATACENTER', floor: 'Sótano -2', notes: 'Centro de procesamiento de datos' },
 ];
 
 export const operators: Operator[] = [
