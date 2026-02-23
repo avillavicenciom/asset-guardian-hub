@@ -1,4 +1,4 @@
-import { StatusCatalog, User, Operator, Asset, Assignment, Repair, AssetStatusHistory, Location, AssetType, AssetModel } from './types';
+import { StatusCatalog, User, Operator, Asset, Assignment, Repair, AssetStatusHistory, Location, AssetType, AssetModel, Technician, HardwarePart, RepairPart } from './types';
 
 export const statuses: StatusCatalog[] = [
   { id: 1, code: 'DISPONIBLE', label: 'Disponible', is_terminal: false },
@@ -81,8 +81,8 @@ export const assignments: Assignment[] = [
 ];
 
 export const repairs: Repair[] = [
-  { id: 1, asset_id: 7, opened_at: '2024-09-01T11:00:00', closed_at: null, provider: 'TechRepair Madrid S.L.', ticket_ref: 'TR-2024-0891', diagnosis: 'Panel LCD dañado, requiere sustitución completa', cost: null, result_status_id: null },
-  { id: 2, asset_id: 9, opened_at: '2024-09-15T14:00:00', closed_at: null, provider: 'ServiciosTI Sevilla', ticket_ref: 'STS-2024-0234', diagnosis: 'Carcasa rota y bisagra dañada. Pendiente presupuesto.', cost: 180.00, result_status_id: null },
+  { id: 1, asset_id: 7, opened_at: '2024-09-01T11:00:00', closed_at: null, provider: 'TechRepair Madrid S.L.', ticket_ref: 'TR-2024-0891', diagnosis: 'Panel LCD dañado, requiere sustitución completa', cost: null, result_status_id: null, technician_id: 1 },
+  { id: 2, asset_id: 9, opened_at: '2024-09-15T14:00:00', closed_at: null, provider: 'ServiciosTI Sevilla', ticket_ref: 'STS-2024-0234', diagnosis: 'Carcasa rota y bisagra dañada. Pendiente presupuesto.', cost: 180.00, result_status_id: null, technician_id: 2 },
 ];
 
 export const statusHistory: AssetStatusHistory[] = [
@@ -187,4 +187,31 @@ export const assetModels: AssetModel[] = [
   { id: 17, brand: 'Logitech', model: 'Brio 4K', asset_type_id: 6, processor: null, ram_gb: null, storage: null, screen_size: null, os: null, photo_url: null, notes: '4K HDR' },
   { id: 18, brand: 'Dell', model: 'WD19S 180W', asset_type_id: 7, processor: null, ram_gb: null, storage: null, screen_size: null, os: null, photo_url: null, notes: 'USB-C, 180W PD' },
   { id: 19, brand: 'Lenovo', model: 'ThinkPad USB-C Dock Gen 2', asset_type_id: 7, processor: null, ram_gb: null, storage: null, screen_size: null, os: null, photo_url: null, notes: null },
+];
+
+export const technicians: Technician[] = [
+  { id: 1, name: 'Roberto Vega', email: 'rvega@techrepair.com', phone: '+34 612 345 678', specialty: 'Pantallas y displays', company: 'TechRepair Madrid S.L.', is_external: true, is_active: true },
+  { id: 2, name: 'Antonio López', email: 'alopez@serviciosti.com', phone: '+34 654 321 987', specialty: 'Carcasas y componentes estructurales', company: 'ServiciosTI Sevilla', is_external: true, is_active: true },
+  { id: 3, name: 'Laura Sánchez', email: 'laura@empresa.com', phone: null, specialty: 'Plataformado y configuración', company: null, is_external: false, is_active: true },
+  { id: 4, name: 'Pedro Ruiz', email: 'pedro@empresa.com', phone: null, specialty: 'Hardware general', company: null, is_external: false, is_active: true },
+];
+
+export const hardwareParts: HardwarePart[] = [
+  { id: 1, code: 'RAM-DDR5-16', name: 'Módulo RAM DDR5 16GB', category: 'Memoria', brand: 'Kingston', model: 'Fury Beast DDR5-5600', unit_cost: 45.00, stock: 10 },
+  { id: 2, code: 'RAM-DDR4-8', name: 'Módulo RAM DDR4 8GB', category: 'Memoria', brand: 'Crucial', model: 'CT8G4SFRA32A', unit_cost: 22.00, stock: 15 },
+  { id: 3, code: 'SSD-NVME-512', name: 'SSD NVMe 512GB', category: 'Almacenamiento', brand: 'Samsung', model: '980 Pro 512GB', unit_cost: 65.00, stock: 8 },
+  { id: 4, code: 'SSD-NVME-1T', name: 'SSD NVMe 1TB', category: 'Almacenamiento', brand: 'Samsung', model: '980 Pro 1TB', unit_cost: 110.00, stock: 5 },
+  { id: 5, code: 'BAT-DELL-XPS15', name: 'Batería Dell XPS 15', category: 'Batería', brand: 'Dell', model: '86Wh 6-cell', unit_cost: 89.00, stock: 3 },
+  { id: 6, code: 'BAT-LENOVO-T14', name: 'Batería Lenovo T14s', category: 'Batería', brand: 'Lenovo', model: '57Wh internal', unit_cost: 75.00, stock: 4 },
+  { id: 7, code: 'LCD-14FHD', name: 'Pantalla LCD 14" FHD', category: 'Pantalla', brand: 'BOE', model: 'NV140FHM-N4V', unit_cost: 120.00, stock: 2 },
+  { id: 8, code: 'LCD-156OLED', name: 'Pantalla 15.6" OLED 3.5K', category: 'Pantalla', brand: 'Samsung', model: 'ATNA56YX03-0', unit_cost: 350.00, stock: 1 },
+  { id: 9, code: 'KB-DELL-LAT', name: 'Teclado Dell Latitude', category: 'Teclado', brand: 'Dell', model: 'ES Layout backlit', unit_cost: 55.00, stock: 6 },
+  { id: 10, code: 'KB-LENOVO-TP', name: 'Teclado Lenovo ThinkPad', category: 'Teclado', brand: 'Lenovo', model: 'ES Layout backlit', unit_cost: 60.00, stock: 4 },
+  { id: 11, code: 'CHG-USBC-65W', name: 'Cargador USB-C 65W', category: 'Cargador', brand: 'Universal', model: 'GaN 65W PD', unit_cost: 35.00, stock: 12 },
+  { id: 12, code: 'BISAGRA-14', name: 'Bisagra portátil 14"', category: 'Estructura', brand: 'Genérico', model: 'Hinge 14" universal', unit_cost: 25.00, stock: 6 },
+];
+
+export const repairParts: RepairPart[] = [
+  { id: 1, repair_id: 1, part_id: 8, quantity: 1, action: 'REPLACED', notes: 'Pantalla OLED reemplazada por daño por presión' },
+  { id: 2, repair_id: 2, part_id: 12, quantity: 2, action: 'REPLACED', notes: 'Ambas bisagras reemplazadas' },
 ];
