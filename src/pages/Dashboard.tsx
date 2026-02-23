@@ -88,7 +88,7 @@ export default function Dashboard() {
   }, [users, expiryDays]);
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl">
+    <div className="p-6 lg:p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard de Inventario IT</h1>
