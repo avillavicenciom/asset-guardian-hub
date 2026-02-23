@@ -58,6 +58,7 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [userFilter, setUserFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<string>('all');
+  const [expiryDays, setExpiryDays] = useState<number>(30);
 
   const brands = useMemo(() => [...new Set(assets.map(a => a.brand).filter(Boolean))].sort() as string[], [assets]);
 
@@ -130,13 +131,13 @@ export default function Dashboard() {
 
   const expiringUsers = useMemo(() => {
     const now = new Date();
-    const in30Days = new Date(now.getTime() + 30 * 86400000);
+    const futureDate = new Date(now.getTime() + expiryDays * 86400000);
     return users.filter(u => {
       if (!u.contract_end) return false;
       const end = new Date(u.contract_end);
-      return end >= now && end <= in30Days;
+      return end >= now && end <= futureDate;
     }).sort((a, b) => new Date(a.contract_end!).getTime() - new Date(b.contract_end!).getTime());
-  }, [users]);
+  }, [users, expiryDays]);
 
   const hasFilters = brandFilter !== 'all' || statusFilter !== 'all' || userFilter !== 'all' || dateFilter !== 'all';
 
@@ -166,7 +167,7 @@ export default function Dashboard() {
           <Alert variant="destructive" className="mb-6 border-[hsl(38,92%,50%)]/30 bg-[hsl(38,92%,50%)]/5 text-foreground">
             <AlertTriangle className="h-4 w-4 !text-[hsl(38,92%,50%)]" />
             <AlertTitle className="text-sm font-semibold">
-              ⚠️ {expiringUsers.length} usuario{expiringUsers.length > 1 ? 's' : ''} con contrato por vencer
+              ⚠️ {expiringUsers.length} usuario{expiringUsers.length > 1 ? 's' : ''} con contrato por vencer en {expiryDays} días
             </AlertTitle>
             <AlertDescription className="text-xs text-muted-foreground mt-1">
               {expiringUsers.map(u => {
@@ -233,7 +234,17 @@ export default function Dashboard() {
         <MetricCard label="Disponibles" value={available} subtitle={totalAssets > 0 ? `${((available / totalAssets) * 100).toFixed(1)}% del total` : undefined} icon={<CheckCircle2 className="w-5 h-5 text-accent" />} />
         <MetricCard label="En Reparación" value={openRepairs} subtitle={openRepairs > 0 ? 'Atención requerida' : undefined} icon={<Wrench className="w-5 h-5 text-[hsl(38,92%,50%)]" />} />
         <MetricCard label="Asignaciones Activas" value={activeAssignments} icon={<ArrowLeftRight className="w-5 h-5 text-[hsl(217,70%,50%)]" />} />
-        <MetricCard label="Contratos por Vencer" value={expiringUsers.length} subtitle={expiringUsers.length > 0 ? 'Próximos 30 días' : undefined} icon={<UserX className="w-5 h-5 text-destructive" />} />
+        <div className="metric-card flex items-start justify-between">
+          <MetricCard label="Contratos por Vencer" value={expiringUsers.length} subtitle={expiringUsers.length > 0 ? `Próximos ${expiryDays} días` : undefined} icon={<UserX className="w-5 h-5 text-destructive" />} />
+          <Select value={String(expiryDays)} onValueChange={v => setExpiryDays(Number(v))}>
+            <SelectTrigger className="h-7 w-20 text-[11px] mt-1"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {[7, 15, 30, 60, 90, 180, 365].map(d => (
+                <SelectItem key={d} value={String(d)}>{d} días</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Charts */}
