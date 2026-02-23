@@ -2,12 +2,12 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Monitor, ArrowLeftRight, Wrench,
-  CheckCircle2, Search, Eye, AlertTriangle, UserX
+  CheckCircle2, Eye, AlertTriangle, UserX,
+  TrendingUp, TrendingDown
 } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const STATUS_COLORS = [
@@ -23,30 +23,31 @@ interface MetricProps {
   label: string;
   value: number;
   icon: React.ReactNode;
-  subtitle?: string;
-  className?: string;
+  iconBg: string;
+  trend?: { value: string; positive: boolean };
+  delay?: number;
 }
 
-function MetricCard({ label, value, icon, subtitle }: MetricProps) {
+function MetricCard({ label, value, icon, iconBg, trend, delay = 0 }: MetricProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="metric-card"
+      transition={{ delay }}
+      className="bg-card rounded-xl border p-5 flex items-center justify-between hover:shadow-md transition-shadow"
     >
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-primary/10">
-            {icon}
+      <div className="flex-1">
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{label}</p>
+        <p className="text-3xl font-bold tracking-tight">{value.toLocaleString()}</p>
+        {trend && (
+          <div className={`flex items-center gap-1 mt-1.5 text-xs font-medium ${trend.positive ? 'text-accent' : 'text-destructive'}`}>
+            {trend.positive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+            <span>{trend.value}</span>
           </div>
-          <div>
-            {subtitle && (
-              <p className="text-[11px] font-medium text-primary mb-0.5">{subtitle}</p>
-            )}
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="text-2xl font-bold mt-0.5 tracking-tight">{value.toLocaleString()}</p>
-          </div>
-        </div>
+        )}
+      </div>
+      <div className={`p-3 rounded-xl ${iconBg}`}>
+        {icon}
       </div>
     </motion.div>
   );
@@ -55,7 +56,6 @@ function MetricCard({ label, value, icon, subtitle }: MetricProps) {
 export default function Dashboard() {
   const { assets, assignments, repairs, statuses, getUserById, users } = useData();
   const [expiryDays, setExpiryDays] = useState<number>(30);
-
 
   const totalAssets = assets.length;
   const countByStatus = statuses.map(s => ({
@@ -74,7 +74,7 @@ export default function Dashboard() {
   const recentAssignments = useMemo(() => {
     return [...assignments]
       .sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime())
-      .slice(0, 5);
+      .slice(0, 6);
   }, [assignments]);
 
   const expiringUsers = useMemo(() => {
@@ -87,23 +87,41 @@ export default function Dashboard() {
     }).sort((a, b) => new Date(a.contract_end!).getTime() - new Date(b.contract_end!).getTime());
   }, [users, expiryDays]);
 
+  // Bar chart data: assignments per month (last 6 months)
+  const barData = useMemo(() => {
+    const months: { name: string; asignaciones: number; devoluciones: number }[] = [];
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = d.toLocaleDateString('es-ES', { month: 'short' });
+      const y = d.getFullYear();
+      const m = d.getMonth();
+      const asignaciones = assignments.filter(a => {
+        const ad = new Date(a.assigned_at);
+        return ad.getFullYear() === y && ad.getMonth() === m;
+      }).length;
+      const devoluciones = assignments.filter(a => {
+        if (!a.returned_at) return false;
+        const rd = new Date(a.returned_at);
+        return rd.getFullYear() === y && rd.getMonth() === m;
+      }).length;
+      months.push({ name: monthName.charAt(0).toUpperCase() + monthName.slice(1), asignaciones, devoluciones });
+    }
+    return months;
+  }, [assignments]);
+
   return (
-    <div className="p-6 lg:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard de Inventario IT</h1>
-          <p className="text-sm text-muted-foreground mt-1">Resumen global de activos y salud del sistema</p>
-        </div>
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Buscar equipo o usuario..." className="pl-9 w-64 bg-card" readOnly />
-        </div>
+    <div className="p-6 lg:p-8 space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Resumen global de activos y salud del sistema</p>
       </div>
 
       {/* Expiring Users Alert */}
       {expiringUsers.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <Alert variant="destructive" className="mb-6 max-w-2xl border-[hsl(38,92%,50%)]/30 bg-[hsl(38,92%,50%)]/5 text-foreground">
+          <Alert variant="destructive" className="max-w-2xl border-[hsl(38,92%,50%)]/30 bg-[hsl(38,92%,50%)]/5 text-foreground">
             <AlertTriangle className="h-4 w-4 !text-[hsl(38,92%,50%)]" />
             <AlertTitle className="text-sm font-semibold">
               ⚠️ {expiringUsers.length} usuario{expiringUsers.length > 1 ? 's' : ''} con contrato por vencer en {expiryDays} días
@@ -125,114 +143,189 @@ export default function Dashboard() {
         </motion.div>
       )}
 
-
-
-      {/* Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <MetricCard label="Total de Activos" value={totalAssets} icon={<Monitor className="w-5 h-5 text-primary" />} />
-        <MetricCard label="Disponibles" value={available} subtitle={totalAssets > 0 ? `${((available / totalAssets) * 100).toFixed(1)}% del total` : undefined} icon={<CheckCircle2 className="w-5 h-5 text-accent" />} />
-        <MetricCard label="En Reparación" value={openRepairs} subtitle={openRepairs > 0 ? 'Atención requerida' : undefined} icon={<Wrench className="w-5 h-5 text-[hsl(38,92%,50%)]" />} />
-        <MetricCard label="Asignaciones Activas" value={activeAssignments} icon={<ArrowLeftRight className="w-5 h-5 text-[hsl(217,70%,50%)]" />} />
-        <div className="metric-card flex items-start justify-between">
-          <MetricCard label="Contratos por Vencer" value={expiringUsers.length} subtitle={expiringUsers.length > 0 ? `Próximos ${expiryDays} días` : undefined} icon={<UserX className="w-5 h-5 text-destructive" />} />
-          <Select value={String(expiryDays)} onValueChange={v => setExpiryDays(Number(v))}>
-            <SelectTrigger className="h-7 w-20 text-[11px] mt-1"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {[7, 15, 30, 60, 90, 180, 365].map(d => (
-                <SelectItem key={d} value={String(d)}>{d} días</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      {/* Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <MetricCard
+          label="Total Activos"
+          value={totalAssets}
+          icon={<Monitor className="w-5 h-5 text-primary" />}
+          iconBg="bg-primary/10"
+          delay={0}
+        />
+        <MetricCard
+          label="Disponibles"
+          value={available}
+          icon={<CheckCircle2 className="w-5 h-5 text-accent" />}
+          iconBg="bg-accent/10"
+          trend={totalAssets > 0 ? { value: `${((available / totalAssets) * 100).toFixed(0)}% del total`, positive: true } : undefined}
+          delay={0.05}
+        />
+        <MetricCard
+          label="En Reparación"
+          value={openRepairs}
+          icon={<Wrench className="w-5 h-5 text-[hsl(38,92%,50%)]" />}
+          iconBg="bg-[hsl(38,92%,50%)]/10"
+          trend={openRepairs > 0 ? { value: 'Atención requerida', positive: false } : undefined}
+          delay={0.1}
+        />
+        <MetricCard
+          label="Asignaciones Activas"
+          value={activeAssignments}
+          icon={<ArrowLeftRight className="w-5 h-5 text-[hsl(217,70%,50%)]" />}
+          iconBg="bg-[hsl(217,70%,50%)]/10"
+          delay={0.15}
+        />
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-card rounded-xl border p-5 hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Contratos por Vencer</p>
+              <p className="text-3xl font-bold tracking-tight">{expiringUsers.length}</p>
+              {expiringUsers.length > 0 && (
+                <p className="text-xs font-medium text-destructive mt-1.5 flex items-center gap-1">
+                  <TrendingDown className="w-3 h-3" />
+                  Próximos {expiryDays} días
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <div className="p-3 rounded-xl bg-destructive/10">
+                <UserX className="w-5 h-5 text-destructive" />
+              </div>
+              <Select value={String(expiryDays)} onValueChange={v => setExpiryDays(Number(v))}>
+                <SelectTrigger className="h-7 w-20 text-[11px]"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {[7, 15, 30, 60, 90, 180, 365].map(d => (
+                    <SelectItem key={d} value={String(d)}>{d} días</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 bg-card rounded-xl border p-5">
+      {/* Charts + Table Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Pie Chart */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-3 bg-card rounded-xl border p-5">
           <h2 className="text-sm font-semibold mb-4">Distribución por Estado</h2>
           <div className="flex flex-col items-center">
-            <div className="w-48 h-48 relative">
+            <div className="w-44 h-44 relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
+                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={72} paddingAngle={2} dataKey="value" stroke="none">
                     {pieData.map((_, index) => <Cell key={index} fill={STATUS_COLORS[index % STATUS_COLORS.length]} />)}
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold">{totalAssets.toLocaleString()}</span>
-                <span className="text-[11px] text-muted-foreground">Total</span>
+                <span className="text-2xl font-bold">{totalAssets}</span>
+                <span className="text-[10px] text-muted-foreground">Total</span>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 w-full">
+            <div className="grid grid-cols-1 gap-2 mt-4 w-full">
               {countByStatus.filter(s => s.count > 0).map((s, i) => (
                 <div key={s.id} className="flex items-center gap-2 text-xs">
                   <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: STATUS_COLORS[i % STATUS_COLORS.length] }} />
-                  <span className="text-muted-foreground flex-1">{s.label}</span>
-                  <span className="font-semibold">{totalAssets > 0 ? `${Math.round((s.count / totalAssets) * 100)}%` : '0%'}</span>
+                  <span className="text-muted-foreground flex-1 truncate">{s.label}</span>
+                  <span className="font-semibold">{s.count}</span>
+                  <span className="text-muted-foreground w-8 text-right">{totalAssets > 0 ? `${Math.round((s.count / totalAssets) * 100)}%` : '0%'}</span>
                 </div>
               ))}
             </div>
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="lg:col-span-3 bg-card rounded-xl border p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold">Actividad Reciente</h2>
+        {/* Bar Chart */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="lg:col-span-4 bg-card rounded-xl border p-5">
+          <h2 className="text-sm font-semibold mb-4">Actividad Mensual</h2>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={barData} barGap={4}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(220, 13%, 91%)" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'hsl(220, 9%, 46%)' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: 'hsl(220, 9%, 46%)' }} axisLine={false} tickLine={false} width={28} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: '1px solid hsl(220, 13%, 91%)', fontSize: 12 }}
+                />
+                <Bar dataKey="asignaciones" fill="hsl(217, 70%, 50%)" radius={[4, 4, 0, 0]} name="Asignaciones" />
+                <Bar dataKey="devoluciones" fill="hsl(152, 60%, 42%)" radius={[4, 4, 0, 0]} name="Devoluciones" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
+          <div className="flex items-center justify-center gap-5 mt-3">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="w-2.5 h-2.5 rounded-sm bg-[hsl(217,70%,50%)]" /> Asignaciones
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="w-2.5 h-2.5 rounded-sm bg-accent" /> Devoluciones
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Recent Activity Table */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-5 bg-card rounded-xl border p-5">
+          <h2 className="text-sm font-semibold mb-4">Actividad Reciente</h2>
           {recentAssignments.length === 0 ? (
             <p className="text-sm text-muted-foreground py-8 text-center">No hay asignaciones recientes</p>
           ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Equipo</th>
-                  <th>Usuario</th>
-                  <th>Fecha</th>
-                  <th>Estado</th>
-                  <th className="w-10"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentAssignments.map(a => {
-                  const asset = assets.find(x => x.id === a.asset_id);
-                  const user = a.user_id ? getUserById(a.user_id) : null;
-                  const userName = user?.display_name || a.manual_user_name || '—';
-                  const userInitials = userName.split(' ').map(n => n[0]).slice(0, 2).join('');
-                  return (
-                    <tr key={a.id}>
-                      <td>
-                        <div className="flex items-center gap-2">
-                          <Monitor className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                          <span className="font-medium text-sm">{asset?.brand} {asset?.model}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">
-                            {userInitials}
+            <div className="overflow-x-auto">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Equipo</th>
+                    <th>Usuario</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th className="w-10"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentAssignments.map(a => {
+                    const asset = assets.find(x => x.id === a.asset_id);
+                    const user = a.user_id ? getUserById(a.user_id) : null;
+                    const userName = user?.display_name || a.manual_user_name || '—';
+                    const userInitials = userName.split(' ').map(n => n[0]).slice(0, 2).join('');
+                    return (
+                      <tr key={a.id}>
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <Monitor className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                            <span className="font-medium text-xs">{asset?.brand} {asset?.model}</span>
                           </div>
-                          <span className="text-sm">{userName}</span>
-                        </div>
-                      </td>
-                      <td className="text-muted-foreground text-sm whitespace-nowrap">
-                        {new Date(a.assigned_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
-                      </td>
-                      <td>
-                        <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${a.delivery_mode === 'SIGNED' ? 'bg-accent/10 text-accent' : 'bg-[hsl(38,92%,50%)]/10 text-[hsl(38,92%,50%)]'}`}>
-                          {a.delivery_mode === 'SIGNED' ? 'Firmado' : 'Validado'}
-                        </span>
-                      </td>
-                      <td>
-                        <button className="p-1 rounded hover:bg-muted transition-colors">
-                          <Eye className="w-3.5 h-3.5 text-muted-foreground" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">
+                              {userInitials}
+                            </div>
+                            <span className="text-xs">{userName}</span>
+                          </div>
+                        </td>
+                        <td className="text-muted-foreground text-xs whitespace-nowrap">
+                          {new Date(a.assigned_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                        </td>
+                        <td>
+                          <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${a.delivery_mode === 'SIGNED' ? 'bg-accent/10 text-accent' : 'bg-[hsl(38,92%,50%)]/10 text-[hsl(38,92%,50%)]'}`}>
+                            {a.delivery_mode === 'SIGNED' ? 'Firmado' : 'Validado'}
+                          </span>
+                        </td>
+                        <td>
+                          <button className="p-1 rounded hover:bg-muted transition-colors">
+                            <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </motion.div>
       </div>
