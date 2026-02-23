@@ -16,6 +16,49 @@ export interface User {
   contract_end: string | null;
 }
 
+export type Permission =
+  | 'assets.create' | 'assets.edit' | 'assets.delete' | 'assets.assign'
+  | 'users.create' | 'users.edit' | 'users.delete' | 'users.import'
+  | 'repairs.create' | 'repairs.edit' | 'repairs.close'
+  | 'settings.view' | 'settings.edit'
+  | 'audit.view'
+  | 'reports.view' | 'reports.export';
+
+export const ALL_PERMISSIONS: Permission[] = [
+  'assets.create', 'assets.edit', 'assets.delete', 'assets.assign',
+  'users.create', 'users.edit', 'users.delete', 'users.import',
+  'repairs.create', 'repairs.edit', 'repairs.close',
+  'settings.view', 'settings.edit',
+  'audit.view',
+  'reports.view', 'reports.export',
+];
+
+export const PERMISSION_LABELS: Record<Permission, string> = {
+  'assets.create': 'Crear activos',
+  'assets.edit': 'Editar activos',
+  'assets.delete': 'Eliminar activos',
+  'assets.assign': 'Asignar activos',
+  'users.create': 'Crear usuarios',
+  'users.edit': 'Editar usuarios',
+  'users.delete': 'Eliminar usuarios',
+  'users.import': 'Importar usuarios (CSV)',
+  'repairs.create': 'Crear reparaciones',
+  'repairs.edit': 'Editar reparaciones',
+  'repairs.close': 'Cerrar reparaciones',
+  'settings.view': 'Ver ajustes',
+  'settings.edit': 'Editar ajustes',
+  'audit.view': 'Ver auditoría',
+  'reports.view': 'Ver reportes',
+  'reports.export': 'Exportar reportes',
+};
+
+export const PERMISSION_GROUPS: { label: string; permissions: Permission[] }[] = [
+  { label: 'Activos', permissions: ['assets.create', 'assets.edit', 'assets.delete', 'assets.assign'] },
+  { label: 'Usuarios', permissions: ['users.create', 'users.edit', 'users.delete', 'users.import'] },
+  { label: 'Reparaciones', permissions: ['repairs.create', 'repairs.edit', 'repairs.close'] },
+  { label: 'Sistema', permissions: ['settings.view', 'settings.edit', 'audit.view', 'reports.view', 'reports.export'] },
+];
+
 export interface Operator {
   id: number;
   name: string;
@@ -23,6 +66,7 @@ export interface Operator {
   username: string;
   role: 'ADMIN' | 'TECH' | 'READONLY';
   is_active: boolean;
+  permissions: Permission[];
 }
 
 export type AssetCategory = 'EQUIPO' | 'PERIFERICO';

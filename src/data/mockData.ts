@@ -22,9 +22,9 @@ export const locations: Location[] = [
 ];
 
 export const operators: Operator[] = [
-  { id: 1, name: 'Carlos Méndez', email: 'carlos@empresa.com', username: 'cmendez', role: 'ADMIN', is_active: true },
-  { id: 2, name: 'Laura Sánchez', email: 'laura@empresa.com', username: 'lsanchez', role: 'TECH', is_active: true },
-  { id: 3, name: 'Pedro Ruiz', email: 'pedro@empresa.com', username: 'pruiz', role: 'TECH', is_active: true },
+  { id: 1, name: 'Carlos Méndez', email: 'carlos@empresa.com', username: 'cmendez', role: 'ADMIN', is_active: true, permissions: [] },
+  { id: 2, name: 'Laura Sánchez', email: 'laura@empresa.com', username: 'lsanchez', role: 'TECH', is_active: true, permissions: ['assets.create', 'assets.edit', 'assets.assign', 'repairs.create', 'repairs.edit'] },
+  { id: 3, name: 'Pedro Ruiz', email: 'pedro@empresa.com', username: 'pruiz', role: 'TECH', is_active: true, permissions: ['assets.create', 'assets.edit', 'assets.delete', 'assets.assign', 'repairs.create', 'repairs.edit', 'repairs.close', 'users.create', 'users.edit'] },
 ];
 
 export const users: User[] = [

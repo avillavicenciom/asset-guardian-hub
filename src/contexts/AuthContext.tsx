@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Operator } from '@/data/types';
+import { Operator, Permission, ALL_PERMISSIONS } from '@/data/types';
 import { operators } from '@/data/mockData';
 
 export interface AuditEntry {
@@ -36,6 +36,7 @@ interface StoredUser {
   password: string;
   role: 'ADMIN' | 'TECH' | 'READONLY';
   is_active: boolean;
+  permissions: Permission[];
 }
 
 function getStoredUsers(): StoredUser[] {
@@ -94,8 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const users = getStoredUsers();
     const user = users.find(u => u.username === username && u.password === password && u.is_active);
     if (!user) return false;
-    const op: Operator = { id: user.id, name: user.name, email: user.email, username: user.username, role: user.role, is_active: user.is_active };
-    setCurrentOperator(op);
+    const op: Operator = { id: user.id, name: user.name, email: user.email, username: user.username, role: user.role, is_active: user.is_active, permissions: user.role === 'ADMIN' ? ALL_PERMISSIONS : (user.permissions || []) };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(op));
     const entry: AuditEntry = {
       id: crypto.randomUUID(),
@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (name: string, email: string, username: string, password: string): Promise<boolean> => {
     const users = getStoredUsers();
     if (users.find(u => u.username === username)) return false;
-    const newUser: StoredUser = { id: Date.now(), name, email, username, password, role: 'READONLY', is_active: true };
+    const newUser: StoredUser = { id: Date.now(), name, email, username, password, role: 'READONLY', is_active: true, permissions: [] };
     users.push(newUser);
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
     return true;
