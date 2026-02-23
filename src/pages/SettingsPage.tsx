@@ -6,6 +6,7 @@ import AssetTypesTab from './settings/AssetTypesTab';
 import TechniciansTab from './settings/TechniciansTab';
 import HardwarePartsTab from './settings/HardwarePartsTab';
 import LocationsTab from './settings/LocationsTab';
+import OperatorsTab from './settings/OperatorsTab';
 
 export default function SettingsPage() {
   return (
@@ -18,8 +19,9 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="models" className="space-y-4">
+      <Tabs defaultValue="operators" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="operators">Operadores</TabsTrigger>
           <TabsTrigger value="models">Modelos</TabsTrigger>
           <TabsTrigger value="statuses">Estados</TabsTrigger>
           <TabsTrigger value="types">Tipos</TabsTrigger>
@@ -28,6 +30,9 @@ export default function SettingsPage() {
           <TabsTrigger value="locations">Ubicaciones</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="operators">
+          <OperatorsTab />
+        </TabsContent>
         <TabsContent value="models">
           <ModelsTab />
         </TabsContent>
