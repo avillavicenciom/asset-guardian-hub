@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Monitor, ArrowLeftRight, Wrench,
-  CheckCircle2, Filter, X, Search, Eye, AlertTriangle, UserX
+  CheckCircle2, Search, Eye, AlertTriangle, UserX
 } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -54,67 +54,16 @@ function MetricCard({ label, value, icon, subtitle }: MetricProps) {
 
 export default function Dashboard() {
   const { assets, assignments, repairs, statuses, getUserById, users } = useData();
-  const [brandFilter, setBrandFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [userFilter, setUserFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<string>('all');
   const [expiryDays, setExpiryDays] = useState<number>(30);
 
-  const brands = useMemo(() => [...new Set(assets.map(a => a.brand).filter(Boolean))].sort() as string[], [assets]);
 
-  const assignedUsers = useMemo(() => {
-    const userMap = new Map<string, string>();
-    assignments.filter(a => !a.returned_at).forEach(a => {
-      if (a.user_id) {
-        const u = getUserById(a.user_id);
-        if (u) userMap.set(String(u.id), u.display_name);
-      } else if (a.manual_user_name) {
-        userMap.set(`manual_${a.id}`, a.manual_user_name);
-      }
-    });
-    return Array.from(userMap.entries()).sort((a, b) => a[1].localeCompare(b[1]));
-  }, [assignments, getUserById]);
-
-  const dateRanges = [
-    { value: 'all', label: 'Todas las fechas' },
-    { value: '7d', label: 'Últimos 7 días' },
-    { value: '30d', label: 'Últimos 30 días' },
-    { value: '90d', label: 'Últimos 90 días' },
-    { value: '1y', label: 'Último año' },
-  ];
-
-  const filteredAssets = useMemo(() => {
-    return assets.filter(a => {
-      if (brandFilter !== 'all' && a.brand !== brandFilter) return false;
-      if (statusFilter !== 'all' && a.status_id !== Number(statusFilter)) return false;
-      if (userFilter !== 'all') {
-        const activeAssignment = assignments.find(asg => asg.asset_id === a.id && !asg.returned_at);
-        if (!activeAssignment) return false;
-        if (userFilter.startsWith('manual_')) {
-          if (`manual_${activeAssignment.id}` !== userFilter) return false;
-        } else {
-          if (String(activeAssignment.user_id) !== userFilter) return false;
-        }
-      }
-      if (dateFilter !== 'all') {
-        const now = new Date();
-        const daysMap: Record<string, number> = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
-        const days = daysMap[dateFilter];
-        const cutoff = new Date(now.getTime() - days * 86400000);
-        if (new Date(a.updated_at) < cutoff) return false;
-      }
-      return true;
-    });
-  }, [brandFilter, statusFilter, userFilter, dateFilter, assets, assignments]);
-
-  const totalAssets = filteredAssets.length;
+  const totalAssets = assets.length;
   const countByStatus = statuses.map(s => ({
     ...s,
-    count: filteredAssets.filter(a => a.status_id === s.id).length,
+    count: assets.filter(a => a.status_id === s.id).length,
   }));
-  const filteredAssetIds = new Set(filteredAssets.map(a => a.id));
-  const activeAssignments = assignments.filter(a => !a.returned_at && filteredAssetIds.has(a.asset_id)).length;
-  const openRepairs = repairs.filter(r => !r.closed_at && filteredAssetIds.has(r.asset_id)).length;
+  const activeAssignments = assignments.filter(a => !a.returned_at).length;
+  const openRepairs = repairs.filter(r => !r.closed_at).length;
   const available = countByStatus.find(s => s.code === 'DISPONIBLE')?.count || 0;
 
   const pieData = countByStatus.filter(s => s.count > 0).map(s => ({
@@ -124,10 +73,9 @@ export default function Dashboard() {
 
   const recentAssignments = useMemo(() => {
     return [...assignments]
-      .filter(a => filteredAssetIds.has(a.asset_id))
       .sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime())
       .slice(0, 5);
-  }, [assignments, filteredAssetIds]);
+  }, [assignments]);
 
   const expiringUsers = useMemo(() => {
     const now = new Date();
@@ -138,15 +86,6 @@ export default function Dashboard() {
       return end >= now && end <= futureDate;
     }).sort((a, b) => new Date(a.contract_end!).getTime() - new Date(b.contract_end!).getTime());
   }, [users, expiryDays]);
-
-  const hasFilters = brandFilter !== 'all' || statusFilter !== 'all' || userFilter !== 'all' || dateFilter !== 'all';
-
-  const clearFilters = () => {
-    setBrandFilter('all');
-    setStatusFilter('all');
-    setUserFilter('all');
-    setDateFilter('all');
-  };
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl">
@@ -186,47 +125,7 @@ export default function Dashboard() {
         </motion.div>
       )}
 
-      {/* Filters */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-xl border p-4 mb-6">
-        <div className="flex items-center gap-2 mb-3">
-          <Filter className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-semibold">Filtros</span>
-          {hasFilters && (
-            <button onClick={clearFilters} className="ml-auto text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
-              <X className="w-3 h-3" /> Limpiar filtros
-            </button>
-          )}
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <Select value={brandFilter} onValueChange={setBrandFilter}>
-            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Marca" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas las marcas</SelectItem>
-              {brands.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={dateFilter} onValueChange={setDateFilter}>
-            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Fecha" /></SelectTrigger>
-            <SelectContent>
-              {dateRanges.map(d => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={userFilter} onValueChange={setUserFilter}>
-            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Asignado a" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los usuarios</SelectItem>
-              {assignedUsers.map(([id, name]) => <SelectItem key={id} value={id}>{name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Estado" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los estados</SelectItem>
-              {statuses.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-      </motion.div>
+
 
       {/* Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
@@ -282,7 +181,7 @@ export default function Dashboard() {
             <h2 className="text-sm font-semibold">Actividad Reciente</h2>
           </div>
           {recentAssignments.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">No hay asignaciones con los filtros seleccionados</p>
+            <p className="text-sm text-muted-foreground py-8 text-center">No hay asignaciones recientes</p>
           ) : (
             <table className="data-table">
               <thead>
