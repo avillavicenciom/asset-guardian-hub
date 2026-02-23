@@ -3,12 +3,22 @@ import { motion } from 'framer-motion';
 import {
   Monitor, ArrowLeftRight, Wrench,
   CheckCircle2, Eye, AlertTriangle, UserX,
-  TrendingUp, TrendingDown
+  TrendingUp, TrendingDown, Settings2, GripVertical, EyeOff
 } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { useDashboardLayout, CardId } from '@/hooks/useDashboardLayout';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext, verticalListSortingStrategy, useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const STATUS_COLORS = [
   'hsl(217, 70%, 50%)',
@@ -53,9 +63,33 @@ function MetricCard({ label, value, icon, iconBg, trend, delay = 0 }: MetricProp
   );
 }
 
+function SortableCard({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={style} className="relative group">
+      <button
+        {...attributes}
+        {...listeners}
+        className="absolute top-3 right-3 z-10 p-1 rounded hover:bg-muted transition-colors opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing"
+        title="Arrastrar para reordenar"
+      >
+        <GripVertical className="w-4 h-4 text-muted-foreground" />
+      </button>
+      {children}
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { assets, assignments, repairs, statuses, getUserById, users } = useData();
   const [expiryDays, setExpiryDays] = useState<number>(30);
+  const { cards, toggleCard, reorder } = useDashboardLayout();
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const totalAssets = assets.length;
   const countByStatus = statuses.map(s => ({
@@ -87,86 +121,56 @@ export default function Dashboard() {
     }).sort((a, b) => new Date(a.contract_end!).getTime() - new Date(b.contract_end!).getTime());
   }, [users, expiryDays]);
 
+  const isVisible = (id: CardId) => cards.find(c => c.id === id)?.visible ?? true;
 
-  return (
-    <div className="p-6 lg:p-8 space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Resumen global de activos y salud del sistema</p>
-      </div>
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = cards.findIndex(c => c.id === active.id);
+      const newIndex = cards.findIndex(c => c.id === over.id);
+      reorder(oldIndex, newIndex);
+    }
+  };
 
-      {/* Expiring Users Alert */}
-      {expiringUsers.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <Alert variant="destructive" className="max-w-2xl border-[hsl(38,92%,50%)]/30 bg-[hsl(38,92%,50%)]/5 text-foreground">
-            <AlertTriangle className="h-4 w-4 !text-[hsl(38,92%,50%)]" />
-            <AlertTitle className="text-sm font-semibold">
-              ⚠️ {expiringUsers.length} usuario{expiringUsers.length > 1 ? 's' : ''} con contrato por vencer en {expiryDays} días
-            </AlertTitle>
-            <AlertDescription className="text-xs text-muted-foreground mt-1">
-              {expiringUsers.map(u => {
-                const daysLeft = Math.ceil((new Date(u.contract_end!).getTime() - Date.now()) / 86400000);
-                return (
-                  <span key={u.id} className="inline-flex items-center gap-1 mr-4">
-                    <span className="font-medium text-foreground">{u.display_name}</span>
-                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${daysLeft <= 3 ? 'bg-destructive/10 text-destructive' : 'bg-[hsl(38,92%,50%)]/10 text-[hsl(38,92%,50%)]'}`}>
-                      {daysLeft} día{daysLeft !== 1 ? 's' : ''}
-                    </span>
+  const cardRenderers: Record<CardId, () => React.ReactNode> = {
+    'expiring-alert': () => expiringUsers.length > 0 ? (
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <Alert variant="destructive" className="border-[hsl(38,92%,50%)]/30 bg-[hsl(38,92%,50%)]/5 text-foreground">
+          <AlertTriangle className="h-4 w-4 !text-[hsl(38,92%,50%)]" />
+          <AlertTitle className="text-sm font-semibold">
+            ⚠️ {expiringUsers.length} usuario{expiringUsers.length > 1 ? 's' : ''} con contrato por vencer en {expiryDays} días
+          </AlertTitle>
+          <AlertDescription className="text-xs text-muted-foreground mt-1">
+            {expiringUsers.map(u => {
+              const daysLeft = Math.ceil((new Date(u.contract_end!).getTime() - Date.now()) / 86400000);
+              return (
+                <span key={u.id} className="inline-flex items-center gap-1 mr-4">
+                  <span className="font-medium text-foreground">{u.display_name}</span>
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${daysLeft <= 3 ? 'bg-destructive/10 text-destructive' : 'bg-[hsl(38,92%,50%)]/10 text-[hsl(38,92%,50%)]'}`}>
+                    {daysLeft} día{daysLeft !== 1 ? 's' : ''}
                   </span>
-                );
-              })}
-            </AlertDescription>
-          </Alert>
-        </motion.div>
-      )}
+                </span>
+              );
+            })}
+          </AlertDescription>
+        </Alert>
+      </motion.div>
+    ) : null,
 
-      {/* Metric Cards */}
+    'metrics': () => (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <MetricCard
-          label="Total Activos"
-          value={totalAssets}
-          icon={<Monitor className="w-5 h-5 text-primary" />}
-          iconBg="bg-primary/10"
-          delay={0}
-        />
-        <MetricCard
-          label="Disponibles"
-          value={available}
-          icon={<CheckCircle2 className="w-5 h-5 text-accent" />}
-          iconBg="bg-accent/10"
-          trend={totalAssets > 0 ? { value: `${((available / totalAssets) * 100).toFixed(0)}% del total`, positive: true } : undefined}
-          delay={0.05}
-        />
-        <MetricCard
-          label="En Reparación"
-          value={openRepairs}
-          icon={<Wrench className="w-5 h-5 text-[hsl(38,92%,50%)]" />}
-          iconBg="bg-[hsl(38,92%,50%)]/10"
-          trend={openRepairs > 0 ? { value: 'Atención requerida', positive: false } : undefined}
-          delay={0.1}
-        />
-        <MetricCard
-          label="Asignaciones Activas"
-          value={activeAssignments}
-          icon={<ArrowLeftRight className="w-5 h-5 text-[hsl(217,70%,50%)]" />}
-          iconBg="bg-[hsl(217,70%,50%)]/10"
-          delay={0.15}
-        />
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-card rounded-xl border p-5 hover:shadow-md transition-shadow"
-        >
+        <MetricCard label="Total Activos" value={totalAssets} icon={<Monitor className="w-5 h-5 text-primary" />} iconBg="bg-primary/10" delay={0} />
+        <MetricCard label="Disponibles" value={available} icon={<CheckCircle2 className="w-5 h-5 text-accent" />} iconBg="bg-accent/10" trend={totalAssets > 0 ? { value: `${((available / totalAssets) * 100).toFixed(0)}% del total`, positive: true } : undefined} delay={0.05} />
+        <MetricCard label="En Reparación" value={openRepairs} icon={<Wrench className="w-5 h-5 text-[hsl(38,92%,50%)]" />} iconBg="bg-[hsl(38,92%,50%)]/10" trend={openRepairs > 0 ? { value: 'Atención requerida', positive: false } : undefined} delay={0.1} />
+        <MetricCard label="Asignaciones Activas" value={activeAssignments} icon={<ArrowLeftRight className="w-5 h-5 text-[hsl(217,70%,50%)]" />} iconBg="bg-[hsl(217,70%,50%)]/10" delay={0.15} />
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card rounded-xl border p-5 hover:shadow-md transition-shadow">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Contratos por Vencer</p>
               <p className="text-3xl font-bold tracking-tight">{expiringUsers.length}</p>
               {expiringUsers.length > 0 && (
                 <p className="text-xs font-medium text-destructive mt-1.5 flex items-center gap-1">
-                  <TrendingDown className="w-3 h-3" />
-                  Próximos {expiryDays} días
+                  <TrendingDown className="w-3 h-3" /> Próximos {expiryDays} días
                 </p>
               )}
             </div>
@@ -186,100 +190,172 @@ export default function Dashboard() {
           </div>
         </motion.div>
       </div>
+    ),
 
-      {/* Charts + Table Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Pie Chart */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-3 bg-card rounded-xl border p-5">
-          <h2 className="text-sm font-semibold mb-4">Distribución por Estado</h2>
-          <div className="flex flex-col items-center">
-            <div className="w-44 h-44 relative">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={72} paddingAngle={2} dataKey="value" stroke="none">
-                    {pieData.map((_, index) => <Cell key={index} fill={STATUS_COLORS[index % STATUS_COLORS.length]} />)}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold">{totalAssets}</span>
-                <span className="text-[10px] text-muted-foreground">Total</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-2 mt-4 w-full">
-              {countByStatus.filter(s => s.count > 0).map((s, i) => (
-                <div key={s.id} className="flex items-center gap-2 text-xs">
-                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: STATUS_COLORS[i % STATUS_COLORS.length] }} />
-                  <span className="text-muted-foreground flex-1 truncate">{s.label}</span>
-                  <span className="font-semibold">{s.count}</span>
-                  <span className="text-muted-foreground w-8 text-right">{totalAssets > 0 ? `${Math.round((s.count / totalAssets) * 100)}%` : '0%'}</span>
-                </div>
-              ))}
+    'pie-chart': () => (
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-card rounded-xl border p-5">
+        <h2 className="text-sm font-semibold mb-4">Distribución por Estado</h2>
+        <div className="flex flex-col items-center">
+          <div className="w-44 h-44 relative">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={72} paddingAngle={2} dataKey="value" stroke="none">
+                  {pieData.map((_, index) => <Cell key={index} fill={STATUS_COLORS[index % STATUS_COLORS.length]} />)}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-2xl font-bold">{totalAssets}</span>
+              <span className="text-[10px] text-muted-foreground">Total</span>
             </div>
           </div>
-        </motion.div>
+          <div className="grid grid-cols-1 gap-2 mt-4 w-full">
+            {countByStatus.filter(s => s.count > 0).map((s, i) => (
+              <div key={s.id} className="flex items-center gap-2 text-xs">
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: STATUS_COLORS[i % STATUS_COLORS.length] }} />
+                <span className="text-muted-foreground flex-1 truncate">{s.label}</span>
+                <span className="font-semibold">{s.count}</span>
+                <span className="text-muted-foreground w-8 text-right">{totalAssets > 0 ? `${Math.round((s.count / totalAssets) * 100)}%` : '0%'}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    ),
 
-        {/* Recent Activity Table */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="lg:col-span-9 bg-card rounded-xl border p-5">
-          <h2 className="text-sm font-semibold mb-4">Actividad Reciente</h2>
-          {recentAssignments.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-8 text-center">No hay asignaciones recientes</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Equipo</th>
-                    <th>Usuario</th>
-                    <th>Fecha</th>
-                    <th>Estado</th>
-                    <th className="w-10"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentAssignments.map(a => {
-                    const asset = assets.find(x => x.id === a.asset_id);
-                    const user = a.user_id ? getUserById(a.user_id) : null;
-                    const userName = user?.display_name || a.manual_user_name || '—';
-                    const userInitials = userName.split(' ').map(n => n[0]).slice(0, 2).join('');
-                    return (
-                      <tr key={a.id}>
-                        <td>
-                          <div className="flex items-center gap-2">
-                            <Monitor className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                            <span className="font-medium text-xs">{asset?.brand} {asset?.model}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">
-                              {userInitials}
-                            </div>
-                            <span className="text-xs">{userName}</span>
-                          </div>
-                        </td>
-                        <td className="text-muted-foreground text-xs whitespace-nowrap">
-                          {new Date(a.assigned_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
-                        </td>
-                        <td>
-                          <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${a.delivery_mode === 'SIGNED' ? 'bg-accent/10 text-accent' : 'bg-[hsl(38,92%,50%)]/10 text-[hsl(38,92%,50%)]'}`}>
-                            {a.delivery_mode === 'SIGNED' ? 'Firmado' : 'Validado'}
-                          </span>
-                        </td>
-                        <td>
-                          <button className="p-1 rounded hover:bg-muted transition-colors">
-                            <Eye className="w-3.5 h-3.5 text-muted-foreground" />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+    'recent-activity': () => (
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-card rounded-xl border p-5">
+        <h2 className="text-sm font-semibold mb-4">Actividad Reciente</h2>
+        {recentAssignments.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-8 text-center">No hay asignaciones recientes</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Equipo</th><th>Usuario</th><th>Fecha</th><th>Estado</th><th className="w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentAssignments.map(a => {
+                  const asset = assets.find(x => x.id === a.asset_id);
+                  const user = a.user_id ? getUserById(a.user_id) : null;
+                  const userName = user?.display_name || a.manual_user_name || '—';
+                  const userInitials = userName.split(' ').map(n => n[0]).slice(0, 2).join('');
+                  return (
+                    <tr key={a.id}>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <Monitor className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                          <span className="font-medium text-xs">{asset?.brand} {asset?.model}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary flex-shrink-0">{userInitials}</div>
+                          <span className="text-xs">{userName}</span>
+                        </div>
+                      </td>
+                      <td className="text-muted-foreground text-xs whitespace-nowrap">
+                        {new Date(a.assigned_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                      </td>
+                      <td>
+                        <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${a.delivery_mode === 'SIGNED' ? 'bg-accent/10 text-accent' : 'bg-[hsl(38,92%,50%)]/10 text-[hsl(38,92%,50%)]'}`}>
+                          {a.delivery_mode === 'SIGNED' ? 'Firmado' : 'Validado'}
+                        </span>
+                      </td>
+                      <td>
+                        <button className="p-1 rounded hover:bg-muted transition-colors">
+                          <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </motion.div>
+    ),
+  };
+
+  // For bottom section (pie + activity), render side by side if both visible
+  const bottomCards: CardId[] = ['pie-chart', 'recent-activity'];
+  const topCards = cards.filter(c => !bottomCards.includes(c.id));
+  const bottomVisible = cards.filter(c => bottomCards.includes(c.id));
+
+  return (
+    <div className="p-6 lg:p-8 space-y-6">
+      {/* Header with customize button */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Resumen global de activos y salud del sistema</p>
+        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="flex items-center gap-2 px-3 py-2 text-xs font-medium rounded-lg border bg-card hover:bg-muted transition-colors">
+              <Settings2 className="w-4 h-4" />
+              Personalizar
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-64">
+            <p className="text-sm font-semibold mb-3">Mostrar / Ocultar secciones</p>
+            <div className="space-y-2.5">
+              {cards.map(card => (
+                <label key={card.id} className="flex items-center gap-2.5 cursor-pointer text-sm">
+                  <Checkbox
+                    checked={card.visible}
+                    onCheckedChange={() => toggleCard(card.id)}
+                  />
+                  <span className={card.visible ? 'text-foreground' : 'text-muted-foreground line-through'}>
+                    {card.label}
+                  </span>
+                </label>
+              ))}
             </div>
-          )}
-        </motion.div>
+            <p className="text-[11px] text-muted-foreground mt-3 flex items-center gap-1">
+              <GripVertical className="w-3 h-3" /> Arrastra las secciones para reordenar
+            </p>
+          </PopoverContent>
+        </Popover>
       </div>
+
+      {/* Sortable cards */}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={cards.map(c => c.id)} strategy={verticalListSortingStrategy}>
+          <div className="space-y-6">
+            {cards.map(card => {
+              if (!card.visible) return null;
+              // Bottom cards rendered together
+              if (bottomCards.includes(card.id)) return null;
+              return (
+                <SortableCard key={card.id} id={card.id}>
+                  {cardRenderers[card.id]()}
+                </SortableCard>
+              );
+            })}
+
+            {/* Bottom row: pie + activity side by side */}
+            {bottomVisible.some(c => c.visible) && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {bottomVisible.map(card => {
+                  if (!card.visible) return null;
+                  const span = card.id === 'pie-chart' ? 'lg:col-span-3' : 'lg:col-span-9';
+                  return (
+                    <SortableCard key={card.id} id={card.id}>
+                      <div className={span}>
+                        {cardRenderers[card.id]()}
+                      </div>
+                    </SortableCard>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }
