@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import AppLayout from "./components/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import Assets from "./pages/Assets";
+import AssetDetailPage from "./pages/AssetDetailPage";
 import UsersPage from "./pages/UsersPage";
 import AssignmentsPage from "./pages/AssignmentsPage";
 import RepairsPage from "./pages/RepairsPage";
@@ -29,6 +30,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/assets" element={<Assets />} />
+        <Route path="/assets/:id" element={<AssetDetailPage />} />
         <Route path="/users" element={<UsersPage />} />
         <Route path="/assignments" element={<AssignmentsPage />} />
         <Route path="/repairs" element={<RepairsPage />} />

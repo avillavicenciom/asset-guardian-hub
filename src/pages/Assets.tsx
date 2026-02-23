@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import {
@@ -341,6 +342,7 @@ function AssetDataGrid({
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
+  onRowClick,
 }: {
   items: Asset[];
   columns: ColumnDef[];
@@ -350,6 +352,7 @@ function AssetDataGrid({
   selectedIds: Set<number>;
   onToggleSelect: (id: number) => void;
   onToggleSelectAll: () => void;
+  onRowClick: (id: number) => void;
 }) {
   const allSelected = items.length > 0 && items.every(i => selectedIds.has(i.id));
 
@@ -379,8 +382,9 @@ function AssetDataGrid({
                 animate={{ opacity: 1 }}
                 transition={{ delay: i * 0.015 }}
                 className={`cursor-pointer border-b border-border/50 transition-colors hover:bg-muted/50 ${selectedIds.has(asset.id) ? 'bg-primary/5' : ''}`}
+                onClick={() => onRowClick(asset.id)}
               >
-                <td className="px-3 py-2.5">
+                <td className="px-3 py-2.5" onClick={e => e.stopPropagation()}>
                   <Checkbox checked={selectedIds.has(asset.id)} onCheckedChange={() => onToggleSelect(asset.id)} />
                 </td>
                 {columns.map(col => (
@@ -412,6 +416,7 @@ function AssetDataGrid({
 }
 
 export default function AssetsPage() {
+  const navigate = useNavigate();
   const { assets, statuses, getStatusById, getStatusClass, getLocationById, getAssignedUserName } = useData();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'equipos' | 'perifericos'>('equipos');
@@ -584,6 +589,7 @@ export default function AssetsPage() {
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
             onToggleSelectAll={handleToggleSelectAll}
+            onRowClick={(id) => navigate(`/assets/${id}`)}
           />
           <p className="text-xs text-muted-foreground mt-3">{filtered.length} de {categoryAssets.length} registros</p>
         </TabsContent>
@@ -597,6 +603,7 @@ export default function AssetsPage() {
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
             onToggleSelectAll={handleToggleSelectAll}
+            onRowClick={(id) => navigate(`/assets/${id}`)}
           />
           <p className="text-xs text-muted-foreground mt-3">{filtered.length} de {categoryAssets.length} registros</p>
         </TabsContent>
