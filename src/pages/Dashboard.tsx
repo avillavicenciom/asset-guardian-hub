@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const STATUS_COLORS = [
@@ -87,28 +87,6 @@ export default function Dashboard() {
     }).sort((a, b) => new Date(a.contract_end!).getTime() - new Date(b.contract_end!).getTime());
   }, [users, expiryDays]);
 
-  // Bar chart data: assignments per month (last 6 months)
-  const barData = useMemo(() => {
-    const months: { name: string; asignaciones: number; devoluciones: number }[] = [];
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthName = d.toLocaleDateString('es-ES', { month: 'short' });
-      const y = d.getFullYear();
-      const m = d.getMonth();
-      const asignaciones = assignments.filter(a => {
-        const ad = new Date(a.assigned_at);
-        return ad.getFullYear() === y && ad.getMonth() === m;
-      }).length;
-      const devoluciones = assignments.filter(a => {
-        if (!a.returned_at) return false;
-        const rd = new Date(a.returned_at);
-        return rd.getFullYear() === y && rd.getMonth() === m;
-      }).length;
-      months.push({ name: monthName.charAt(0).toUpperCase() + monthName.slice(1), asignaciones, devoluciones });
-    }
-    return months;
-  }, [assignments]);
 
   return (
     <div className="p-6 lg:p-8 space-y-6">
@@ -241,35 +219,8 @@ export default function Dashboard() {
           </div>
         </motion.div>
 
-        {/* Bar Chart */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="lg:col-span-4 bg-card rounded-xl border p-5">
-          <h2 className="text-sm font-semibold mb-4">Actividad Mensual</h2>
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barData} barGap={4}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(220, 13%, 91%)" />
-                <XAxis dataKey="name" tick={{ fontSize: 11, fill: 'hsl(220, 9%, 46%)' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: 'hsl(220, 9%, 46%)' }} axisLine={false} tickLine={false} width={28} />
-                <Tooltip
-                  contentStyle={{ borderRadius: 8, border: '1px solid hsl(220, 13%, 91%)', fontSize: 12 }}
-                />
-                <Bar dataKey="asignaciones" fill="hsl(217, 70%, 50%)" radius={[4, 4, 0, 0]} name="Asignaciones" />
-                <Bar dataKey="devoluciones" fill="hsl(152, 60%, 42%)" radius={[4, 4, 0, 0]} name="Devoluciones" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex items-center justify-center gap-5 mt-3">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="w-2.5 h-2.5 rounded-sm bg-[hsl(217,70%,50%)]" /> Asignaciones
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="w-2.5 h-2.5 rounded-sm bg-accent" /> Devoluciones
-            </div>
-          </div>
-        </motion.div>
-
         {/* Recent Activity Table */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-5 bg-card rounded-xl border p-5">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="lg:col-span-9 bg-card rounded-xl border p-5">
           <h2 className="text-sm font-semibold mb-4">Actividad Reciente</h2>
           {recentAssignments.length === 0 ? (
             <p className="text-sm text-muted-foreground py-8 text-center">No hay asignaciones recientes</p>
