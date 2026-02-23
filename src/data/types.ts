@@ -99,6 +99,27 @@ export interface Repair {
   result_status_id: number | null;
 }
 
+export interface AssetType {
+  id: number;
+  code: string;
+  label: string;
+  category: AssetCategory;
+}
+
+export interface AssetModel {
+  id: number;
+  brand: string;
+  model: string;
+  asset_type_id: number;
+  processor: string | null;
+  ram_gb: number | null;
+  storage: string | null;
+  screen_size: string | null;
+  os: string | null;
+  photo_url: string | null;
+  notes: string | null;
+}
+
 export type DeliveryReasonCode = 'USER_UNAVAILABLE' | 'URGENT_DELIVERY' | 'NO_ACCESS_TO_SIGN' | 'THIRD_PARTY_AUTHORIZED' | 'OTHER';
 
 export const DELIVERY_REASONS: Record<DeliveryReasonCode, string> = {

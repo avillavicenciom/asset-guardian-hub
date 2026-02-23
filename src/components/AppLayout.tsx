@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Monitor, Users, ArrowLeftRight,
-  Wrench, LogOut, Server, ClipboardList, HelpCircle
+  Wrench, LogOut, Server, ClipboardList, HelpCircle, Settings
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/hooks/useRole';
@@ -62,7 +62,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Bottom links */}
-        <div className="px-3 pb-2">
+        <div className="px-3 pb-2 space-y-0.5">
+          <Link
+            to="/settings"
+            className={`sidebar-link ${location.pathname === '/settings' ? 'active' : ''}`}
+          >
+            <Settings className="w-[18px] h-[18px]" />
+            Ajustes
+          </Link>
           <Link
             to="/help"
             className={`sidebar-link ${location.pathname === '/help' ? 'active' : ''}`}

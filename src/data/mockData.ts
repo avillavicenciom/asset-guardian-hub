@@ -1,4 +1,4 @@
-import { StatusCatalog, User, Operator, Asset, Assignment, Repair, AssetStatusHistory, Location } from './types';
+import { StatusCatalog, User, Operator, Asset, Assignment, Repair, AssetStatusHistory, Location, AssetType, AssetModel } from './types';
 
 export const statuses: StatusCatalog[] = [
   { id: 1, code: 'DISPONIBLE', label: 'Disponible', is_terminal: false },
@@ -152,3 +152,39 @@ export function getAssignedUserName(assetId: number): string | null {
   }
   return assignment.manual_user_name || null;
 }
+
+export const assetTypes: AssetType[] = [
+  { id: 1, code: 'LAPTOP', label: 'Laptop', category: 'EQUIPO' },
+  { id: 2, code: 'DESKTOP', label: 'Torre / Desktop', category: 'EQUIPO' },
+  { id: 3, code: 'TABLET', label: 'Tablet', category: 'EQUIPO' },
+  { id: 4, code: 'MONITOR', label: 'Monitor', category: 'PERIFERICO' },
+  { id: 5, code: 'HEADSET', label: 'Cascos / Headset', category: 'PERIFERICO' },
+  { id: 6, code: 'WEBCAM', label: 'Webcam', category: 'PERIFERICO' },
+  { id: 7, code: 'DOCK', label: 'Dock', category: 'PERIFERICO' },
+  { id: 8, code: 'IMPRESORA', label: 'Impresora', category: 'PERIFERICO' },
+  { id: 9, code: 'DISCO_EXTERNO', label: 'Disco externo', category: 'PERIFERICO' },
+  { id: 10, code: 'ADAPTADOR', label: 'Adaptador', category: 'PERIFERICO' },
+  { id: 11, code: 'ESCANER', label: 'Escáner', category: 'PERIFERICO' },
+];
+
+export const assetModels: AssetModel[] = [
+  { id: 1, brand: 'Dell', model: 'XPS 15 9530', asset_type_id: 1, processor: 'Intel Core i7-13700H', ram_gb: 16, storage: '512GB SSD NVMe', screen_size: '15.6" OLED 3.5K', os: 'Windows 11 Pro', photo_url: null, notes: 'Gama alta para desarrollo' },
+  { id: 2, brand: 'Lenovo', model: 'ThinkPad T14s Gen 4', asset_type_id: 1, processor: 'Intel Core i7-1365U', ram_gb: 16, storage: '512GB SSD', screen_size: '14" WUXGA', os: 'Windows 11 Pro', photo_url: null, notes: null },
+  { id: 3, brand: 'HP', model: 'EliteBook 840 G10', asset_type_id: 1, processor: 'Intel Core i5-1345U', ram_gb: 16, storage: '256GB SSD', screen_size: '14" FHD', os: 'Windows 11 Pro', photo_url: null, notes: null },
+  { id: 4, brand: 'Apple', model: 'MacBook Pro 14" M3', asset_type_id: 1, processor: 'Apple M3 Pro', ram_gb: 18, storage: '512GB SSD', screen_size: '14.2" Liquid Retina XDR', os: 'macOS Sonoma', photo_url: null, notes: 'Para equipos de diseño/desarrollo' },
+  { id: 5, brand: 'Dell', model: 'Latitude 5540', asset_type_id: 1, processor: 'Intel Core i5-1345U', ram_gb: 8, storage: '256GB SSD', screen_size: '15.6" FHD', os: 'Windows 11 Pro', photo_url: null, notes: 'Gama estándar' },
+  { id: 6, brand: 'ASUS', model: 'ZenBook 14 OLED', asset_type_id: 1, processor: 'Intel Core i7-1360P', ram_gb: 16, storage: '512GB SSD', screen_size: '14" 2.8K OLED', os: 'Windows 11', photo_url: null, notes: null },
+  { id: 7, brand: 'Lenovo', model: 'ThinkPad X1 Carbon Gen 11', asset_type_id: 1, processor: 'Intel Core i7-1365U', ram_gb: 32, storage: '1TB SSD', screen_size: '14" 2.8K OLED', os: 'Windows 11 Pro', photo_url: null, notes: 'Premium ultraligero' },
+  { id: 8, brand: 'HP', model: 'ProBook 450 G10', asset_type_id: 1, processor: 'Intel Core i5-1335U', ram_gb: 8, storage: '256GB SSD', screen_size: '15.6" FHD', os: 'Windows 11 Pro', photo_url: null, notes: 'Gama entrada' },
+  { id: 9, brand: 'Dell', model: 'OptiPlex 7010', asset_type_id: 2, processor: 'Intel Core i7-13700', ram_gb: 16, storage: '512GB SSD', screen_size: null, os: 'Windows 11 Pro', photo_url: null, notes: 'Micro form factor' },
+  { id: 10, brand: 'Samsung', model: 'Galaxy Tab S9', asset_type_id: 3, processor: 'Snapdragon 8 Gen 2', ram_gb: 8, storage: '128GB', screen_size: '11" AMOLED', os: 'Android 14', photo_url: null, notes: null },
+  { id: 11, brand: 'Apple', model: 'iPad Air M1', asset_type_id: 3, processor: 'Apple M1', ram_gb: 8, storage: '256GB', screen_size: '10.9" Liquid Retina', os: 'iPadOS 17', photo_url: null, notes: null },
+  { id: 12, brand: 'Dell', model: 'UltraSharp U2723QE', asset_type_id: 4, processor: null, ram_gb: null, storage: null, screen_size: '27" 4K IPS', os: null, photo_url: null, notes: 'USB-C Hub integrado' },
+  { id: 13, brand: 'LG', model: '27UK850-W', asset_type_id: 4, processor: null, ram_gb: null, storage: null, screen_size: '27" 4K IPS', os: null, photo_url: null, notes: null },
+  { id: 14, brand: 'Jabra', model: 'Evolve2 75', asset_type_id: 5, processor: null, ram_gb: null, storage: null, screen_size: null, os: null, photo_url: null, notes: 'ANC, Bluetooth + USB dongle' },
+  { id: 15, brand: 'Poly', model: 'Voyager Focus 2', asset_type_id: 5, processor: null, ram_gb: null, storage: null, screen_size: null, os: null, photo_url: null, notes: 'ANC, Bluetooth' },
+  { id: 16, brand: 'Logitech', model: 'C920 HD Pro', asset_type_id: 6, processor: null, ram_gb: null, storage: null, screen_size: null, os: null, photo_url: null, notes: '1080p' },
+  { id: 17, brand: 'Logitech', model: 'Brio 4K', asset_type_id: 6, processor: null, ram_gb: null, storage: null, screen_size: null, os: null, photo_url: null, notes: '4K HDR' },
+  { id: 18, brand: 'Dell', model: 'WD19S 180W', asset_type_id: 7, processor: null, ram_gb: null, storage: null, screen_size: null, os: null, photo_url: null, notes: 'USB-C, 180W PD' },
+  { id: 19, brand: 'Lenovo', model: 'ThinkPad USB-C Dock Gen 2', asset_type_id: 7, processor: null, ram_gb: null, storage: null, screen_size: null, os: null, photo_url: null, notes: null },
+];
