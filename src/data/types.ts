@@ -27,11 +27,16 @@ export interface Operator {
 
 export type AssetCategory = 'EQUIPO' | 'PERIFERICO';
 
+export type LocationType = 'ALMACEN' | 'OFICINA' | 'DATACENTER' | 'OTRO';
+
 export interface Location {
   id: number;
   country: string;
   site: string;
   center: string;
+  location_type: LocationType;
+  floor: string | null;
+  notes: string | null;
 }
 
 export interface Asset {
