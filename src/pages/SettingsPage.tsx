@@ -3,6 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ModelsTab from './settings/ModelsTab';
 import StatusesTab from './settings/StatusesTab';
 import AssetTypesTab from './settings/AssetTypesTab';
+import TechniciansTab from './settings/TechniciansTab';
+import HardwarePartsTab from './settings/HardwarePartsTab';
 
 export default function SettingsPage() {
   return (
@@ -17,9 +19,11 @@ export default function SettingsPage() {
 
       <Tabs defaultValue="models" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="models">Modelos de equipo</TabsTrigger>
+          <TabsTrigger value="models">Modelos</TabsTrigger>
           <TabsTrigger value="statuses">Estados</TabsTrigger>
-          <TabsTrigger value="types">Tipos de equipo</TabsTrigger>
+          <TabsTrigger value="types">Tipos</TabsTrigger>
+          <TabsTrigger value="technicians">Técnicos</TabsTrigger>
+          <TabsTrigger value="parts">Piezas hardware</TabsTrigger>
         </TabsList>
 
         <TabsContent value="models">
@@ -30,6 +34,12 @@ export default function SettingsPage() {
         </TabsContent>
         <TabsContent value="types">
           <AssetTypesTab />
+        </TabsContent>
+        <TabsContent value="technicians">
+          <TechniciansTab />
+        </TabsContent>
+        <TabsContent value="parts">
+          <HardwarePartsTab />
         </TabsContent>
       </Tabs>
     </div>

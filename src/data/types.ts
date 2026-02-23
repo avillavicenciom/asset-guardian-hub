@@ -97,6 +97,38 @@ export interface Repair {
   diagnosis: string | null;
   cost: number | null;
   result_status_id: number | null;
+  technician_id: number | null;
+}
+
+export interface Technician {
+  id: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  specialty: string | null;
+  company: string | null;
+  is_external: boolean;
+  is_active: boolean;
+}
+
+export interface HardwarePart {
+  id: number;
+  code: string;
+  name: string;
+  category: string;
+  brand: string | null;
+  model: string | null;
+  unit_cost: number | null;
+  stock: number;
+}
+
+export interface RepairPart {
+  id: number;
+  repair_id: number;
+  part_id: number;
+  quantity: number;
+  action: 'REPLACED' | 'ADDED' | 'REMOVED';
+  notes: string | null;
 }
 
 export interface AssetType {

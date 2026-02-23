@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { statusHistory as mockStatusHistory, operators as mockOperators } from '@/data/mockData';
+import { statusHistory as mockStatusHistory, operators as mockOperators, repairParts as mockRepairParts, hardwareParts as mockHardwareParts, technicians as mockTechnicians } from '@/data/mockData';
 
 const typeIcons: Record<string, React.ReactNode> = {
   Laptop: <Laptop className="w-6 h-6" />,
@@ -238,31 +238,71 @@ export default function AssetDetailPage() {
 
             <TabsContent value="reparaciones" className="mt-4">
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-card border rounded-xl p-6">
-                <h2 className="text-lg font-semibold mb-4">Reparaciones</h2>
+                <h2 className="text-lg font-semibold mb-4">Reparaciones y Upgrades</h2>
                 {assetRepairs.length === 0 ? (
                   <p className="text-sm text-muted-foreground">Sin reparaciones registradas para este activo.</p>
                 ) : (
                   <div className="space-y-4">
-                    {assetRepairs.map(r => (
-                      <div key={r.id} className="border rounded-lg p-4 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Wrench className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">{r.ticket_ref || 'Sin referencia'}</span>
+                    {assetRepairs.map(r => {
+                      const parts = mockRepairParts.filter(rp => rp.repair_id === r.id);
+                      const tech = r.technician_id ? mockTechnicians.find(t => t.id === r.technician_id) : null;
+                      return (
+                        <div key={r.id} className="border rounded-lg p-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Wrench className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm font-medium">{r.ticket_ref || 'Sin referencia'}</span>
+                            </div>
+                            <Badge variant={r.closed_at ? 'secondary' : 'destructive'} className="text-[10px]">
+                              {r.closed_at ? 'Cerrada' : 'Abierta'}
+                            </Badge>
                           </div>
-                          <Badge variant={r.closed_at ? 'secondary' : 'destructive'} className="text-[10px]">
-                            {r.closed_at ? 'Cerrada' : 'Abierta'}
-                          </Badge>
+                          {r.provider && <p className="text-xs text-muted-foreground">Proveedor: {r.provider}</p>}
+                          {tech && (
+                            <p className="text-xs text-muted-foreground">
+                              Técnico: <span className="font-medium text-foreground">{tech.name}</span>
+                              {tech.company && ` · ${tech.company}`}
+                              {tech.specialty && ` · ${tech.specialty}`}
+                            </p>
+                          )}
+                          {r.diagnosis && <p className="text-xs">{r.diagnosis}</p>}
+                          <div className="flex gap-4 text-[11px] text-muted-foreground">
+                            <span>Abierta: {formatDate(r.opened_at)}</span>
+                            {r.closed_at && <span>Cerrada: {formatDate(r.closed_at)}</span>}
+                            {r.cost !== null && <span>Costo: €{r.cost.toFixed(2)}</span>}
+                          </div>
+
+                          {/* Parts used */}
+                          {parts.length > 0 && (
+                            <div className="mt-2 border-t pt-3">
+                              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Piezas utilizadas</p>
+                              <div className="space-y-1.5">
+                                {parts.map(rp => {
+                                  const part = mockHardwareParts.find(hp => hp.id === rp.part_id);
+                                  const actionLabel = { REPLACED: 'Reemplazada', ADDED: 'Agregada', REMOVED: 'Retirada' }[rp.action];
+                                  return (
+                                    <div key={rp.id} className="flex items-center justify-between text-xs bg-muted/50 rounded-md px-3 py-2">
+                                      <div className="flex items-center gap-2">
+                                        <Badge variant="outline" className="text-[10px]">{actionLabel}</Badge>
+                                        <span className="font-medium">{part?.name || 'Pieza desconocida'}</span>
+                                        {part?.brand && <span className="text-muted-foreground">({part.brand} {part.model})</span>}
+                                      </div>
+                                      <div className="flex items-center gap-3 text-muted-foreground">
+                                        <span>x{rp.quantity}</span>
+                                        {part?.unit_cost && <span>€{(part.unit_cost * rp.quantity).toFixed(2)}</span>}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              {parts.filter(rp => rp.notes).map(rp => (
+                                <p key={`note-${rp.id}`} className="text-[11px] text-muted-foreground mt-1.5 italic">💬 {rp.notes}</p>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                        {r.provider && <p className="text-xs text-muted-foreground">Proveedor: {r.provider}</p>}
-                        {r.diagnosis && <p className="text-xs">{r.diagnosis}</p>}
-                        <div className="flex gap-4 text-[11px] text-muted-foreground">
-                          <span>Abierta: {formatDate(r.opened_at)}</span>
-                          {r.closed_at && <span>Cerrada: {formatDate(r.closed_at)}</span>}
-                          {r.cost !== null && <span>Costo: €{r.cost.toFixed(2)}</span>}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </motion.div>
