@@ -103,7 +103,7 @@ export default function Dashboard() {
       {/* Expiring Users Alert */}
       {expiringUsers.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <Alert variant="destructive" className="mb-6 border-[hsl(38,92%,50%)]/30 bg-[hsl(38,92%,50%)]/5 text-foreground">
+          <Alert variant="destructive" className="mb-6 max-w-2xl border-[hsl(38,92%,50%)]/30 bg-[hsl(38,92%,50%)]/5 text-foreground">
             <AlertTriangle className="h-4 w-4 !text-[hsl(38,92%,50%)]" />
             <AlertTitle className="text-sm font-semibold">
               ⚠️ {expiringUsers.length} usuario{expiringUsers.length > 1 ? 's' : ''} con contrato por vencer en {expiryDays} días
