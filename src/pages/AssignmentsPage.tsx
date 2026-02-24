@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   Search, Plus, Filter, MoreHorizontal, Settings2, GripVertical,
   RotateCcw, Download, RefreshCw, X, ChevronUp, ChevronDown, CheckCircle2,
-  User, MapPin, Eye, EyeOff
+  User, MapPin, Eye, EyeOff, Mail
 } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Assignment, DeliveryReasonCode, DELIVERY_REASONS } from '@/data/types';
@@ -17,6 +17,9 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription,
 } from '@/components/ui/sheet';
 import AssignAssetDialog from '@/components/AssignAssetDialog';
+import { downloadReceipt } from '@/utils/generateReceipt';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 // ---------- Column definitions ----------
 
@@ -434,9 +437,28 @@ export default function AssignmentsPage() {
                     </td>
                   ))}
                   <td className="px-3 py-2.5">
-                    <button className="p-1.5 rounded-md hover:bg-muted transition-colors">
-                      <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="p-1.5 rounded-md hover:bg-muted transition-colors">
+                          <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            const asset = getAssetById(assignment.asset_id);
+                            const user = assignment.user_id ? getUserById(assignment.user_id) : undefined;
+                            downloadReceipt({ assignment, asset, user });
+                            toast.success('Acuse de recibo descargado', {
+                              description: 'Adjunta este archivo al correo SMTP para enviar al usuario.',
+                            });
+                          }}
+                          className="gap-2"
+                        >
+                          <Mail className="w-4 h-4" /> Descargar acuse de recibo
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </td>
                 </motion.tr>
               ))}
