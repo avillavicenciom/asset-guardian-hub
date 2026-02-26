@@ -8,12 +8,12 @@ import { User } from '@/data/types';
 import { toast } from 'sonner';
 
 const USER_FIELDS = [
-  { key: 'display_name', label: 'Nombre completo', required: true },
-  { key: 'email', label: 'Email', required: false },
-  { key: 'username', label: 'Username', required: false },
-  { key: 'department', label: 'Departamento', required: false },
-  { key: 'site', label: 'Sede', required: false },
-  { key: 'contract_end', label: 'Fin de contrato', required: false },
+  { key: 'display_name', label: 'Name', required: true },
+  { key: 'department', label: 'Company', required: false },
+  { key: 'email', label: 'Email Address', required: false },
+  { key: 'contract_end', label: 'Expiration Date', required: false },
+  { key: 'site', label: 'Job Title', required: false },
+  { key: 'username', label: 'Username (pre 2000)', required: false },
 ] as const;
 
 type Step = 'upload' | 'mapping' | 'preview';
