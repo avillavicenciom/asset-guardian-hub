@@ -9,12 +9,12 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 
 const ASSET_FIELDS = [
+  { key: 'asset_tag', label: 'Código interno (ID Inventario)', required: true },
   { key: 'serial_number', label: 'Número de serie', required: true },
-  { key: 'asset_tag', label: 'ID Inventario', required: false },
+  { key: 'brand', label: 'Marca', required: true },
+  { key: 'model', label: 'Modelo', required: true },
   { key: 'category', label: 'Categoría (EQUIPO/PERIFERICO)', required: false },
   { key: 'type', label: 'Tipo (Laptop, Monitor...)', required: false },
-  { key: 'brand', label: 'Marca', required: false },
-  { key: 'model', label: 'Modelo', required: false },
   { key: 'notes', label: 'Notas', required: false },
   { key: 'tags', label: 'Tags (separados por coma)', required: false },
 ] as const;
@@ -135,7 +135,7 @@ export default function ImportAssetsDialog({ open, onOpenChange, onImport, exist
   const duplicateCount = previewWithStatus.filter(r => r.isDuplicate).length;
   const newCount = previewWithStatus.filter(r => !r.isDuplicate).length;
 
-  const canProceedToPreview = !!mapping['serial_number'];
+  const canProceedToPreview = !!mapping['asset_tag'] && !!mapping['serial_number'] && !!mapping['brand'] && !!mapping['model'];
 
   const handleImport = () => {
     const toImport = previewWithStatus
