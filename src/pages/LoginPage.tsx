@@ -43,10 +43,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center mb-4">
-            <Server className="w-7 h-7 text-primary-foreground" />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight">IT Inventory</h1>
+          <img src={logo} alt="Guardian Inventario" className="w-32 h-32 object-contain mb-2" />
           <p className="text-sm text-muted-foreground mt-1">Gestión de activos tecnológicos</p>
         </div>
 
