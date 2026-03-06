@@ -45,7 +45,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="w-60 flex-shrink-0 flex flex-col bg-sidebar border-r border-sidebar-border">
         {/* Logo */}
         <div className="flex items-center justify-center px-5 py-4">
-          <img src={logo} alt="Guardian Inventario" className="w-28 h-auto object-contain" />
+          <img src={logo} alt="Guardian Inventario" className="w-36 h-auto object-contain" />
         </div>
 
         {/* Nav */}
