@@ -5,6 +5,7 @@ import {
   Moon, Sun, Bell, ChevronDown
 } from 'lucide-react';
 import logo from '@/assets/logo.png';
+import logoDark from '@/assets/logo-dark.png';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/hooks/useRole';
 import { useTheme } from '@/hooks/useTheme';
