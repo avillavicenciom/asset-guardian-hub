@@ -44,9 +44,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className="w-60 flex-shrink-0 flex flex-col bg-sidebar border-r border-sidebar-border">
         {/* Logo */}
-        <div className="flex items-center gap-3 px-5 py-4">
-          <img src={logo} alt="Guardian Inventario" className="w-10 h-10 object-contain" />
-          <h1 className="text-sm font-bold text-foreground tracking-tight">Guardian</h1>
+        <div className="flex items-center justify-center px-5 py-4">
+          <img src={logo} alt="Guardian Inventario" className="w-36 h-auto object-contain" />
         </div>
 
         {/* Nav */}
