@@ -257,7 +257,7 @@ export default function Dashboard() {
                         </div>
                       </td>
                       <td className="text-muted-foreground text-xs whitespace-nowrap">
-                        {new Date(a.assigned_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                        {new Date(a.assigned_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                       </td>
                       <td>
                         <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${a.delivery_mode === 'SIGNED' ? 'bg-accent/10 text-accent' : 'bg-[hsl(38,92%,50%)]/10 text-[hsl(38,92%,50%)]'}`}>
