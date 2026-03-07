@@ -6,8 +6,8 @@ import {
   Search, Plus, Filter, MoreHorizontal, Monitor, Laptop, Tablet, Printer,
   Server as ServerIcon, Headphones, Camera, HardDrive, Usb, ScanLine, Cable,
   Settings2, GripVertical, Eye, EyeOff, RotateCcw, Download, RefreshCw, X,
-  ChevronUp, ChevronDown, Tag, MapPin, User, Upload
-} from 'lucide-react';
+  ChevronUp, ChevronDown, Tag, MapPin, User, Upload } from
+'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Asset, AssetCategory } from '@/data/types';
 import { Input } from '@/components/ui/input';
@@ -19,8 +19,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useRole } from '@/hooks/useRole';
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription,
-} from '@/components/ui/sheet';
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from
+'@/components/ui/sheet';
 
 const typeIcons: Record<string, React.ReactNode> = {
   Laptop: <Laptop className="w-4 h-4" />,
@@ -33,7 +33,7 @@ const typeIcons: Record<string, React.ReactNode> = {
   Dock: <Cable className="w-4 h-4" />,
   'Disco externo': <HardDrive className="w-4 h-4" />,
   Adaptador: <Usb className="w-4 h-4" />,
-  'Escáner': <ScanLine className="w-4 h-4" />,
+  'Escáner': <ScanLine className="w-4 h-4" />
 };
 
 // Column definitions
@@ -49,148 +49,148 @@ export interface ColumnDef {
 const STORAGE_KEY = 'asset-columns-config';
 
 const ALL_COLUMNS: ColumnDef[] = [
-  {
-    key: 'type',
-    label: 'Tipo',
-    defaultVisible: true,
-    getValue: (a) => a.type,
-    render: (a) => (
-      <div className="flex items-center gap-2">
+{
+  key: 'type',
+  label: 'Tipo',
+  defaultVisible: true,
+  getValue: (a) => a.type,
+  render: (a) =>
+  <div className="flex items-center gap-2">
         <div className="p-1.5 rounded-md bg-muted">{typeIcons[a.type] || <Monitor className="w-3.5 h-3.5" />}</div>
         <span className="text-xs text-muted-foreground">{a.type}</span>
-      </div>
-    ),
-    width: 'min-w-[120px]',
-  },
-  {
-    key: 'brand',
-    label: 'Marca',
-    defaultVisible: true,
-    getValue: (a) => a.brand || '',
-    width: 'min-w-[120px]',
-  },
-  {
-    key: 'model',
-    label: 'Modelo',
-    defaultVisible: true,
-    getValue: (a) => a.model || '',
-    width: 'min-w-[150px]',
-  },
-  {
-    key: 'serial',
-    label: 'Serial',
-    defaultVisible: true,
-    getValue: (a) => a.serial_number,
-    render: (a) => <span className="font-mono text-xs">{a.serial_number}</span>,
-    width: 'min-w-[170px]',
-  },
-  {
-    key: 'asset_tag',
-    label: 'ID Inventario',
-    defaultVisible: true,
-    getValue: (a) => a.asset_tag || '',
-    render: (a) => <span className="font-mono text-xs">{a.asset_tag || '—'}</span>,
-    width: 'min-w-[120px]',
-  },
-  {
-    key: 'status',
-    label: 'Estado',
-    defaultVisible: true,
-    getValue: (a, h) => h.getStatusById(a.status_id)?.label || '',
-    render: (a, h) => {
-      const status = h.getStatusById(a.status_id);
-      if (!status) return null;
-      return (
-        <span className={`status-badge ${h.getStatusClass(status.code)}`}>
+      </div>,
+
+  width: 'min-w-[120px]'
+},
+{
+  key: 'brand',
+  label: 'Marca',
+  defaultVisible: true,
+  getValue: (a) => a.brand || '',
+  width: 'min-w-[120px]'
+},
+{
+  key: 'model',
+  label: 'Modelo',
+  defaultVisible: true,
+  getValue: (a) => a.model || '',
+  width: 'min-w-[150px]'
+},
+{
+  key: 'serial',
+  label: 'Serial',
+  defaultVisible: true,
+  getValue: (a) => a.serial_number,
+  render: (a) => <span className="font-mono text-xs">{a.serial_number}</span>,
+  width: 'min-w-[170px]'
+},
+{
+  key: 'asset_tag',
+  label: 'ID Inventario',
+  defaultVisible: true,
+  getValue: (a) => a.asset_tag || '',
+  render: (a) => <span className="font-mono text-xs">{a.asset_tag || '—'}</span>,
+  width: 'min-w-[120px]'
+},
+{
+  key: 'status',
+  label: 'Estado',
+  defaultVisible: true,
+  getValue: (a, h) => h.getStatusById(a.status_id)?.label || '',
+  render: (a, h) => {
+    const status = h.getStatusById(a.status_id);
+    if (!status) return null;
+    return (
+      <span className={`status-badge ${h.getStatusClass(status.code)}`}>
           <span className="w-1.5 h-1.5 rounded-full bg-current" />
           {status.label}
-        </span>
-      );
-    },
-    width: 'min-w-[140px]',
+        </span>);
+
   },
-  {
-    key: 'assigned_to',
-    label: 'Asignado a',
-    defaultVisible: true,
-    getValue: (a, h) => h.getAssignedUserName(a.id) || 'Disponible',
-    render: (a, h) => {
-      const name = h.getAssignedUserName(a.id);
-      if (!name) {
-        const status = h.getStatusById(a.status_id);
-        return <span className="text-xs text-muted-foreground italic">{status?.code === 'DISPONIBLE' ? 'Disponible' : '—'}</span>;
-      }
-      return (
-        <div className="flex items-center gap-1.5">
+  width: 'min-w-[140px]'
+},
+{
+  key: 'assigned_to',
+  label: 'Asignado a',
+  defaultVisible: true,
+  getValue: (a, h) => h.getAssignedUserName(a.id) || 'Disponible',
+  render: (a, h) => {
+    const name = h.getAssignedUserName(a.id);
+    if (!name) {
+      const status = h.getStatusById(a.status_id);
+      return <span className="text-xs text-muted-foreground italic">{status?.code === 'DISPONIBLE' ? 'Disponible' : '—'}</span>;
+    }
+    return (
+      <div className="flex items-center gap-1.5">
           <User className="w-3 h-3 text-muted-foreground shrink-0" />
           <span className="text-xs font-medium">{name}</span>
-        </div>
-      );
-    },
-    width: 'min-w-[160px]',
+        </div>);
+
   },
-  {
-    key: 'location',
-    label: 'Ubicación',
-    defaultVisible: true,
-    getValue: (a, h) => {
-      if (!a.location_id) return '';
-      const loc = h.getLocationById(a.location_id);
-      return loc ? `${loc.country} ${loc.site} ${loc.center}` : '';
-    },
-    render: (a, h) => {
-      if (!a.location_id) return <span className="text-muted-foreground">—</span>;
-      const loc = h.getLocationById(a.location_id);
-      if (!loc) return <span className="text-muted-foreground">—</span>;
-      return (
-        <div className="flex items-center gap-1.5">
+  width: 'min-w-[160px]'
+},
+{
+  key: 'location',
+  label: 'Ubicación',
+  defaultVisible: true,
+  getValue: (a, h) => {
+    if (!a.location_id) return '';
+    const loc = h.getLocationById(a.location_id);
+    return loc ? `${loc.country} ${loc.site} ${loc.center}` : '';
+  },
+  render: (a, h) => {
+    if (!a.location_id) return <span className="text-muted-foreground">—</span>;
+    const loc = h.getLocationById(a.location_id);
+    if (!loc) return <span className="text-muted-foreground">—</span>;
+    return (
+      <div className="flex items-center gap-1.5">
           <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />
           <span className="text-xs">{loc.country}, {loc.site}, {loc.center}</span>
-        </div>
-      );
-    },
-    width: 'min-w-[200px]',
+        </div>);
+
   },
-  {
-    key: 'tags',
-    label: 'Tags',
-    defaultVisible: true,
-    getValue: (a) => (a.tags || []).join(', '),
-    render: (a) => {
-      if (!a.tags || a.tags.length === 0) return <span className="text-muted-foreground">—</span>;
-      return (
-        <div className="flex flex-wrap gap-1">
-          {a.tags.map(tag => (
-            <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">{tag}</Badge>
-          ))}
-        </div>
-      );
-    },
-    width: 'min-w-[150px]',
+  width: 'min-w-[200px]'
+},
+{
+  key: 'tags',
+  label: 'Tags',
+  defaultVisible: true,
+  getValue: (a) => (a.tags || []).join(', '),
+  render: (a) => {
+    if (!a.tags || a.tags.length === 0) return <span className="text-muted-foreground">—</span>;
+    return (
+      <div className="flex flex-wrap gap-1">
+          {a.tags.map((tag) =>
+        <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0 font-normal">{tag}</Badge>
+        )}
+        </div>);
+
   },
-  {
-    key: 'notes',
-    label: 'Notas',
-    defaultVisible: false,
-    getValue: (a) => a.notes || '',
-    render: (a) => <span className="text-xs text-muted-foreground truncate max-w-[200px] block">{a.notes || '—'}</span>,
-    width: 'min-w-[200px]',
-  },
-  {
-    key: 'created_at',
-    label: 'Fecha creación',
-    defaultVisible: false,
-    getValue: (a) => new Date(a.created_at).toLocaleDateString('es-ES'),
-    width: 'min-w-[120px]',
-  },
-  {
-    key: 'updated_at',
-    label: 'Última actualización',
-    defaultVisible: false,
-    getValue: (a) => new Date(a.updated_at).toLocaleDateString('es-ES'),
-    width: 'min-w-[140px]',
-  },
-];
+  width: 'min-w-[150px]'
+},
+{
+  key: 'notes',
+  label: 'Notas',
+  defaultVisible: false,
+  getValue: (a) => a.notes || '',
+  render: (a) => <span className="text-xs text-muted-foreground truncate max-w-[200px] block">{a.notes || '—'}</span>,
+  width: 'min-w-[200px]'
+},
+{
+  key: 'created_at',
+  label: 'Fecha creación',
+  defaultVisible: false,
+  getValue: (a) => new Date(a.created_at).toLocaleDateString('es-ES'),
+  width: 'min-w-[120px]'
+},
+{
+  key: 'updated_at',
+  label: 'Última actualización',
+  defaultVisible: false,
+  getValue: (a) => new Date(a.updated_at).toLocaleDateString('es-ES'),
+  width: 'min-w-[140px]'
+}];
+
 
 interface ColumnsConfig {
   visible: string[];
@@ -199,8 +199,8 @@ interface ColumnsConfig {
 
 function getDefaultConfig(): ColumnsConfig {
   return {
-    visible: ALL_COLUMNS.filter(c => c.defaultVisible).map(c => c.key),
-    order: ALL_COLUMNS.map(c => c.key),
+    visible: ALL_COLUMNS.filter((c) => c.defaultVisible).map((c) => c.key),
+    order: ALL_COLUMNS.map((c) => c.key)
   };
 }
 
@@ -219,17 +219,17 @@ function saveConfig(config: ColumnsConfig) {
 // Column settings panel
 function ColumnSettings({
   config,
-  onChange,
-}: {
-  config: ColumnsConfig;
-  onChange: (c: ColumnsConfig) => void;
-}) {
-  const orderedColumns = config.order.map(key => ALL_COLUMNS.find(c => c.key === key)!).filter(Boolean);
+  onChange
+
+
+
+}: {config: ColumnsConfig;onChange: (c: ColumnsConfig) => void;}) {
+  const orderedColumns = config.order.map((key) => ALL_COLUMNS.find((c) => c.key === key)!).filter(Boolean);
 
   const toggleVisible = (key: string) => {
-    const next = config.visible.includes(key)
-      ? config.visible.filter(k => k !== key)
-      : [...config.visible, key];
+    const next = config.visible.includes(key) ?
+    config.visible.filter((k) => k !== key) :
+    [...config.visible, key];
     onChange({ ...config, visible: next });
   };
 
@@ -257,79 +257,79 @@ function ColumnSettings({
         </Button>
       </div>
       <div className="space-y-1">
-        {orderedColumns.map((col, idx) => (
-          <div
-            key={col.key}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-          >
+        {orderedColumns.map((col, idx) =>
+        <div
+          key={col.key}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-card hover:bg-muted/50 transition-colors">
+          
             <GripVertical className="w-3.5 h-3.5 text-muted-foreground/50" />
             <Checkbox
-              checked={config.visible.includes(col.key)}
-              onCheckedChange={() => toggleVisible(col.key)}
-              id={`col-${col.key}`}
-            />
+            checked={config.visible.includes(col.key)}
+            onCheckedChange={() => toggleVisible(col.key)}
+            id={`col-${col.key}`} />
+          
             <label htmlFor={`col-${col.key}`} className="flex-1 text-sm cursor-pointer select-none">
               {col.label}
             </label>
             <div className="flex gap-0.5">
               <button
-                onClick={() => moveColumn(col.key, 'up')}
-                disabled={idx === 0}
-                className="p-1 rounded hover:bg-muted disabled:opacity-30 transition-colors"
-              >
+              onClick={() => moveColumn(col.key, 'up')}
+              disabled={idx === 0}
+              className="p-1 rounded hover:bg-muted disabled:opacity-30 transition-colors">
+              
                 <ChevronUp className="w-3.5 h-3.5" />
               </button>
               <button
-                onClick={() => moveColumn(col.key, 'down')}
-                disabled={idx === orderedColumns.length - 1}
-                className="p-1 rounded hover:bg-muted disabled:opacity-30 transition-colors"
-              >
+              onClick={() => moveColumn(col.key, 'down')}
+              disabled={idx === orderedColumns.length - 1}
+              className="p-1 rounded hover:bg-muted disabled:opacity-30 transition-colors">
+              
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
-        ))}
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 }
 
 // Per-column filter row
 function ColumnFilterRow({
   columns,
   filters,
-  onFilterChange,
-}: {
-  columns: ColumnDef[];
-  filters: Record<string, string>;
-  onFilterChange: (key: string, value: string) => void;
-}) {
+  onFilterChange
+
+
+
+
+}: {columns: ColumnDef[];filters: Record<string, string>;onFilterChange: (key: string, value: string) => void;}) {
   return (
     <tr className="bg-muted/30">
       <th className="px-2 py-1.5 w-10"></th>
-      {columns.map(col => (
-        <th key={col.key} className="px-2 py-1.5">
+      {columns.map((col) =>
+      <th key={col.key} className="px-2 py-1.5">
           <div className="relative">
             <Input
-              value={filters[col.key] || ''}
-              onChange={e => onFilterChange(col.key, e.target.value)}
-              placeholder="Filtrar..."
-              className="h-7 text-xs bg-card border-border/60 px-2"
-            />
-            {filters[col.key] && (
-              <button
-                onClick={() => onFilterChange(col.key, '')}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-muted"
-              >
+            value={filters[col.key] || ''}
+            onChange={(e) => onFilterChange(col.key, e.target.value)}
+            placeholder="Filtrar..."
+            className="h-7 text-xs bg-card border-border/60 px-2" />
+          
+            {filters[col.key] &&
+          <button
+            onClick={() => onFilterChange(col.key, '')}
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-muted">
+            
                 <X className="w-3 h-3 text-muted-foreground" />
               </button>
-            )}
+          }
           </div>
         </th>
-      ))}
+      )}
       <th className="px-2 py-1.5 w-10"></th>
-    </tr>
-  );
+    </tr>);
+
 }
 
 // Main data-grid table
@@ -342,22 +342,22 @@ function AssetDataGrid({
   selectedIds,
   onToggleSelect,
   onToggleSelectAll,
-  onRowClick,
-}: {
-  items: Asset[];
-  columns: ColumnDef[];
-  helpers: any;
-  filters: Record<string, string>;
-  onFilterChange: (key: string, value: string) => void;
-  selectedIds: Set<number>;
-  onToggleSelect: (id: number) => void;
-  onToggleSelectAll: () => void;
-  onRowClick: (id: number) => void;
-}) {
-  const allSelected = items.length > 0 && items.every(i => selectedIds.has(i.id));
+  onRowClick
+
+
+
+
+
+
+
+
+
+
+}: {items: Asset[];columns: ColumnDef[];helpers: any;filters: Record<string, string>;onFilterChange: (key: string, value: string) => void;selectedIds: Set<number>;onToggleSelect: (id: number) => void;onToggleSelectAll: () => void;onRowClick: (id: number) => void;}) {
+  const allSelected = items.length > 0 && items.every((i) => selectedIds.has(i.id));
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="bg-card rounded-xl border overflow-hidden">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="bg-card rounded-xl border overflow-hidden border-muted-foreground">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -365,54 +365,54 @@ function AssetDataGrid({
               <th className="px-3 py-3 w-10">
                 <Checkbox checked={allSelected} onCheckedChange={onToggleSelectAll} />
               </th>
-              {columns.map(col => (
-                <th key={col.key} className={`text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-3 py-3 ${col.width || ''}`}>
+              {columns.map((col) =>
+              <th key={col.key} className={`text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-3 py-3 ${col.width || ''}`}>
                   {col.label}
                 </th>
-              ))}
+              )}
               <th className="w-10 px-3 py-3"></th>
             </tr>
             <ColumnFilterRow columns={columns} filters={filters} onFilterChange={onFilterChange} />
           </thead>
           <tbody>
-            {items.map((asset, i) => (
-              <motion.tr
-                key={asset.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.015 }}
-                className={`cursor-pointer border-b border-border/50 transition-colors hover:bg-muted/50 ${selectedIds.has(asset.id) ? 'bg-primary/5' : ''}`}
-                onClick={() => onRowClick(asset.id)}
-              >
-                <td className="px-3 py-2.5" onClick={e => e.stopPropagation()}>
+            {items.map((asset, i) =>
+            <motion.tr
+              key={asset.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: i * 0.015 }}
+              className={`cursor-pointer border-b border-border/50 transition-colors hover:bg-muted/50 ${selectedIds.has(asset.id) ? 'bg-primary/5' : ''}`}
+              onClick={() => onRowClick(asset.id)}>
+              
+                <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                   <Checkbox checked={selectedIds.has(asset.id)} onCheckedChange={() => onToggleSelect(asset.id)} />
                 </td>
-                {columns.map(col => (
-                  <td key={col.key} className="px-3 py-2.5">
-                    {col.render ? col.render(asset, helpers) : (
-                      <span className="text-muted-foreground">{col.getValue(asset, helpers) || '—'}</span>
-                    )}
+                {columns.map((col) =>
+              <td key={col.key} className="px-3 py-2.5">
+                    {col.render ? col.render(asset, helpers) :
+                <span className="text-muted-foreground">{col.getValue(asset, helpers) || '—'}</span>
+                }
                   </td>
-                ))}
+              )}
                 <td className="px-3 py-2.5">
                   <button className="p-1.5 rounded-md hover:bg-muted transition-colors">
                     <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </td>
               </motion.tr>
-            ))}
-            {items.length === 0 && (
-              <tr>
+            )}
+            {items.length === 0 &&
+            <tr>
                 <td colSpan={columns.length + 2} className="text-center py-12 text-muted-foreground">
                   No se encontraron registros con los filtros aplicados
                 </td>
               </tr>
-            )}
+            }
           </tbody>
         </table>
       </div>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
 
 export default function AssetsPage() {
@@ -428,34 +428,34 @@ export default function AssetsPage() {
   const [assignAssetId, setAssignAssetId] = useState<number | null>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
 
-  const existingSerials = useMemo(() => new Set(assets.map(a => a.serial_number.toLowerCase())), [assets]);
+  const existingSerials = useMemo(() => new Set(assets.map((a) => a.serial_number.toLowerCase())), [assets]);
 
   const helpers = useMemo(() => ({ getStatusById, getStatusClass, getLocationById, getAssignedUserName }), [getStatusById, getStatusClass, getLocationById, getAssignedUserName]);
 
   // Save config on change
-  useEffect(() => { saveConfig(columnsConfig); }, [columnsConfig]);
+  useEffect(() => {saveConfig(columnsConfig);}, [columnsConfig]);
 
   const categoryFilter: AssetCategory = activeTab === 'equipos' ? 'EQUIPO' : 'PERIFERICO';
-  const categoryAssets = useMemo(() => assets.filter(a => a.category === categoryFilter), [assets, categoryFilter]);
+  const categoryAssets = useMemo(() => assets.filter((a) => a.category === categoryFilter), [assets, categoryFilter]);
 
-  const equipoCount = useMemo(() => assets.filter(a => a.category === 'EQUIPO').length, [assets]);
-  const perifericoCount = useMemo(() => assets.filter(a => a.category === 'PERIFERICO').length, [assets]);
+  const equipoCount = useMemo(() => assets.filter((a) => a.category === 'EQUIPO').length, [assets]);
+  const perifericoCount = useMemo(() => assets.filter((a) => a.category === 'PERIFERICO').length, [assets]);
 
   // Active columns based on config
   const activeColumns = useMemo(() => {
-    return columnsConfig.order
-      .filter(key => columnsConfig.visible.includes(key))
-      .map(key => ALL_COLUMNS.find(c => c.key === key)!)
-      .filter(Boolean);
+    return columnsConfig.order.
+    filter((key) => columnsConfig.visible.includes(key)).
+    map((key) => ALL_COLUMNS.find((c) => c.key === key)!).
+    filter(Boolean);
   }, [columnsConfig]);
 
   // Filter by global search + per-column filters
   const filtered = useMemo(() => {
-    return categoryAssets.filter(a => {
+    return categoryAssets.filter((a) => {
       // Global search
       const q = search.toLowerCase();
       if (q) {
-        const allText = activeColumns.map(c => c.getValue(a, helpers)).join(' ').toLowerCase();
+        const allText = activeColumns.map((c) => c.getValue(a, helpers)).join(' ').toLowerCase();
         if (!allText.includes(q)) return false;
       }
       // Per-column filters
@@ -477,22 +477,22 @@ export default function AssetsPage() {
   };
 
   const handleFilterChange = useCallback((key: string, value: string) => {
-    setColumnFilters(prev => ({ ...prev, [key]: value }));
+    setColumnFilters((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   const handleToggleSelect = useCallback((id: number) => {
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) next.delete(id);else
+      next.add(id);
       return next;
     });
   }, []);
 
   const handleToggleSelectAll = useCallback(() => {
-    setSelectedIds(prev => {
-      if (filtered.every(i => prev.has(i.id))) return new Set();
-      return new Set(filtered.map(i => i.id));
+    setSelectedIds((prev) => {
+      if (filtered.every((i) => prev.has(i.id))) return new Set();
+      return new Set(filtered.map((i) => i.id));
     });
   }, [filtered]);
 
@@ -511,17 +511,17 @@ export default function AssetsPage() {
           <p className="text-sm text-muted-foreground mt-1">{assets.length} activos registrados</p>
         </div>
         <div className="flex items-center gap-2">
-          {canManageAssets && (
-            <>
+          {canManageAssets &&
+          <>
               <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowImportDialog(true)}>
                 <Upload className="w-4 h-4" /> Importar CSV
               </Button>
-              <Button variant="outline" className="gap-2" onClick={() => { setAssignAssetId(null); setShowAssignDialog(true); }}>
+              <Button variant="outline" className="gap-2" onClick={() => {setAssignAssetId(null);setShowAssignDialog(true);}}>
                 <User className="w-4 h-4" /> Asignar
               </Button>
               <Button className="gap-2"><Plus className="w-4 h-4" /> Nuevo activo</Button>
             </>
-          )}
+          }
         </div>
       </div>
 
@@ -535,22 +535,22 @@ export default function AssetsPage() {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 mt-4 flex-wrap">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Buscar en todas las columnas..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+            <Input placeholder="Buscar en todas las columnas..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
           </div>
 
-          {activeFilterCount > 0 && (
-            <Button variant="outline" size="sm" onClick={clearAllFilters} className="gap-1.5 text-xs">
+          {activeFilterCount > 0 &&
+          <Button variant="outline" size="sm" onClick={clearAllFilters} className="gap-1.5 text-xs">
               <Filter className="w-3.5 h-3.5" />
               {activeFilterCount} filtro{activeFilterCount > 1 ? 's' : ''} activo{activeFilterCount > 1 ? 's' : ''}
               <X className="w-3 h-3 ml-1" />
             </Button>
-          )}
+          }
 
-          {selectedIds.size > 0 && (
-            <span className="text-xs text-muted-foreground bg-primary/10 text-primary px-2.5 py-1 rounded-full font-medium">
+          {selectedIds.size > 0 &&
+          <span className="text-xs text-muted-foreground bg-primary/10 text-primary px-2.5 py-1 rounded-full font-medium">
               {selectedIds.size} seleccionado{selectedIds.size > 1 ? 's' : ''}
             </span>
-          )}
+          }
 
           <div className="ml-auto flex items-center gap-1">
             <Button variant="ghost" size="icon" className="h-8 w-8" title="Refrescar">
@@ -589,8 +589,8 @@ export default function AssetsPage() {
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
             onToggleSelectAll={handleToggleSelectAll}
-            onRowClick={(id) => navigate(`/assets/${id}`)}
-          />
+            onRowClick={(id) => navigate(`/assets/${id}`)} />
+          
           <p className="text-xs text-muted-foreground mt-3">{filtered.length} de {categoryAssets.length} registros</p>
         </TabsContent>
         <TabsContent value="perifericos" className="mt-4">
@@ -603,8 +603,8 @@ export default function AssetsPage() {
             selectedIds={selectedIds}
             onToggleSelect={handleToggleSelect}
             onToggleSelectAll={handleToggleSelectAll}
-            onRowClick={(id) => navigate(`/assets/${id}`)}
-          />
+            onRowClick={(id) => navigate(`/assets/${id}`)} />
+          
           <p className="text-xs text-muted-foreground mt-3">{filtered.length} de {categoryAssets.length} registros</p>
         </TabsContent>
       </Tabs>
@@ -617,8 +617,8 @@ export default function AssetsPage() {
         onImport={(newAssets) => {
           toast.success(`${newAssets.length} activos importados`);
           return { imported: newAssets, skipped: [] };
-        }}
-      />
-    </div>
-  );
+        }} />
+      
+    </div>);
+
 }
