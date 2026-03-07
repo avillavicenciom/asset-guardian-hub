@@ -21,7 +21,7 @@ export default function ModelsTab() {
   const fetchData = useCallback(async () => {
     try {
       const [m, t] = await Promise.all([
-        api.getAll<AssetModel>('models'),
+        api.getAll<AssetModel>('asset-models'),
         api.getAll<AssetType>('asset-types'),
       ]);
       setModels(m);
