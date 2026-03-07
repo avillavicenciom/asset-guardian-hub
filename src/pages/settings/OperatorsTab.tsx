@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Shield, ShieldCheck, Eye, Pencil, Trash2, X } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Shield, ShieldCheck, Eye, Pencil, Trash2, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Operator, Permission, ALL_PERMISSIONS, PERMISSION_LABELS, PERMISSION_GROUPS } from '@/data/types';
-import { operators as mockOperators } from '@/data/mockData';
+import { api } from '@/lib/api';
 import { useRole } from '@/hooks/useRole';
+import { toast } from 'sonner';
 
 const ROLE_LABELS: Record<string, string> = {
   ADMIN: 'Administrador',
@@ -25,7 +26,8 @@ const ROLE_COLORS: Record<string, string> = {
 
 export default function OperatorsTab() {
   const { isAdmin } = useRole();
-  const [operators, setOperators] = useState<Operator[]>(mockOperators);
+  const [operators, setOperators] = useState<Operator[]>([]);
+  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Operator | null>(null);
 
@@ -36,6 +38,19 @@ export default function OperatorsTab() {
     role: 'TECH' as 'ADMIN' | 'TECH' | 'READONLY',
     permissions: [] as Permission[],
   });
+
+  const fetchOperators = useCallback(async () => {
+    try {
+      const data = await api.getAll<Operator>('operators');
+      setOperators(data);
+    } catch {
+      toast.error('Error al cargar operadores');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchOperators(); }, [fetchOperators]);
 
   const openNew = () => {
     setEditing(null);
@@ -74,33 +89,37 @@ export default function OperatorsTab() {
     }));
   };
 
-  const save = () => {
+  const save = async () => {
     if (!form.name || !form.email || !form.username) return;
-    if (editing) {
-      setOperators(prev => prev.map(op =>
-        op.id === editing.id
-          ? { ...op, name: form.name, email: form.email, username: form.username, role: form.role, permissions: form.role === 'ADMIN' ? [] : form.permissions }
-          : op
-      ));
-    } else {
-      const newOp: Operator = {
-        id: Date.now(),
+    try {
+      const payload = {
         name: form.name,
         email: form.email,
         username: form.username,
         role: form.role,
-        is_active: true,
         permissions: form.role === 'ADMIN' ? [] : form.permissions,
       };
-      setOperators(prev => [...prev, newOp]);
+      if (editing) {
+        await api.update('operators', editing.id, payload);
+        toast.success('Operador actualizado');
+      } else {
+        await api.create('operators', payload);
+        toast.success('Operador creado');
+      }
+      setDialogOpen(false);
+      fetchOperators();
+    } catch (err: any) {
+      toast.error(err.message || 'Error al guardar');
     }
-    setDialogOpen(false);
   };
 
-  const toggleActive = (id: number) => {
-    setOperators(prev => prev.map(op =>
-      op.id === id ? { ...op, is_active: !op.is_active } : op
-    ));
+  const toggleActive = async (id: number, currentActive: boolean) => {
+    try {
+      await api.update('operators', id, { is_active: !currentActive });
+      fetchOperators();
+    } catch {
+      toast.error('Error al cambiar estado');
+    }
   };
 
   return (
@@ -160,7 +179,7 @@ export default function OperatorsTab() {
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(op)}>
                           <Pencil className="w-3.5 h-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleActive(op.id)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleActive(op.id, op.is_active)}>
                           {op.is_active ? <X className="w-3.5 h-3.5 text-destructive" /> : <Eye className="w-3.5 h-3.5" />}
                         </Button>
                       </div>
