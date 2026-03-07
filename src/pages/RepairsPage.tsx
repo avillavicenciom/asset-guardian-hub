@@ -25,7 +25,7 @@ export default function RepairsPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-sm">{asset?.brand} {asset?.model}</p>
-                    <p className="text-xs text-muted-foreground font-mono">{asset?.serial_number}</p>
+                    <p className="text-xs text-muted-foreground">{asset?.serial_number}</p>
                   </div>
                 </div>
                 <span className={`status-badge ${isOpen ? 'status-repair' : 'status-available'}`}>
@@ -35,7 +35,7 @@ export default function RepairsPage() {
               {r.diagnosis && <p className="text-sm text-muted-foreground mb-3">{r.diagnosis}</p>}
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
                 {r.provider && <span className="flex items-center gap-1"><ExternalLink className="w-3 h-3" /> {r.provider}</span>}
-                {r.ticket_ref && <span className="flex items-center gap-1 font-mono">Ref: {r.ticket_ref}</span>}
+                {r.ticket_ref && <span className="flex items-center gap-1">Ref: {r.ticket_ref}</span>}
                 {r.cost !== null && <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> {r.cost.toFixed(2)} €</span>}
                 <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(r.opened_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
               </div>

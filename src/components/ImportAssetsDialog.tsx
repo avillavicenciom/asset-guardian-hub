@@ -299,7 +299,7 @@ export default function ImportAssetsDialog({ open, onOpenChange, onImport, exist
                     <tbody>
                       {importResult.imported.map((a, i) => (
                         <tr key={i} className="border-t">
-                          <td className="p-2 font-mono">{a.serial_number || '—'}</td>
+                          <td className="p-2">{a.serial_number || '—'}</td>
                           <td className="p-2">{a.brand || '—'}</td>
                           <td className="p-2">{a.model || '—'}</td>
                           <td className="p-2">{a.type || '—'}</td>
@@ -327,7 +327,7 @@ export default function ImportAssetsDialog({ open, onOpenChange, onImport, exist
                     <tbody>
                       {importResult.skipped.map((s, i) => (
                         <tr key={i} className="border-t">
-                          <td className="p-2 font-mono">{s.row.serial_number || '—'}</td>
+                          <td className="p-2">{s.row.serial_number || '—'}</td>
                           <td className="p-2 text-destructive">{s.reason}</td>
                         </tr>
                       ))}
