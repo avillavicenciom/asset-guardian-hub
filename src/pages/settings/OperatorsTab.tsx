@@ -179,7 +179,7 @@ export default function OperatorsTab() {
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(op)}>
                           <Pencil className="w-3.5 h-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleActive(op.id)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleActive(op.id, op.is_active)}>
                           {op.is_active ? <X className="w-3.5 h-3.5 text-destructive" /> : <Eye className="w-3.5 h-3.5" />}
                         </Button>
                       </div>
