@@ -81,7 +81,7 @@ const ALL_COLUMNS: ColumnDef[] = [
   label: 'Serial',
   defaultVisible: true,
   getValue: (a) => a.serial_number,
-  render: (a) => <span className="font-mono text-xs">{a.serial_number}</span>,
+  render: (a) => <span className="text-sm">{a.serial_number}</span>,
   width: 'min-w-[170px]'
 },
 {
@@ -89,7 +89,7 @@ const ALL_COLUMNS: ColumnDef[] = [
   label: 'ID Inventario',
   defaultVisible: true,
   getValue: (a) => a.asset_tag || '',
-  render: (a) => <span className="font-mono text-xs">{a.asset_tag || '—'}</span>,
+  render: (a) => <span className="text-sm">{a.asset_tag || '—'}</span>,
   width: 'min-w-[120px]'
 },
 {
