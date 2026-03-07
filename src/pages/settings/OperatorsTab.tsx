@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Shield, ShieldCheck, Eye, Pencil, Trash2, X } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Shield, ShieldCheck, Eye, Pencil, Trash2, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Operator, Permission, ALL_PERMISSIONS, PERMISSION_LABELS, PERMISSION_GROUPS } from '@/data/types';
-import { operators as mockOperators } from '@/data/mockData';
+import { api } from '@/lib/api';
 import { useRole } from '@/hooks/useRole';
+import { toast } from 'sonner';
 
 const ROLE_LABELS: Record<string, string> = {
   ADMIN: 'Administrador',
