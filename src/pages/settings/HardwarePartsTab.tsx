@@ -1,21 +1,30 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit2, Trash2, Search, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { hardwareParts as initialParts } from '@/data/mockData';
 import { HardwarePart } from '@/data/types';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 const CATEGORIES = ['Memoria', 'Almacenamiento', 'Batería', 'Pantalla', 'Teclado', 'Cargador', 'Estructura', 'Otro'];
 
 export default function HardwarePartsTab() {
-  const [parts, setParts] = useState<HardwarePart[]>(initialParts);
+  const [parts, setParts] = useState<HardwarePart[]>([]);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<HardwarePart | null>(null);
   const [form, setForm] = useState<Partial<HardwarePart>>({});
+
+  const fetchData = useCallback(async () => {
+    try {
+      setParts(await api.getAll<HardwarePart>('hardware-parts'));
+    } catch { toast.error('Error al cargar piezas'); }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const filtered = parts.filter(p => {
     if (!search) return true;
@@ -23,30 +32,26 @@ export default function HardwarePartsTab() {
     return `${p.name} ${p.code} ${p.brand} ${p.category}`.toLowerCase().includes(q);
   });
 
-  const openNew = () => {
-    setEditing(null);
-    setForm({ code: '', name: '', category: 'Otro', brand: '', model: '', unit_cost: null, stock: 0 });
-    setDialogOpen(true);
+  const openNew = () => { setEditing(null); setForm({ code: '', name: '', category: 'Otro', brand: '', model: '', unit_cost: null, stock: 0 }); setDialogOpen(true); };
+  const openEdit = (p: HardwarePart) => { setEditing(p); setForm({ ...p }); setDialogOpen(true); };
+
+  const handleSave = async () => {
+    try {
+      if (editing) {
+        await api.update('hardware-parts', editing.id, form);
+        toast.success('Pieza actualizada');
+      } else {
+        await api.create('hardware-parts', form);
+        toast.success('Pieza creada');
+      }
+      setDialogOpen(false);
+      fetchData();
+    } catch (err: any) { toast.error(err.message || 'Error al guardar'); }
   };
 
-  const openEdit = (p: HardwarePart) => {
-    setEditing(p);
-    setForm({ ...p });
-    setDialogOpen(true);
-  };
-
-  const handleSave = () => {
-    if (editing) {
-      setParts(prev => prev.map(p => p.id === editing.id ? { ...p, ...form } as HardwarePart : p));
-    } else {
-      const newId = Math.max(...parts.map(p => p.id), 0) + 1;
-      setParts(prev => [...prev, { id: newId, ...form } as HardwarePart]);
-    }
-    setDialogOpen(false);
-  };
-
-  const handleDelete = (id: number) => {
-    setParts(prev => prev.filter(p => p.id !== id));
+  const handleDelete = async (id: number) => {
+    try { await api.delete('hardware-parts', id); toast.success('Pieza eliminada'); fetchData(); }
+    catch { toast.error('Error al eliminar'); }
   };
 
   return (

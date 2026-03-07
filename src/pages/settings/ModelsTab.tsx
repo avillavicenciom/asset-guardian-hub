@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit2, Trash2, Search, Cpu, HardDrive, Monitor as MonitorIcon, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,15 +6,30 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { assetModels as initialModels, assetTypes } from '@/data/mockData';
-import { AssetModel } from '@/data/types';
+import { AssetModel, AssetType } from '@/data/types';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function ModelsTab() {
-  const [models, setModels] = useState<AssetModel[]>(initialModels);
+  const [models, setModels] = useState<AssetModel[]>([]);
+  const [assetTypes, setAssetTypes] = useState<AssetType[]>([]);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AssetModel | null>(null);
   const [form, setForm] = useState<Partial<AssetModel>>({});
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [m, t] = await Promise.all([
+        api.getAll<AssetModel>('models'),
+        api.getAll<AssetType>('asset-types'),
+      ]);
+      setModels(m);
+      setAssetTypes(t);
+    } catch { toast.error('Error al cargar modelos'); }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const filtered = models.filter(m => {
     if (!search) return true;
@@ -34,18 +49,26 @@ export default function ModelsTab() {
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (editing) {
-      setModels(prev => prev.map(m => m.id === editing.id ? { ...m, ...form } as AssetModel : m));
-    } else {
-      const newId = Math.max(...models.map(m => m.id), 0) + 1;
-      setModels(prev => [...prev, { id: newId, photo_url: null, ...form } as AssetModel]);
-    }
-    setDialogOpen(false);
+  const handleSave = async () => {
+    try {
+      if (editing) {
+        await api.update('models', editing.id, form);
+        toast.success('Modelo actualizado');
+      } else {
+        await api.create('models', { ...form, photo_url: form.photo_url || null });
+        toast.success('Modelo creado');
+      }
+      setDialogOpen(false);
+      fetchData();
+    } catch (err: any) { toast.error(err.message || 'Error al guardar'); }
   };
 
-  const handleDelete = (id: number) => {
-    setModels(prev => prev.filter(m => m.id !== id));
+  const handleDelete = async (id: number) => {
+    try {
+      await api.delete('models', id);
+      toast.success('Modelo eliminado');
+      fetchData();
+    } catch { toast.error('Error al eliminar'); }
   };
 
   const getTypeName = (typeId: number) => assetTypes.find(t => t.id === typeId)?.label || '—';

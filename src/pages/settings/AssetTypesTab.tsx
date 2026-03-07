@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,39 +6,44 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { assetTypes as initialTypes } from '@/data/mockData';
 import { AssetType, AssetCategory } from '@/data/types';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function AssetTypesTab() {
-  const [types, setTypes] = useState<AssetType[]>(initialTypes);
+  const [types, setTypes] = useState<AssetType[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<AssetType | null>(null);
   const [form, setForm] = useState<Partial<AssetType>>({});
 
-  const openNew = () => {
-    setEditing(null);
-    setForm({ code: '', label: '', category: 'EQUIPO' });
-    setDialogOpen(true);
+  const fetchData = useCallback(async () => {
+    try {
+      setTypes(await api.getAll<AssetType>('asset-types'));
+    } catch { toast.error('Error al cargar tipos'); }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const openNew = () => { setEditing(null); setForm({ code: '', label: '', category: 'EQUIPO' }); setDialogOpen(true); };
+  const openEdit = (t: AssetType) => { setEditing(t); setForm({ ...t }); setDialogOpen(true); };
+
+  const handleSave = async () => {
+    try {
+      if (editing) {
+        await api.update('asset-types', editing.id, form);
+        toast.success('Tipo actualizado');
+      } else {
+        await api.create('asset-types', form);
+        toast.success('Tipo creado');
+      }
+      setDialogOpen(false);
+      fetchData();
+    } catch (err: any) { toast.error(err.message || 'Error al guardar'); }
   };
 
-  const openEdit = (t: AssetType) => {
-    setEditing(t);
-    setForm({ ...t });
-    setDialogOpen(true);
-  };
-
-  const handleSave = () => {
-    if (editing) {
-      setTypes(prev => prev.map(t => t.id === editing.id ? { ...t, ...form } as AssetType : t));
-    } else {
-      const newId = Math.max(...types.map(t => t.id), 0) + 1;
-      setTypes(prev => [...prev, { id: newId, ...form } as AssetType]);
-    }
-    setDialogOpen(false);
-  };
-
-  const handleDelete = (id: number) => {
-    setTypes(prev => prev.filter(t => t.id !== id));
+  const handleDelete = async (id: number) => {
+    try { await api.delete('asset-types', id); toast.success('Tipo eliminado'); fetchData(); }
+    catch { toast.error('Error al eliminar'); }
   };
 
   const equipos = types.filter(t => t.category === 'EQUIPO');

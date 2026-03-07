@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit2, Trash2, Search, Phone, Mail, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,15 +6,24 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { technicians as initialTechnicians } from '@/data/mockData';
 import { Technician } from '@/data/types';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function TechniciansTab() {
-  const [technicians, setTechnicians] = useState<Technician[]>(initialTechnicians);
+  const [technicians, setTechnicians] = useState<Technician[]>([]);
   const [search, setSearch] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Technician | null>(null);
   const [form, setForm] = useState<Partial<Technician>>({});
+
+  const fetchData = useCallback(async () => {
+    try {
+      setTechnicians(await api.getAll<Technician>('technicians'));
+    } catch { toast.error('Error al cargar técnicos'); }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const filtered = technicians.filter(t => {
     if (!search) return true;
@@ -22,30 +31,26 @@ export default function TechniciansTab() {
     return `${t.name} ${t.company} ${t.specialty}`.toLowerCase().includes(q);
   });
 
-  const openNew = () => {
-    setEditing(null);
-    setForm({ name: '', email: '', phone: '', specialty: '', company: '', is_external: false, is_active: true });
-    setDialogOpen(true);
+  const openNew = () => { setEditing(null); setForm({ name: '', email: '', phone: '', specialty: '', company: '', is_external: false, is_active: true }); setDialogOpen(true); };
+  const openEdit = (t: Technician) => { setEditing(t); setForm({ ...t }); setDialogOpen(true); };
+
+  const handleSave = async () => {
+    try {
+      if (editing) {
+        await api.update('technicians', editing.id, form);
+        toast.success('Técnico actualizado');
+      } else {
+        await api.create('technicians', form);
+        toast.success('Técnico creado');
+      }
+      setDialogOpen(false);
+      fetchData();
+    } catch (err: any) { toast.error(err.message || 'Error al guardar'); }
   };
 
-  const openEdit = (t: Technician) => {
-    setEditing(t);
-    setForm({ ...t });
-    setDialogOpen(true);
-  };
-
-  const handleSave = () => {
-    if (editing) {
-      setTechnicians(prev => prev.map(t => t.id === editing.id ? { ...t, ...form } as Technician : t));
-    } else {
-      const newId = Math.max(...technicians.map(t => t.id), 0) + 1;
-      setTechnicians(prev => [...prev, { id: newId, ...form } as Technician]);
-    }
-    setDialogOpen(false);
-  };
-
-  const handleDelete = (id: number) => {
-    setTechnicians(prev => prev.filter(t => t.id !== id));
+  const handleDelete = async (id: number) => {
+    try { await api.delete('technicians', id); toast.success('Técnico eliminado'); fetchData(); }
+    catch { toast.error('Error al eliminar'); }
   };
 
   return (
