@@ -59,7 +59,7 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
     label: 'Serial',
     defaultVisible: true,
     getValue: (a, h) => h.getAssetById(a.asset_id)?.serial_number || '',
-    render: (a, h) => <span className="font-mono text-sm">{h.getAssetById(a.asset_id)?.serial_number || '—'}</span>,
+    render: (a, h) => <span className="text-sm">{h.getAssetById(a.asset_id)?.serial_number || '—'}</span>,
     width: 'min-w-[160px]',
   },
   {
@@ -67,7 +67,7 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
     label: 'ID Inventario',
     defaultVisible: true,
     getValue: (a, h) => h.getAssetById(a.asset_id)?.asset_tag || '',
-    render: (a, h) => <span className="font-mono text-sm">{h.getAssetById(a.asset_id)?.asset_tag || '—'}</span>,
+    render: (a, h) => <span className="text-sm">{h.getAssetById(a.asset_id)?.asset_tag || '—'}</span>,
     width: 'min-w-[110px]',
   },
   {
