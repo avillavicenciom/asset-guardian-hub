@@ -21,7 +21,7 @@ export default function ModelsTab() {
   const fetchData = useCallback(async () => {
     try {
       const [m, t] = await Promise.all([
-        api.getAll<AssetModel>('models'),
+        api.getAll<AssetModel>('asset-models'),
         api.getAll<AssetType>('asset-types'),
       ]);
       setModels(m);
@@ -52,10 +52,10 @@ export default function ModelsTab() {
   const handleSave = async () => {
     try {
       if (editing) {
-        await api.update('models', editing.id, form);
+        await api.update('asset-models', editing.id, form);
         toast.success('Modelo actualizado');
       } else {
-        await api.create('models', { ...form, photo_url: form.photo_url || null });
+        await api.create('asset-models', { ...form, photo_url: form.photo_url || null });
         toast.success('Modelo creado');
       }
       setDialogOpen(false);
@@ -65,7 +65,7 @@ export default function ModelsTab() {
 
   const handleDelete = async (id: number) => {
     try {
-      await api.delete('models', id);
+      await api.delete('asset-models', id);
       toast.success('Modelo eliminado');
       fetchData();
     } catch { toast.error('Error al eliminar'); }
