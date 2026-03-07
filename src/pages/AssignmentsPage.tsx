@@ -107,7 +107,7 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
     key: 'date',
     label: 'Fecha',
     defaultVisible: true,
-    getValue: (a) => new Date(a.assigned_at).toLocaleDateString('es-ES'),
+    getValue: (a) => new Date(a.assigned_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }),
     width: 'min-w-[100px]',
   },
   {

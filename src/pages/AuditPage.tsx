@@ -62,7 +62,7 @@ export default function AuditPage() {
                 <motion.tr key={entry.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}>
                   <td className="text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(entry.timestamp).toLocaleString('es-ES', {
-                      day: '2-digit', month: '2-digit', year: 'numeric',
+                      day: '2-digit', month: '2-digit', year: '2-digit',
                       hour: '2-digit', minute: '2-digit', second: '2-digit',
                     })}
                   </td>

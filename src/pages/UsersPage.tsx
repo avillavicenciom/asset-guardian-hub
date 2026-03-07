@@ -268,7 +268,7 @@ export default function UsersPage() {
                         ) : isExpired ? (
                           <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" /> Finalizado</span>
                         ) : user.contract_end ? (
-                          <span className="text-xs text-muted-foreground">{new Date(user.contract_end).toLocaleDateString('es-ES')}</span>
+                          <span className="text-xs text-muted-foreground">{new Date(user.contract_end).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
                         ) : (
                           <span className="text-muted-foreground">—</span>
                         )}
