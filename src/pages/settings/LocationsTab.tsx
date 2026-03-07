@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MapPin, Plus, Pencil, Trash2, Warehouse, Building2, Server, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,8 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { locations as initialLocations } from '@/data/mockData';
 import { Location, LocationType } from '@/data/types';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 const locationTypeLabels: Record<LocationType, string> = {
   ALMACEN: 'Almacén',
@@ -32,7 +33,7 @@ const locationTypeBadgeClass: Record<LocationType, string> = {
 };
 
 export default function LocationsTab() {
-  const [items, setItems] = useState<Location[]>(initialLocations);
+  const [items, setItems] = useState<Location[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Location | null>(null);
   const [filter, setFilter] = useState('');
@@ -43,6 +44,14 @@ export default function LocationsTab() {
   const [locationType, setLocationType] = useState<LocationType>('OFICINA');
   const [floor, setFloor] = useState('');
   const [notes, setNotes] = useState('');
+
+  const fetchData = useCallback(async () => {
+    try {
+      setItems(await api.getAll<Location>('locations'));
+    } catch { toast.error('Error al cargar ubicaciones'); }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const resetForm = () => {
     setCountry(''); setSite(''); setCenter(''); setLocationType('OFICINA'); setFloor(''); setNotes('');
@@ -56,24 +65,34 @@ export default function LocationsTab() {
     setDialogOpen(true);
   };
 
-  const save = () => {
+  const save = async () => {
     if (!country.trim() || !site.trim() || !center.trim()) return;
-    if (editing) {
-      setItems(prev => prev.map(i => i.id === editing.id ? { ...i, country: country.trim(), site: site.trim(), center: center.trim(), location_type: locationType, floor: floor.trim() || null, notes: notes.trim() || null } : i));
-    } else {
-      const newId = Math.max(0, ...items.map(i => i.id)) + 1;
-      setItems(prev => [...prev, { id: newId, country: country.trim(), site: site.trim(), center: center.trim(), location_type: locationType, floor: floor.trim() || null, notes: notes.trim() || null }]);
-    }
-    setDialogOpen(false);
+    const payload = {
+      country: country.trim(), site: site.trim(), center: center.trim(),
+      location_type: locationType, floor: floor.trim() || null, notes: notes.trim() || null,
+    };
+    try {
+      if (editing) {
+        await api.update('locations', editing.id, payload);
+        toast.success('Ubicación actualizada');
+      } else {
+        await api.create('locations', payload);
+        toast.success('Ubicación creada');
+      }
+      setDialogOpen(false);
+      fetchData();
+    } catch (err: any) { toast.error(err.message || 'Error al guardar'); }
   };
 
-  const remove = (id: number) => setItems(prev => prev.filter(i => i.id !== id));
+  const remove = async (id: number) => {
+    try { await api.delete('locations', id); toast.success('Ubicación eliminada'); fetchData(); }
+    catch { toast.error('Error al eliminar'); }
+  };
 
   const filtered = items.filter(i =>
     `${i.country} ${i.site} ${i.center} ${i.floor || ''}`.toLowerCase().includes(filter.toLowerCase())
   );
 
-  // Group by country → site
   const grouped = filtered.reduce<Record<string, Record<string, Location[]>>>((acc, loc) => {
     if (!acc[loc.country]) acc[loc.country] = {};
     if (!acc[loc.country][loc.site]) acc[loc.country][loc.site] = [];

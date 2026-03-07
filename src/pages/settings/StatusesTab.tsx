@@ -1,43 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { statuses as initialStatuses } from '@/data/mockData';
 import { StatusCatalog } from '@/data/types';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
 
 export default function StatusesTab() {
-  const [statuses, setStatuses] = useState<StatusCatalog[]>(initialStatuses);
+  const [statuses, setStatuses] = useState<StatusCatalog[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<StatusCatalog | null>(null);
   const [form, setForm] = useState<Partial<StatusCatalog>>({});
 
-  const openNew = () => {
-    setEditing(null);
-    setForm({ code: '', label: '', is_terminal: false });
-    setDialogOpen(true);
+  const fetchData = useCallback(async () => {
+    try {
+      setStatuses(await api.getAll<StatusCatalog>('statuses'));
+    } catch { toast.error('Error al cargar estados'); }
+  }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const openNew = () => { setEditing(null); setForm({ code: '', label: '', is_terminal: false }); setDialogOpen(true); };
+  const openEdit = (s: StatusCatalog) => { setEditing(s); setForm({ ...s }); setDialogOpen(true); };
+
+  const handleSave = async () => {
+    try {
+      if (editing) {
+        await api.update('statuses', editing.id, form);
+        toast.success('Estado actualizado');
+      } else {
+        await api.create('statuses', form);
+        toast.success('Estado creado');
+      }
+      setDialogOpen(false);
+      fetchData();
+    } catch (err: any) { toast.error(err.message || 'Error al guardar'); }
   };
 
-  const openEdit = (s: StatusCatalog) => {
-    setEditing(s);
-    setForm({ ...s });
-    setDialogOpen(true);
-  };
-
-  const handleSave = () => {
-    if (editing) {
-      setStatuses(prev => prev.map(s => s.id === editing.id ? { ...s, ...form } as StatusCatalog : s));
-    } else {
-      const newId = Math.max(...statuses.map(s => s.id), 0) + 1;
-      setStatuses(prev => [...prev, { id: newId, ...form } as StatusCatalog]);
-    }
-    setDialogOpen(false);
-  };
-
-  const handleDelete = (id: number) => {
-    setStatuses(prev => prev.filter(s => s.id !== id));
+  const handleDelete = async (id: number) => {
+    try { await api.delete('statuses', id); toast.success('Estado eliminado'); fetchData(); }
+    catch { toast.error('Error al eliminar'); }
   };
 
   return (
