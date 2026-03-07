@@ -59,7 +59,7 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
     label: 'Serial',
     defaultVisible: true,
     getValue: (a, h) => h.getAssetById(a.asset_id)?.serial_number || '',
-    render: (a, h) => <span className="font-mono text-xs">{h.getAssetById(a.asset_id)?.serial_number || '—'}</span>,
+    render: (a, h) => <span className="font-mono text-sm">{h.getAssetById(a.asset_id)?.serial_number || '—'}</span>,
     width: 'min-w-[160px]',
   },
   {
@@ -67,7 +67,7 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
     label: 'ID Inventario',
     defaultVisible: true,
     getValue: (a, h) => h.getAssetById(a.asset_id)?.asset_tag || '',
-    render: (a, h) => <span className="font-mono text-xs">{h.getAssetById(a.asset_id)?.asset_tag || '—'}</span>,
+    render: (a, h) => <span className="font-mono text-sm">{h.getAssetById(a.asset_id)?.asset_tag || '—'}</span>,
     width: 'min-w-[110px]',
   },
   {
@@ -83,11 +83,11 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
     },
     render: (a, h) => {
       const name = a.user_id ? h.getUserById(a.user_id)?.display_name : a.manual_user_name;
-      if (!name) return <span className="text-xs text-muted-foreground">—</span>;
+      if (!name) return <span className="text-sm text-muted-foreground">—</span>;
       return (
         <div className="flex items-center gap-1.5">
           <User className="w-3 h-3 text-muted-foreground shrink-0" />
-          <span className="text-xs font-medium">{name}</span>
+          <span className="text-sm">{name}</span>
         </div>
       );
     },
@@ -116,7 +116,7 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
     defaultVisible: true,
     getValue: (a) => a.delivery_mode === 'SIGNED' ? 'Firmado' : 'Validado',
     render: (a) => (
-      <span className={`text-xs px-2 py-0.5 rounded font-medium ${a.delivery_mode === 'SIGNED' ? 'bg-accent/10 text-accent' : 'bg-[hsl(var(--status-pending))]/10 text-[hsl(var(--status-pending))]'}`}>
+      <span className={`text-sm px-2 py-0.5 rounded font-medium ${a.delivery_mode === 'SIGNED' ? 'bg-accent/10 text-accent' : 'bg-[hsl(var(--status-pending))]/10 text-[hsl(var(--status-pending))]'}`}>
         {a.delivery_mode === 'SIGNED' ? 'Firmado' : 'Validado'}
       </span>
     ),
@@ -135,9 +135,9 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
     defaultVisible: true,
     getValue: (a) => a.returned_at ? 'Devuelto' : 'Activa',
     render: (a) => a.returned_at ? (
-      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><RotateCcw className="w-3 h-3" /> Devuelto</span>
+      <span className="inline-flex items-center gap-1 text-sm text-muted-foreground"><RotateCcw className="w-3 h-3" /> Devuelto</span>
     ) : (
-      <span className="inline-flex items-center gap-1 text-xs text-[hsl(var(--status-assigned))] font-medium"><CheckCircle2 className="w-3 h-3" /> Activa</span>
+      <span className="inline-flex items-center gap-1 text-sm text-[hsl(var(--status-assigned))] font-medium"><CheckCircle2 className="w-3 h-3" /> Activa</span>
     ),
     width: 'min-w-[100px]',
   },
@@ -159,7 +159,7 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
       return (
         <div className="flex items-center gap-1.5">
           <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />
-          <span className="text-xs">{loc.site}, {loc.center}</span>
+          <span className="text-sm">{loc.site}, {loc.center}</span>
         </div>
       );
     },
