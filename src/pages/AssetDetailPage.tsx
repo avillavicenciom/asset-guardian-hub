@@ -68,7 +68,7 @@ export default function AssetDetailPage() {
     );
   }
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
 
   return (
     <div className="p-6 lg:p-8 max-w-[1400px]">

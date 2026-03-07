@@ -180,14 +180,14 @@ const ALL_COLUMNS: ColumnDef[] = [
   key: 'created_at',
   label: 'Fecha creación',
   defaultVisible: false,
-  getValue: (a) => new Date(a.created_at).toLocaleDateString('es-ES'),
+  getValue: (a) => new Date(a.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }),
   width: 'min-w-[120px]'
 },
 {
   key: 'updated_at',
   label: 'Última actualización',
   defaultVisible: false,
-  getValue: (a) => new Date(a.updated_at).toLocaleDateString('es-ES'),
+  getValue: (a) => new Date(a.updated_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' }),
   width: 'min-w-[140px]'
 }];
 
