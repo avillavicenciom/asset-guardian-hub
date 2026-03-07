@@ -84,8 +84,8 @@ All colors MUST be HSL.
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
-    --border: 224 15% 22%;
-    --input: 224 15% 22%;
+    --border: 224 15% 15%;
+    --input: 224 15% 15%;
     --ring: 245 58% 60%;
     --sidebar-background: 224 28% 7%;
     --sidebar-foreground: 220 10% 60%;
