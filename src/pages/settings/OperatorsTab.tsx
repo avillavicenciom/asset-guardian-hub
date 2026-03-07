@@ -26,7 +26,8 @@ const ROLE_COLORS: Record<string, string> = {
 
 export default function OperatorsTab() {
   const { isAdmin } = useRole();
-  const [operators, setOperators] = useState<Operator[]>(mockOperators);
+  const [operators, setOperators] = useState<Operator[]>([]);
+  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Operator | null>(null);
 
@@ -37,6 +38,19 @@ export default function OperatorsTab() {
     role: 'TECH' as 'ADMIN' | 'TECH' | 'READONLY',
     permissions: [] as Permission[],
   });
+
+  const fetchOperators = useCallback(async () => {
+    try {
+      const data = await api.getAll<Operator>('operators');
+      setOperators(data);
+    } catch {
+      toast.error('Error al cargar operadores');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchOperators(); }, [fetchOperators]);
 
   const openNew = () => {
     setEditing(null);
@@ -75,33 +89,37 @@ export default function OperatorsTab() {
     }));
   };
 
-  const save = () => {
+  const save = async () => {
     if (!form.name || !form.email || !form.username) return;
-    if (editing) {
-      setOperators(prev => prev.map(op =>
-        op.id === editing.id
-          ? { ...op, name: form.name, email: form.email, username: form.username, role: form.role, permissions: form.role === 'ADMIN' ? [] : form.permissions }
-          : op
-      ));
-    } else {
-      const newOp: Operator = {
-        id: Date.now(),
+    try {
+      const payload = {
         name: form.name,
         email: form.email,
         username: form.username,
         role: form.role,
-        is_active: true,
         permissions: form.role === 'ADMIN' ? [] : form.permissions,
       };
-      setOperators(prev => [...prev, newOp]);
+      if (editing) {
+        await api.update('operators', editing.id, payload);
+        toast.success('Operador actualizado');
+      } else {
+        await api.create('operators', payload);
+        toast.success('Operador creado');
+      }
+      setDialogOpen(false);
+      fetchOperators();
+    } catch (err: any) {
+      toast.error(err.message || 'Error al guardar');
     }
-    setDialogOpen(false);
   };
 
-  const toggleActive = (id: number) => {
-    setOperators(prev => prev.map(op =>
-      op.id === id ? { ...op, is_active: !op.is_active } : op
-    ));
+  const toggleActive = async (id: number, currentActive: boolean) => {
+    try {
+      await api.update('operators', id, { is_active: !currentActive });
+      fetchOperators();
+    } catch {
+      toast.error('Error al cambiar estado');
+    }
   };
 
   return (
