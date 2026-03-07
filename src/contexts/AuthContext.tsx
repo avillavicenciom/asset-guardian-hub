@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Operator, Permission, ALL_PERMISSIONS } from '@/data/types';
-import { operators } from '@/data/mockData';
+import { api } from '@/lib/api';
 
 export interface AuditEntry {
   id: string;
@@ -25,40 +25,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 const STORAGE_KEY = 'it_inventory_auth';
-const USERS_KEY = 'it_inventory_users';
-const AUDIT_KEY = 'it_inventory_audit';
-
-interface StoredUser {
-  id: number;
-  name: string;
-  email: string;
-  username: string;
-  password: string;
-  role: 'ADMIN' | 'TECH' | 'READONLY';
-  is_active: boolean;
-  permissions: Permission[];
-}
-
-function getStoredUsers(): StoredUser[] {
-  try {
-    const raw = localStorage.getItem(USERS_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  const seed: StoredUser[] = operators.map(o => ({
-    ...o,
-    password: 'admin123',
-  }));
-  localStorage.setItem(USERS_KEY, JSON.stringify(seed));
-  return seed;
-}
-
-function getAuditLog(): AuditEntry[] {
-  try {
-    const raw = localStorage.getItem(AUDIT_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return [];
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentOperator, setCurrentOperator] = useState<Operator | null>(null);
@@ -72,53 +38,89 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setCurrentOperator(op);
       } catch {}
     }
-    setAuditLog(getAuditLog());
   }, []);
 
-  const addAuditEntry = (action: string, module: string, details: string) => {
+  // Cargar audit log desde API
+  useEffect(() => {
+    api.getAll<any>('audit-log')
+      .then(rows => {
+        setAuditLog(rows.map((r: any) => ({
+          id: String(r.id),
+          timestamp: r.created_at || r.timestamp || new Date().toISOString(),
+          operator_id: r.operator_id,
+          operator_name: r.operator_name,
+          action: r.action,
+          module: r.module,
+          details: r.details,
+        })));
+      })
+      .catch(() => setAuditLog([]));
+  }, []);
+
+  const addAuditEntry = async (action: string, module: string, details: string) => {
     if (!currentOperator) return;
-    const entry: AuditEntry = {
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
-      operator_id: currentOperator.id,
-      operator_name: currentOperator.name,
-      action,
-      module,
-      details,
-    };
-    const updated = [entry, ...auditLog];
-    setAuditLog(updated);
-    localStorage.setItem(AUDIT_KEY, JSON.stringify(updated));
+    try {
+      await api.create('audit-log', {
+        operator_id: currentOperator.id,
+        operator_name: currentOperator.name,
+        action,
+        module,
+        details,
+      });
+      // Refrescar
+      const rows = await api.getAll<any>('audit-log');
+      setAuditLog(rows.map((r: any) => ({
+        id: String(r.id),
+        timestamp: r.created_at || r.timestamp || new Date().toISOString(),
+        operator_id: r.operator_id,
+        operator_name: r.operator_name,
+        action: r.action,
+        module: r.module,
+        details: r.details,
+      })));
+    } catch (err) {
+      console.error('Error al registrar auditoría:', err);
+    }
   };
 
   const login = async (username: string, password: string): Promise<boolean> => {
-    const users = getStoredUsers();
-    const user = users.find(u => u.username === username && u.password === password && u.is_active);
-    if (!user) return false;
-    const op: Operator = { id: user.id, name: user.name, email: user.email, username: user.username, role: user.role, is_active: user.is_active, permissions: user.role === 'ADMIN' ? ALL_PERMISSIONS : (user.permissions || []) };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(op));
-    const entry: AuditEntry = {
-      id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
-      operator_id: op.id,
-      operator_name: op.name,
-      action: 'LOGIN',
-      module: 'Auth',
-      details: `Inicio de sesión: ${op.username}`,
-    };
-    const updated = [entry, ...getAuditLog()];
-    setAuditLog(updated);
-    localStorage.setItem(AUDIT_KEY, JSON.stringify(updated));
-    return true;
+    try {
+      const user = await api.login(username, password) as any;
+      const op: Operator = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        is_active: user.is_active,
+        permissions: user.role === 'ADMIN' ? ALL_PERMISSIONS : (user.permissions || []),
+      };
+      setCurrentOperator(op);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(op));
+      // Refrescar audit log
+      const rows = await api.getAll<any>('audit-log');
+      setAuditLog(rows.map((r: any) => ({
+        id: String(r.id),
+        timestamp: r.created_at || r.timestamp || new Date().toISOString(),
+        operator_id: r.operator_id,
+        operator_name: r.operator_name,
+        action: r.action,
+        module: r.module,
+        details: r.details,
+      })));
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const register = async (name: string, email: string, username: string, password: string): Promise<boolean> => {
-    const users = getStoredUsers();
-    if (users.find(u => u.username === username)) return false;
-    const newUser: StoredUser = { id: Date.now(), name, email, username, password, role: 'READONLY', is_active: true, permissions: [] };
-    users.push(newUser);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    return true;
+    try {
+      await api.register({ name, email, username, password });
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const logout = () => {
