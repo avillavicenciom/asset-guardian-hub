@@ -17,8 +17,9 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription,
 } from '@/components/ui/sheet';
 import AssignAssetDialog from '@/components/AssignAssetDialog';
+import ReturnAssetDialog from '@/components/ReturnAssetDialog';
 import { downloadReceipt } from '@/utils/generateReceipt';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 
 // ---------- Column definitions ----------
@@ -289,6 +290,8 @@ export default function AssignmentsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [columnsConfig, setColumnsConfig] = useState<ColumnsConfig>(loadConfig);
   const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [returningAssignment, setReturningAssignment] = useState<Assignment | null>(null);
 
   const helpers = useMemo(() => ({ getAssetById, getUserById, getStatusById, getStatusClass, getLocationById }), [getAssetById, getUserById, getStatusById, getStatusClass, getLocationById]);
 
@@ -457,6 +460,20 @@ export default function AssignmentsPage() {
                         >
                           <Mail className="w-4 h-4" /> Descargar acuse de recibo
                         </DropdownMenuItem>
+                        {!assignment.returned_at && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setReturningAssignment(assignment);
+                                setReturnDialogOpen(true);
+                              }}
+                              className="gap-2"
+                            >
+                              <RotateCcw className="w-4 h-4" /> Registrar devolución
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
@@ -476,6 +493,11 @@ export default function AssignmentsPage() {
       <p className="text-xs text-muted-foreground mt-3">{filtered.length} de {assignments.length} registros</p>
 
       <AssignAssetDialog open={showAssignDialog} onOpenChange={setShowAssignDialog} />
+      <ReturnAssetDialog
+        open={returnDialogOpen}
+        onOpenChange={setReturnDialogOpen}
+        assignment={returningAssignment}
+      />
     </div>
   );
 }

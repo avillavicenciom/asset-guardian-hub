@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Monitor, Laptop, Tablet, Printer, Server as ServerIcon,
@@ -13,6 +13,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { statusHistory as mockStatusHistory, operators as mockOperators, repairParts as mockRepairParts, hardwareParts as mockHardwareParts, technicians as mockTechnicians } from '@/data/mockData';
+import ReturnAssetDialog from '@/components/ReturnAssetDialog';
+import { RotateCcw } from 'lucide-react';
 
 const typeIcons: Record<string, React.ReactNode> = {
   Laptop: <Laptop className="w-6 h-6" />,
@@ -54,6 +56,7 @@ export default function AssetDetailPage() {
   const location = useMemo(() => asset?.location_id ? getLocationById(asset.location_id) : undefined, [asset, getLocationById]);
   const status = useMemo(() => asset ? getStatusById(asset.status_id) : undefined, [asset, getStatusById]);
   const assetRepairs = useMemo(() => asset ? repairs.filter(r => r.asset_id === asset.id) : [], [asset, repairs]);
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const history = useMemo(() => asset ? mockStatusHistory.filter(h => h.asset_id === asset.id).sort((a, b) => new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime()) : [], [asset]);
   const assignmentHistory = useMemo(() => asset ? assignments.filter(a => a.asset_id === asset.id).sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime()) : [], [asset, assignments]);
 
@@ -349,7 +352,12 @@ export default function AssetDetailPage() {
                     </div>
                   )}
                 </div>
-                <Button variant="outline" size="sm" className="w-full mt-2">Reasignar Activo</Button>
+                <div className="flex gap-2 mt-2">
+                  <Button variant="outline" size="sm" className="flex-1">Reasignar</Button>
+                  <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-orange-600 hover:text-orange-700 border-orange-200 hover:border-orange-300" onClick={() => setReturnDialogOpen(true)}>
+                    <RotateCcw className="w-3.5 h-3.5" /> Devolver
+                  </Button>
+                </div>
               </div>
             ) : activeAssignment?.manual_user_name ? (
               <div className="space-y-2">
@@ -364,7 +372,12 @@ export default function AssetDetailPage() {
                     )}
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="w-full mt-2">Reasignar Activo</Button>
+                <div className="flex gap-2 mt-2">
+                  <Button variant="outline" size="sm" className="flex-1">Reasignar</Button>
+                  <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-orange-600 hover:text-orange-700 border-orange-200 hover:border-orange-300" onClick={() => setReturnDialogOpen(true)}>
+                    <RotateCcw className="w-3.5 h-3.5" /> Devolver
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="text-center py-4">
@@ -407,6 +420,12 @@ export default function AssetDetailPage() {
           </motion.div>
         </div>
       </div>
+
+      <ReturnAssetDialog
+        open={returnDialogOpen}
+        onOpenChange={setReturnDialogOpen}
+        assignment={activeAssignment}
+      />
     </div>
   );
 }
