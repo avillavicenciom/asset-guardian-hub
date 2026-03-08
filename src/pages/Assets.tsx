@@ -428,6 +428,7 @@ export default function AssetsPage() {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [assignAssetId, setAssignAssetId] = useState<number | null>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   const existingSerials = useMemo(() => new Set(assets.map((a) => a.serial_number.toLowerCase())), [assets]);
 
