@@ -207,16 +207,31 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
               )}
             </div>
           </div>
-          <div className="grid gap-1.5">
-            <Label>Estado inicial</Label>
-            <Select value={form.status_id} onValueChange={v => update('status_id', v)}>
-              <SelectTrigger><SelectValue placeholder={defaultStatus?.label || 'Seleccionar...'} /></SelectTrigger>
-              <SelectContent>
-                {statuses?.map(s => (
-                  <SelectItem key={s.id} value={String(s.id)}>{s.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label>Estado inicial</Label>
+              <Select value={form.status_id} onValueChange={v => update('status_id', v)}>
+                <SelectTrigger><SelectValue placeholder={defaultStatus?.label || 'Seleccionar...'} /></SelectTrigger>
+                <SelectContent>
+                  {selectableStatuses.map(s => (
+                    <SelectItem key={s.id} value={String(s.id)}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Almacén</Label>
+              <Select value={form.location_id} onValueChange={v => update('location_id', v)}>
+                <SelectTrigger><SelectValue placeholder="Seleccionar almacén..." /></SelectTrigger>
+                <SelectContent>
+                  {warehouses.map(w => (
+                    <SelectItem key={w.id} value={String(w.id)}>
+                      {w.center} {w.floor ? `(${w.floor})` : ''} — {w.site}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="grid gap-1.5">
             <Label>Tags (separados por coma)</Label>
