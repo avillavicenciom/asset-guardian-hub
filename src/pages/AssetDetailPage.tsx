@@ -13,6 +13,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { statusHistory as mockStatusHistory, operators as mockOperators, repairParts as mockRepairParts, hardwareParts as mockHardwareParts, technicians as mockTechnicians } from '@/data/mockData';
+import ReturnAssetDialog from '@/components/ReturnAssetDialog';
+import { RotateCcw } from 'lucide-react';
 
 const typeIcons: Record<string, React.ReactNode> = {
   Laptop: <Laptop className="w-6 h-6" />,
