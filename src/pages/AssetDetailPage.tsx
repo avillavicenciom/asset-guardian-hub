@@ -50,6 +50,12 @@ export default function AssetDetailPage() {
     getLocationById, getAssignedUserName, getUserById, getActiveAssignmentForAsset,
   } = useData();
 
+  const [statusHistory, setStatusHistory] = useState<any[]>([]);
+  const [operators, setOperators] = useState<any[]>([]);
+  const [repairParts, setRepairParts] = useState<any[]>([]);
+  const [hardwareParts, setHardwareParts] = useState<any[]>([]);
+  const [technicians, setTechnicians] = useState<any[]>([]);
+
   const asset = useMemo(() => assets.find(a => a.id === Number(id)), [assets, id]);
   const activeAssignment = useMemo(() => asset ? getActiveAssignmentForAsset(asset.id) : undefined, [asset, getActiveAssignmentForAsset]);
   const assignedUser = useMemo(() => activeAssignment?.user_id ? getUserById(activeAssignment.user_id) : undefined, [activeAssignment, getUserById]);
@@ -57,7 +63,25 @@ export default function AssetDetailPage() {
   const status = useMemo(() => asset ? getStatusById(asset.status_id) : undefined, [asset, getStatusById]);
   const assetRepairs = useMemo(() => asset ? repairs.filter(r => r.asset_id === asset.id) : [], [asset, repairs]);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
-  const history = useMemo(() => asset ? mockStatusHistory.filter(h => h.asset_id === asset.id).sort((a, b) => new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime()) : [], [asset]);
+
+  useEffect(() => {
+    if (!asset) return;
+    Promise.all([
+      api.assetStatusHistory(asset.id),
+      api.getAll('operators'),
+      api.getAll('repair-parts'),
+      api.getAll('hardware-parts'),
+      api.getAll('technicians'),
+    ]).then(([sh, ops, rp, hp, techs]) => {
+      setStatusHistory(sh as any[]);
+      setOperators(ops as any[]);
+      setRepairParts(rp as any[]);
+      setHardwareParts(hp as any[]);
+      setTechnicians(techs as any[]);
+    }).catch(console.error);
+  }, [asset]);
+
+  const history = useMemo(() => statusHistory.sort((a: any, b: any) => new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime()), [statusHistory]);
   const assignmentHistory = useMemo(() => asset ? assignments.filter(a => a.asset_id === asset.id).sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime()) : [], [asset, assignments]);
 
   if (!asset) {
