@@ -120,6 +120,7 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
         brand: form.brand.trim() || null,
         model: form.model.trim() || null,
         status_id: form.status_id ? Number(form.status_id) : (defaultStatus?.id || 1),
+        location_id: form.location_id ? Number(form.location_id) : null,
         notes: form.notes.trim() || null,
         tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       });
