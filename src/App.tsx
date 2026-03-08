@@ -13,6 +13,7 @@ import AssignmentsPage from "./pages/AssignmentsPage";
 import RepairsPage from "./pages/RepairsPage";
 import AuditPage from "./pages/AuditPage";
 import HelpPage from "./pages/HelpPage";
+import SetupGuidePage from "./pages/SetupGuidePage";
 import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";
@@ -37,6 +38,7 @@ function AppRoutes() {
         <Route path="/repairs" element={<RepairsPage />} />
         <Route path="/audit" element={<AuditPage />} />
         <Route path="/help" element={<HelpPage />} />
+        <Route path="/setup-guide" element={<SetupGuidePage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

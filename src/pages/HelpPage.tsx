@@ -1,4 +1,5 @@
-import { BookOpen, Monitor, Users, ArrowLeftRight, Wrench, LayoutDashboard, Shield, ClipboardList } from 'lucide-react';
+import { BookOpen, Monitor, Users, ArrowLeftRight, Wrench, LayoutDashboard, Shield, ClipboardList, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const sections = [
   {
@@ -57,6 +58,10 @@ export default function HelpPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Ayuda</h1>
         <p className="text-sm text-muted-foreground mt-1">Guía de uso del sistema IT Inventory</p>
+        <Link to="/setup-guide" className="inline-flex items-center gap-2 mt-3 text-sm text-primary hover:underline">
+          <FileText className="w-4 h-4" />
+          Ver Manual de Instalación (descargable en PDF)
+        </Link>
       </div>
 
       <div className="space-y-6">
