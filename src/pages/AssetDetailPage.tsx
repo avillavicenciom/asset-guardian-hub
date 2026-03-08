@@ -271,8 +271,8 @@ export default function AssetDetailPage() {
                 ) : (
                   <div className="space-y-4">
                     {assetRepairs.map(r => {
-                      const parts = mockRepairParts.filter(rp => rp.repair_id === r.id);
-                      const tech = r.technician_id ? mockTechnicians.find(t => t.id === r.technician_id) : null;
+                      const parts = repairParts.filter((rp: any) => rp.repair_id === r.id);
+                      const tech = r.technician_id ? technicians.find((t: any) => t.id === r.technician_id) : null;
                       return (
                         <div key={r.id} className="border rounded-lg p-4 space-y-3">
                           <div className="flex items-center justify-between">
