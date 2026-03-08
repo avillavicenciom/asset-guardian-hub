@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { AssetType, AssetModel } from '@/data/types';
+import { AssetType, AssetModel, Location } from '@/data/types';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { useData } from '@/hooks/useData';
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default function CreateAssetDialog({ open, onOpenChange, onCreated, defaultCategory = 'EQUIPO' }: Props) {
-  const { statuses } = useData();
+  const { statuses, locations } = useData();
   const [assetTypes, setAssetTypes] = useState<AssetType[]>([]);
   const [assetModels, setAssetModels] = useState<AssetModel[]>([]);
   const [saving, setSaving] = useState(false);
@@ -31,6 +31,7 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
     brand: '',
     model: '',
     status_id: '',
+    location_id: '',
     notes: '',
     tags: '',
   });
@@ -78,6 +79,16 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
 
   const defaultStatus = statuses?.find(s => s.code === 'DISPONIBLE');
 
+  // Only statuses that can be manually set (exclude EN_REPARACION)
+  const selectableStatuses = useMemo(() => {
+    return statuses?.filter(s => s.code !== 'EN_REPARACION') || [];
+  }, [statuses]);
+
+  // Only warehouse-type locations
+  const warehouses = useMemo(() => {
+    return locations?.filter(l => l.location_type === 'ALMACEN') || [];
+  }, [locations]);
+
   const handleTypeChange = (v: string) => {
     setForm(prev => ({ ...prev, type: v, brand: '', model: '' }));
   };
@@ -109,11 +120,12 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
         brand: form.brand.trim() || null,
         model: form.model.trim() || null,
         status_id: form.status_id ? Number(form.status_id) : (defaultStatus?.id || 1),
+        location_id: form.location_id ? Number(form.location_id) : null,
         notes: form.notes.trim() || null,
         tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       });
       toast.success('Activo creado correctamente');
-      setForm({ asset_tag: '', serial_number: '', category: defaultCategory, type: '', brand: '', model: '', status_id: '', notes: '', tags: '' });
+      setForm({ asset_tag: '', serial_number: '', category: defaultCategory, type: '', brand: '', model: '', status_id: '', location_id: '', notes: '', tags: '' });
       onOpenChange(false);
       onCreated();
     } catch (err: any) {
@@ -195,16 +207,31 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
               )}
             </div>
           </div>
-          <div className="grid gap-1.5">
-            <Label>Estado inicial</Label>
-            <Select value={form.status_id} onValueChange={v => update('status_id', v)}>
-              <SelectTrigger><SelectValue placeholder={defaultStatus?.label || 'Seleccionar...'} /></SelectTrigger>
-              <SelectContent>
-                {statuses?.map(s => (
-                  <SelectItem key={s.id} value={String(s.id)}>{s.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-1.5">
+              <Label>Estado inicial</Label>
+              <Select value={form.status_id} onValueChange={v => update('status_id', v)}>
+                <SelectTrigger><SelectValue placeholder={defaultStatus?.label || 'Seleccionar...'} /></SelectTrigger>
+                <SelectContent>
+                  {selectableStatuses.map(s => (
+                    <SelectItem key={s.id} value={String(s.id)}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-1.5">
+              <Label>Almacén</Label>
+              <Select value={form.location_id} onValueChange={v => update('location_id', v)}>
+                <SelectTrigger><SelectValue placeholder="Seleccionar almacén..." /></SelectTrigger>
+                <SelectContent>
+                  {warehouses.map(w => (
+                    <SelectItem key={w.id} value={String(w.id)}>
+                      {w.center} {w.floor ? `(${w.floor})` : ''} — {w.site}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="grid gap-1.5">
             <Label>Tags (separados por coma)</Label>
