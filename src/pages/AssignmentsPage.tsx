@@ -460,6 +460,20 @@ export default function AssignmentsPage() {
                         >
                           <Mail className="w-4 h-4" /> Descargar acuse de recibo
                         </DropdownMenuItem>
+                        {!assignment.returned_at && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setReturningAssignment(assignment);
+                                setReturnDialogOpen(true);
+                              }}
+                              className="gap-2"
+                            >
+                              <RotateCcw className="w-4 h-4" /> Registrar devolución
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
