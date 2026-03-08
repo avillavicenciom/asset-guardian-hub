@@ -31,6 +31,7 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
     brand: '',
     model: '',
     status_id: '',
+    location_id: '',
     notes: '',
     tags: '',
   });
