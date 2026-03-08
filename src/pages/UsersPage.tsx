@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRole } from '@/hooks/useRole';
 import ImportUsersDialog from '@/components/ImportUsersDialog';
+import CreateUserDialog from '@/components/CreateUserDialog';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -45,10 +46,11 @@ const USER_TYPE_VARIANTS: Record<UserType, string> = {
 type ContractSort = '' | 'nearest' | 'farthest';
 
 export default function UsersPage() {
-  const { users } = useData();
+  const { users, refresh } = useData();
   const [search, setSearch] = useState('');
   const { canManageUsers } = useRole();
   const [importOpen, setImportOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [view, setView] = useState<'cards' | 'table'>('cards');
 
   const [filterDept, setFilterDept] = useState('');
@@ -108,7 +110,7 @@ export default function UsersPage() {
             <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}>
               <Upload className="w-4 h-4" /> Importar CSV
             </Button>
-            <Button className="gap-2"><Plus className="w-4 h-4" /> Nuevo usuario</Button>
+            <Button className="gap-2" onClick={() => setCreateOpen(true)}><Plus className="w-4 h-4" /> Nuevo usuario</Button>
           </div>
         )}
       </div>
@@ -293,6 +295,11 @@ export default function UsersPage() {
         onImport={(imported) => {
           console.log('Usuarios importados:', imported);
         }}
+      />
+      <CreateUserDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={() => refresh()}
       />
     </div>
   );
