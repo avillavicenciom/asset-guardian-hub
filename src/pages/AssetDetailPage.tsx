@@ -198,7 +198,7 @@ export default function AssetDetailPage() {
                     {history.map(h => {
                       const fromStatus = h.from_status_id ? getStatusById(h.from_status_id) : null;
                       const toStatus = getStatusById(h.to_status_id);
-                      const operator = mockOperators.find(o => o.id === h.changed_by_operator_id);
+                      const operator = operators.find((o: any) => o.id === h.changed_by_operator_id);
                       return (
                         <div key={h.id} className="flex gap-3 items-start">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
