@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Edit2, Trash2, Search, Cpu, HardDrive, Monitor as MonitorIcon, ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Cpu, HardDrive, Monitor as MonitorIcon, ImageIcon, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
@@ -183,8 +183,51 @@ export default function ModelsTab() {
               <Input value={form.os || ''} onChange={e => setForm(f => ({ ...f, os: e.target.value }))} />
             </div>
             <div className="space-y-1.5">
-              <Label><ImageIcon className="w-3 h-3 inline mr-1" />Foto (URL)</Label>
-              <Input value={form.photo_url || ''} onChange={e => setForm(f => ({ ...f, photo_url: e.target.value || null }))} placeholder="URL de la imagen" />
+              <Label><ImageIcon className="w-3 h-3 inline mr-1" />Foto</Label>
+              <div
+                className="border-2 border-dashed rounded-lg p-3 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors relative"
+                onClick={() => document.getElementById('model-photo-input')?.click()}
+                onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+                onDrop={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const file = e.dataTransfer.files[0];
+                  if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = ev => setForm(f => ({ ...f, photo_url: ev.target?.result as string }));
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              >
+                {form.photo_url ? (
+                  <div className="flex items-center gap-3">
+                    <img src={form.photo_url} alt="Preview" className="w-12 h-12 rounded object-cover" />
+                    <span className="text-xs text-muted-foreground flex-1">Clic o arrastra para cambiar</span>
+                    <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={e => { e.stopPropagation(); setForm(f => ({ ...f, photo_url: null })); }}>
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="w-5 h-5 mx-auto text-muted-foreground mb-1" />
+                    <p className="text-xs text-muted-foreground">Clic o arrastra una imagen</p>
+                  </>
+                )}
+                <input
+                  id="model-photo-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = ev => setForm(f => ({ ...f, photo_url: ev.target?.result as string }));
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </div>
             </div>
             <div className="space-y-1.5 col-span-2">
               <Label>Notas</Label>
