@@ -621,6 +621,12 @@ export default function AssetsPage() {
           return { imported: newAssets, skipped: [] };
         }} />
       
+      <CreateAssetDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onCreated={() => window.location.reload()}
+        defaultCategory={activeTab === 'equipos' ? 'EQUIPO' : 'PERIFERICO'}
+      />
     </div>);
 
 }

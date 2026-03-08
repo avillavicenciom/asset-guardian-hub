@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { AssetType } from '@/data/types';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { useData } from '@/hooks/useData';
@@ -17,7 +18,12 @@ interface Props {
 }
 
 export default function CreateAssetDialog({ open, onOpenChange, onCreated, defaultCategory = 'EQUIPO' }: Props) {
-  const { statuses, assetTypes } = useData();
+  const { statuses } = useData();
+  const [assetTypes, setAssetTypes] = useState<AssetType[]>([]);
+
+  useEffect(() => {
+    api.getAll<AssetType>('asset-types').then(setAssetTypes).catch(() => {});
+  }, []);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     asset_tag: '',

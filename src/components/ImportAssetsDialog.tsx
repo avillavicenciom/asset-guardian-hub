@@ -166,16 +166,37 @@ export default function ImportAssetsDialog({ open, onOpenChange, onImport, exist
         </DialogHeader>
 
         {step === 'upload' && (
-          <div
-            className="border-2 border-dashed rounded-xl p-12 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
-            onClick={() => fileRef.current?.click()}
-            onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
-            onDrop={e => { e.preventDefault(); e.stopPropagation(); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
-          >
-            <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
-            <p className="text-sm font-medium">Arrastra tu archivo CSV aquí</p>
-            <p className="text-xs text-muted-foreground mt-1">o haz clic para seleccionar</p>
-            <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+          <div className="space-y-4">
+            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+              <p className="text-sm font-semibold">📋 Campos que puedes incluir en tu CSV:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs">
+                {ASSET_FIELDS.map(f => (
+                  <div key={f.key} className="flex items-center gap-2">
+                    {f.required ? (
+                      <span className="inline-flex items-center rounded bg-destructive/10 text-destructive px-1.5 py-0.5 font-semibold text-[10px]">Obligatorio</span>
+                    ) : (
+                      <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 font-medium text-muted-foreground text-[10px]">Opcional</span>
+                    )}
+                    <span className="font-medium">{f.label}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">
+                💡 Las columnas no necesitan nombres exactos. En el siguiente paso podrás mapear cada columna de tu CSV al campo correcto.
+              </p>
+            </div>
+
+            <div
+              className="border-2 border-dashed rounded-xl p-10 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
+              onClick={() => fileRef.current?.click()}
+              onDragOver={e => { e.preventDefault(); e.stopPropagation(); }}
+              onDrop={e => { e.preventDefault(); e.stopPropagation(); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
+            >
+              <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
+              <p className="text-sm font-medium">Arrastra tu archivo CSV aquí</p>
+              <p className="text-xs text-muted-foreground mt-1">o haz clic para seleccionar</p>
+              <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
+            </div>
           </div>
         )}
 
