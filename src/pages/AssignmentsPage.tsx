@@ -17,8 +17,9 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription,
 } from '@/components/ui/sheet';
 import AssignAssetDialog from '@/components/AssignAssetDialog';
+import ReturnAssetDialog from '@/components/ReturnAssetDialog';
 import { downloadReceipt } from '@/utils/generateReceipt';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 
 // ---------- Column definitions ----------
