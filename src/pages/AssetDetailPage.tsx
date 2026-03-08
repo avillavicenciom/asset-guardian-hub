@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Monitor, Laptop, Tablet, Printer, Server as ServerIcon,
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { statusHistory as mockStatusHistory, operators as mockOperators, repairParts as mockRepairParts, hardwareParts as mockHardwareParts, technicians as mockTechnicians } from '@/data/mockData';
+import { api } from '@/lib/api';
 import ReturnAssetDialog from '@/components/ReturnAssetDialog';
 import { RotateCcw } from 'lucide-react';
 
@@ -50,6 +50,12 @@ export default function AssetDetailPage() {
     getLocationById, getAssignedUserName, getUserById, getActiveAssignmentForAsset,
   } = useData();
 
+  const [statusHistory, setStatusHistory] = useState<any[]>([]);
+  const [operators, setOperators] = useState<any[]>([]);
+  const [repairParts, setRepairParts] = useState<any[]>([]);
+  const [hardwareParts, setHardwareParts] = useState<any[]>([]);
+  const [technicians, setTechnicians] = useState<any[]>([]);
+
   const asset = useMemo(() => assets.find(a => a.id === Number(id)), [assets, id]);
   const activeAssignment = useMemo(() => asset ? getActiveAssignmentForAsset(asset.id) : undefined, [asset, getActiveAssignmentForAsset]);
   const assignedUser = useMemo(() => activeAssignment?.user_id ? getUserById(activeAssignment.user_id) : undefined, [activeAssignment, getUserById]);
@@ -57,7 +63,25 @@ export default function AssetDetailPage() {
   const status = useMemo(() => asset ? getStatusById(asset.status_id) : undefined, [asset, getStatusById]);
   const assetRepairs = useMemo(() => asset ? repairs.filter(r => r.asset_id === asset.id) : [], [asset, repairs]);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
-  const history = useMemo(() => asset ? mockStatusHistory.filter(h => h.asset_id === asset.id).sort((a, b) => new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime()) : [], [asset]);
+
+  useEffect(() => {
+    if (!asset) return;
+    Promise.all([
+      api.assetStatusHistory(asset.id),
+      api.getAll('operators'),
+      api.getAll('repair-parts'),
+      api.getAll('hardware-parts'),
+      api.getAll('technicians'),
+    ]).then(([sh, ops, rp, hp, techs]) => {
+      setStatusHistory(sh as any[]);
+      setOperators(ops as any[]);
+      setRepairParts(rp as any[]);
+      setHardwareParts(hp as any[]);
+      setTechnicians(techs as any[]);
+    }).catch(console.error);
+  }, [asset]);
+
+  const history = useMemo(() => statusHistory.sort((a: any, b: any) => new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime()), [statusHistory]);
   const assignmentHistory = useMemo(() => asset ? assignments.filter(a => a.asset_id === asset.id).sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime()) : [], [asset, assignments]);
 
   if (!asset) {
@@ -174,7 +198,7 @@ export default function AssetDetailPage() {
                     {history.map(h => {
                       const fromStatus = h.from_status_id ? getStatusById(h.from_status_id) : null;
                       const toStatus = getStatusById(h.to_status_id);
-                      const operator = mockOperators.find(o => o.id === h.changed_by_operator_id);
+                      const operator = operators.find((o: any) => o.id === h.changed_by_operator_id);
                       return (
                         <div key={h.id} className="flex gap-3 items-start">
                           <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
@@ -213,7 +237,7 @@ export default function AssetDetailPage() {
                   <div className="space-y-4">
                     {assignmentHistory.map(a => {
                       const user = a.user_id ? getUserById(a.user_id) : null;
-                      const operator = mockOperators.find(o => o.id === a.assigned_by_operator_id);
+                      const operator = operators.find((o: any) => o.id === a.assigned_by_operator_id);
                       return (
                         <div key={a.id} className="flex gap-3 items-start">
                           <div className="w-2 h-2 rounded-full bg-accent-foreground/40 mt-2 shrink-0" />
@@ -247,8 +271,8 @@ export default function AssetDetailPage() {
                 ) : (
                   <div className="space-y-4">
                     {assetRepairs.map(r => {
-                      const parts = mockRepairParts.filter(rp => rp.repair_id === r.id);
-                      const tech = r.technician_id ? mockTechnicians.find(t => t.id === r.technician_id) : null;
+                      const parts = repairParts.filter((rp: any) => rp.repair_id === r.id);
+                      const tech = r.technician_id ? technicians.find((t: any) => t.id === r.technician_id) : null;
                       return (
                         <div key={r.id} className="border rounded-lg p-4 space-y-3">
                           <div className="flex items-center justify-between">
@@ -281,7 +305,7 @@ export default function AssetDetailPage() {
                               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Piezas utilizadas</p>
                               <div className="space-y-1.5">
                                 {parts.map(rp => {
-                                  const part = mockHardwareParts.find(hp => hp.id === rp.part_id);
+                                  const part = hardwareParts.find((hp: any) => hp.id === rp.part_id);
                                   const actionLabel = { REPLACED: 'Reemplazada', ADDED: 'Agregada', REMOVED: 'Retirada' }[rp.action];
                                   return (
                                     <div key={rp.id} className="flex items-center justify-between text-xs bg-muted/50 rounded-md px-3 py-2">
