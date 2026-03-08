@@ -46,7 +46,7 @@ const USER_TYPE_VARIANTS: Record<UserType, string> = {
 type ContractSort = '' | 'nearest' | 'farthest';
 
 export default function UsersPage() {
-  const { users } = useData();
+  const { users, refresh } = useData();
   const [search, setSearch] = useState('');
   const { canManageUsers } = useRole();
   const [importOpen, setImportOpen] = useState(false);
