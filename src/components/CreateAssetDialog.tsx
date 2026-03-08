@@ -79,6 +79,16 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
 
   const defaultStatus = statuses?.find(s => s.code === 'DISPONIBLE');
 
+  // Only statuses that can be manually set (exclude EN_REPARACION)
+  const selectableStatuses = useMemo(() => {
+    return statuses?.filter(s => s.code !== 'EN_REPARACION') || [];
+  }, [statuses]);
+
+  // Only warehouse-type locations
+  const warehouses = useMemo(() => {
+    return locations?.filter(l => l.location_type === 'ALMACEN') || [];
+  }, [locations]);
+
   const handleTypeChange = (v: string) => {
     setForm(prev => ({ ...prev, type: v, brand: '', model: '' }));
   };
