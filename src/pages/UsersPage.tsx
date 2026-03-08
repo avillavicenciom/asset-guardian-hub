@@ -296,6 +296,11 @@ export default function UsersPage() {
           console.log('Usuarios importados:', imported);
         }}
       />
+      <CreateUserDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={() => refresh()}
+      />
     </div>
   );
 }
