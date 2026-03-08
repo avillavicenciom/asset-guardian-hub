@@ -13,6 +13,7 @@ import AssignmentsPage from "./pages/AssignmentsPage";
 import RepairsPage from "./pages/RepairsPage";
 import AuditPage from "./pages/AuditPage";
 import HelpPage from "./pages/HelpPage";
+import SetupGuidePage from "./pages/SetupGuidePage";
 import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import NotFound from "./pages/NotFound";

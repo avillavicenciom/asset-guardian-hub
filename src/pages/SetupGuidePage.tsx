@@ -33,7 +33,7 @@ function Warning({ children }: { children: React.ReactNode }) {
   );
 }
 
-function CodeBlock({ children }: { children: string }) {
+function CodeBlock({ children }: { children: React.ReactNode }) {
   return (
     <pre className="bg-muted rounded-lg p-3 text-xs font-mono overflow-x-auto print:bg-gray-100 print:border print:border-gray-300">
       {children}
