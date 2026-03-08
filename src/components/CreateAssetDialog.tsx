@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { AssetType, AssetModel } from '@/data/types';
+import { AssetType, AssetModel, Location } from '@/data/types';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { useData } from '@/hooks/useData';
