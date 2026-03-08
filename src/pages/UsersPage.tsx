@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Plus, Upload, Mail, Building2, MapPin, AlertTriangle, Clock, LayoutGrid, List, X, ArrowUpDown } from 'lucide-react';
+import { Search, Plus, Upload, Mail, Building2, MapPin, AlertTriangle, Clock, LayoutGrid, List, X, ArrowUpDown, Pencil } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { User } from '@/data/types';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useRole } from '@/hooks/useRole';
 import ImportUsersDialog from '@/components/ImportUsersDialog';
 import CreateUserDialog from '@/components/CreateUserDialog';
+import EditUserDialog from '@/components/EditUserDialog';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -48,9 +49,11 @@ type ContractSort = '' | 'nearest' | 'farthest';
 export default function UsersPage() {
   const { users, refresh } = useData();
   const [search, setSearch] = useState('');
-  const { canManageUsers } = useRole();
+  const { canManageUsers, hasPermission } = useRole();
   const [importOpen, setImportOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const [view, setView] = useState<'cards' | 'table'>('cards');
 
   const [filterDept, setFilterDept] = useState('');
@@ -62,6 +65,16 @@ export default function UsersPage() {
   const sites = useMemo(() => [...new Set(users.map(u => u.site).filter(Boolean))].sort() as string[], [users]);
 
   const activeFilters = [filterDept, filterSite, filterType, contractSort].filter(Boolean).length;
+
+  const canEdit = hasPermission('users.edit');
+  const canCreate = hasPermission('users.create');
+  const canImport = hasPermission('users.import');
+
+  const handleEditUser = (user: User) => {
+    if (!canEdit) return;
+    setEditingUser(user);
+    setEditOpen(true);
+  };
 
   const filtered = useMemo(() => {
     let result = users;
@@ -107,10 +120,14 @@ export default function UsersPage() {
         </div>
         {canManageUsers && (
           <div className="flex gap-2">
-            <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}>
-              <Upload className="w-4 h-4" /> Importar CSV
-            </Button>
-            <Button className="gap-2" onClick={() => setCreateOpen(true)}><Plus className="w-4 h-4" /> Nuevo usuario</Button>
+            {canImport && (
+              <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}>
+                <Upload className="w-4 h-4" /> Importar CSV
+              </Button>
+            )}
+            {canCreate && (
+              <Button className="gap-2" onClick={() => setCreateOpen(true)}><Plus className="w-4 h-4" /> Nuevo usuario</Button>
+            )}
           </div>
         )}
       </div>
@@ -189,7 +206,7 @@ export default function UsersPage() {
             const type = getUserType(user.email);
             return (
               <motion.div key={user.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                className={`bg-card rounded-xl border p-5 hover:shadow-md transition-shadow cursor-pointer ${isExpiringSoon ? 'border-destructive/50 ring-1 ring-destructive/20' : ''} ${isExpired ? 'opacity-60' : ''}`}
+                className={`bg-card rounded-xl border p-5 hover:shadow-md transition-shadow group ${isExpiringSoon ? 'border-destructive/50 ring-1 ring-destructive/20' : ''} ${isExpired ? 'opacity-60' : ''}`}
               >
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-sm font-bold text-primary-foreground flex-shrink-0">
@@ -201,6 +218,15 @@ export default function UsersPage() {
                       <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${USER_TYPE_VARIANTS[type]}`}>
                         {USER_TYPE_LABELS[type]}
                       </span>
+                      {canEdit && (
+                        <button
+                          onClick={() => handleEditUser(user)}
+                          className="ml-auto opacity-0 group-hover:opacity-100 p-1.5 rounded-md hover:bg-muted transition-all"
+                          title="Editar usuario"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                      )}
                     </div>
                     {user.email && (
                       <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1"><Mail className="w-3 h-3" /> {user.email}</p>
@@ -232,6 +258,7 @@ export default function UsersPage() {
                   <th className="text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3">Departamento</th>
                   <th className="text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3">Ubicación</th>
                   <th className="text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-4 py-3">Contrato</th>
+                  {canEdit && <th className="w-10 px-4 py-3"></th>}
                 </tr>
               </thead>
               <tbody>
@@ -246,7 +273,7 @@ export default function UsersPage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: i * 0.015 }}
-                      className={`border-b border-border/50 hover:bg-muted/50 transition-colors cursor-pointer ${isExpired ? 'opacity-60' : ''} ${isExpiringSoon ? 'bg-destructive/5' : ''}`}
+                      className={`border-b border-border/50 hover:bg-muted/50 transition-colors ${isExpired ? 'opacity-60' : ''} ${isExpiringSoon ? 'bg-destructive/5' : ''}`}
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
@@ -275,12 +302,23 @@ export default function UsersPage() {
                           <span className="text-muted-foreground">—</span>
                         )}
                       </td>
+                      {canEdit && (
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => handleEditUser(user)}
+                            className="p-1.5 rounded-md hover:bg-muted transition-colors"
+                            title="Editar usuario"
+                          >
+                            <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                          </button>
+                        </td>
+                      )}
                     </motion.tr>
                   );
                 })}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="text-center py-12 text-muted-foreground">No se encontraron usuarios</td>
+                    <td colSpan={canEdit ? 7 : 6} className="text-center py-12 text-muted-foreground">No se encontraron usuarios</td>
                   </tr>
                 )}
               </tbody>
@@ -294,12 +332,19 @@ export default function UsersPage() {
         onOpenChange={setImportOpen}
         onImport={(imported) => {
           console.log('Usuarios importados:', imported);
+          refresh();
         }}
       />
       <CreateUserDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
         onCreated={() => refresh()}
+      />
+      <EditUserDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        user={editingUser}
+        onUpdated={() => refresh()}
       />
     </div>
   );

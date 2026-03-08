@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import AssignAssetDialog from '@/components/AssignAssetDialog';
 import ImportAssetsDialog from '@/components/ImportAssetsDialog';
+import CreateAssetDialog from '@/components/CreateAssetDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -427,6 +428,7 @@ export default function AssetsPage() {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [assignAssetId, setAssignAssetId] = useState<number | null>(null);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   const existingSerials = useMemo(() => new Set(assets.map((a) => a.serial_number.toLowerCase())), [assets]);
 
@@ -519,7 +521,7 @@ export default function AssetsPage() {
               <Button variant="outline" className="gap-2" onClick={() => {setAssignAssetId(null);setShowAssignDialog(true);}}>
                 <User className="w-4 h-4" /> Asignar
               </Button>
-              <Button className="gap-2"><Plus className="w-4 h-4" /> Nuevo activo</Button>
+              <Button className="gap-2" onClick={() => setShowCreateDialog(true)}><Plus className="w-4 h-4" /> Nuevo activo</Button>
             </>
           }
         </div>
@@ -619,6 +621,12 @@ export default function AssetsPage() {
           return { imported: newAssets, skipped: [] };
         }} />
       
+      <CreateAssetDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onCreated={() => window.location.reload()}
+        defaultCategory={activeTab === 'equipos' ? 'EQUIPO' : 'PERIFERICO'}
+      />
     </div>);
 
 }
