@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default function CreateAssetDialog({ open, onOpenChange, onCreated, defaultCategory = 'EQUIPO' }: Props) {
-  const { statuses } = useData();
+  const { statuses, locations } = useData();
   const [assetTypes, setAssetTypes] = useState<AssetType[]>([]);
   const [assetModels, setAssetModels] = useState<AssetModel[]>([]);
   const [saving, setSaving] = useState(false);
