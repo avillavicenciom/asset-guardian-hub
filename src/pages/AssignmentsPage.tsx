@@ -493,6 +493,11 @@ export default function AssignmentsPage() {
       <p className="text-xs text-muted-foreground mt-3">{filtered.length} de {assignments.length} registros</p>
 
       <AssignAssetDialog open={showAssignDialog} onOpenChange={setShowAssignDialog} />
+      <ReturnAssetDialog
+        open={returnDialogOpen}
+        onOpenChange={setReturnDialogOpen}
+        assignment={returningAssignment}
+      />
     </div>
   );
 }

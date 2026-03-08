@@ -420,6 +420,12 @@ export default function AssetDetailPage() {
           </motion.div>
         </div>
       </div>
+
+      <ReturnAssetDialog
+        open={returnDialogOpen}
+        onOpenChange={setReturnDialogOpen}
+        assignment={activeAssignment}
+      />
     </div>
   );
 }
