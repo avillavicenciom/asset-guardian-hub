@@ -110,7 +110,7 @@ export default function UsersPage() {
             <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}>
               <Upload className="w-4 h-4" /> Importar CSV
             </Button>
-            <Button className="gap-2"><Plus className="w-4 h-4" /> Nuevo usuario</Button>
+            <Button className="gap-2" onClick={() => setCreateOpen(true)}><Plus className="w-4 h-4" /> Nuevo usuario</Button>
           </div>
         )}
       </div>
