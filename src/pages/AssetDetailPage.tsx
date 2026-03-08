@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Monitor, Laptop, Tablet, Printer, Server as ServerIcon,
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { statusHistory as mockStatusHistory, operators as mockOperators, repairParts as mockRepairParts, hardwareParts as mockHardwareParts, technicians as mockTechnicians } from '@/data/mockData';
+import { api } from '@/lib/api';
 import ReturnAssetDialog from '@/components/ReturnAssetDialog';
 import { RotateCcw } from 'lucide-react';
 
