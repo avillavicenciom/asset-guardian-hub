@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import AssignAssetDialog from '@/components/AssignAssetDialog';
 import ImportAssetsDialog from '@/components/ImportAssetsDialog';
+import CreateAssetDialog from '@/components/CreateAssetDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
