@@ -521,7 +521,7 @@ export default function AssetsPage() {
               <Button variant="outline" className="gap-2" onClick={() => {setAssignAssetId(null);setShowAssignDialog(true);}}>
                 <User className="w-4 h-4" /> Asignar
               </Button>
-              <Button className="gap-2"><Plus className="w-4 h-4" /> Nuevo activo</Button>
+              <Button className="gap-2" onClick={() => setShowCreateDialog(true)}><Plus className="w-4 h-4" /> Nuevo activo</Button>
             </>
           }
         </div>
