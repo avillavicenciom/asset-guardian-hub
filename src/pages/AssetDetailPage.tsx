@@ -56,6 +56,7 @@ export default function AssetDetailPage() {
   const location = useMemo(() => asset?.location_id ? getLocationById(asset.location_id) : undefined, [asset, getLocationById]);
   const status = useMemo(() => asset ? getStatusById(asset.status_id) : undefined, [asset, getStatusById]);
   const assetRepairs = useMemo(() => asset ? repairs.filter(r => r.asset_id === asset.id) : [], [asset, repairs]);
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const history = useMemo(() => asset ? mockStatusHistory.filter(h => h.asset_id === asset.id).sort((a, b) => new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime()) : [], [asset]);
   const assignmentHistory = useMemo(() => asset ? assignments.filter(a => a.asset_id === asset.id).sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime()) : [], [asset, assignments]);
 
