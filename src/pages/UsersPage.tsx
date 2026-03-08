@@ -50,6 +50,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState('');
   const { canManageUsers } = useRole();
   const [importOpen, setImportOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [view, setView] = useState<'cards' | 'table'>('cards');
 
   const [filterDept, setFilterDept] = useState('');
