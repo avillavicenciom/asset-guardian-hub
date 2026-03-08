@@ -1,4 +1,5 @@
-import { BookOpen, Monitor, Users, ArrowLeftRight, Wrench, LayoutDashboard, Shield, ClipboardList } from 'lucide-react';
+import { BookOpen, Monitor, Users, ArrowLeftRight, Wrench, LayoutDashboard, Shield, ClipboardList, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const sections = [
   {
