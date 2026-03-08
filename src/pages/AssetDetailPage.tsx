@@ -305,7 +305,7 @@ export default function AssetDetailPage() {
                               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Piezas utilizadas</p>
                               <div className="space-y-1.5">
                                 {parts.map(rp => {
-                                  const part = mockHardwareParts.find(hp => hp.id === rp.part_id);
+                                  const part = hardwareParts.find((hp: any) => hp.id === rp.part_id);
                                   const actionLabel = { REPLACED: 'Reemplazada', ADDED: 'Agregada', REMOVED: 'Retirada' }[rp.action];
                                   return (
                                     <div key={rp.id} className="flex items-center justify-between text-xs bg-muted/50 rounded-md px-3 py-2">
