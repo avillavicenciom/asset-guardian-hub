@@ -237,7 +237,7 @@ export default function AssetDetailPage() {
                   <div className="space-y-4">
                     {assignmentHistory.map(a => {
                       const user = a.user_id ? getUserById(a.user_id) : null;
-                      const operator = mockOperators.find(o => o.id === a.assigned_by_operator_id);
+                      const operator = operators.find((o: any) => o.id === a.assigned_by_operator_id);
                       return (
                         <div key={a.id} className="flex gap-3 items-start">
                           <div className="w-2 h-2 rounded-full bg-accent-foreground/40 mt-2 shrink-0" />
