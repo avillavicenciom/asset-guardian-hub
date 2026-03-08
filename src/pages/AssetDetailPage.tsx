@@ -352,7 +352,12 @@ export default function AssetDetailPage() {
                     </div>
                   )}
                 </div>
-                <Button variant="outline" size="sm" className="w-full mt-2">Reasignar Activo</Button>
+                <div className="flex gap-2 mt-2">
+                  <Button variant="outline" size="sm" className="flex-1">Reasignar</Button>
+                  <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-orange-600 hover:text-orange-700 border-orange-200 hover:border-orange-300" onClick={() => setReturnDialogOpen(true)}>
+                    <RotateCcw className="w-3.5 h-3.5" /> Devolver
+                  </Button>
+                </div>
               </div>
             ) : activeAssignment?.manual_user_name ? (
               <div className="space-y-2">
@@ -367,7 +372,12 @@ export default function AssetDetailPage() {
                     )}
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="w-full mt-2">Reasignar Activo</Button>
+                <div className="flex gap-2 mt-2">
+                  <Button variant="outline" size="sm" className="flex-1">Reasignar</Button>
+                  <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-orange-600 hover:text-orange-700 border-orange-200 hover:border-orange-300" onClick={() => setReturnDialogOpen(true)}>
+                    <RotateCcw className="w-3.5 h-3.5" /> Devolver
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="text-center py-4">
