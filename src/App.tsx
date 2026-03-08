@@ -38,6 +38,7 @@ function AppRoutes() {
         <Route path="/repairs" element={<RepairsPage />} />
         <Route path="/audit" element={<AuditPage />} />
         <Route path="/help" element={<HelpPage />} />
+        <Route path="/setup-guide" element={<SetupGuidePage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
