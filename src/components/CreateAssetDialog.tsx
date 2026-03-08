@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { AssetType } from '@/data/types';
+import { AssetType, AssetModel } from '@/data/types';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { useData } from '@/hooks/useData';
@@ -20,11 +20,9 @@ interface Props {
 export default function CreateAssetDialog({ open, onOpenChange, onCreated, defaultCategory = 'EQUIPO' }: Props) {
   const { statuses } = useData();
   const [assetTypes, setAssetTypes] = useState<AssetType[]>([]);
-
-  useEffect(() => {
-    api.getAll<AssetType>('asset-types').then(setAssetTypes).catch(() => {});
-  }, []);
+  const [assetModels, setAssetModels] = useState<AssetModel[]>([]);
   const [saving, setSaving] = useState(false);
+
   const [form, setForm] = useState({
     asset_tag: '',
     serial_number: '',
@@ -38,6 +36,16 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
   });
 
   useEffect(() => {
+    Promise.all([
+      api.getAll<AssetType>('asset-types'),
+      api.getAll<AssetModel>('asset-models'),
+    ]).then(([t, m]) => {
+      setAssetTypes(t);
+      setAssetModels(m);
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (open) {
       setForm(prev => ({ ...prev, category: defaultCategory }));
     }
@@ -46,7 +54,41 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
   const update = (field: string, value: string) => setForm(prev => ({ ...prev, [field]: value }));
 
   const filteredTypes = assetTypes?.filter(t => t.category === form.category) || [];
+
+  // Get the selected type's id to filter models
+  const selectedTypeId = assetTypes.find(t => t.label === form.type)?.id;
+
+  // Filter models by the selected asset type
+  const modelsForType = useMemo(() => {
+    if (!selectedTypeId) return [];
+    return assetModels.filter(m => m.asset_type_id === selectedTypeId);
+  }, [assetModels, selectedTypeId]);
+
+  // Extract unique brands from filtered models
+  const availableBrands = useMemo(() => {
+    const brands = [...new Set(modelsForType.map(m => m.brand))].filter(Boolean).sort();
+    return brands;
+  }, [modelsForType]);
+
+  // Filter models by selected brand
+  const modelsForBrand = useMemo(() => {
+    if (!form.brand) return [];
+    return modelsForType.filter(m => m.brand === form.brand);
+  }, [modelsForType, form.brand]);
+
   const defaultStatus = statuses?.find(s => s.code === 'DISPONIBLE');
+
+  const handleTypeChange = (v: string) => {
+    setForm(prev => ({ ...prev, type: v, brand: '', model: '' }));
+  };
+
+  const handleBrandChange = (v: string) => {
+    setForm(prev => ({ ...prev, brand: v, model: '' }));
+  };
+
+  const handleModelChange = (v: string) => {
+    setForm(prev => ({ ...prev, model: v }));
+  };
 
   const handleSave = async () => {
     if (!form.serial_number.trim()) {
@@ -101,7 +143,7 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
             </div>
             <div className="grid gap-1.5">
               <Label>Tipo *</Label>
-              <Select value={form.type} onValueChange={v => update('type', v)}>
+              <Select value={form.type} onValueChange={handleTypeChange}>
                 <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
                 <SelectContent>
                   {filteredTypes.map(t => (
@@ -123,12 +165,34 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
-              <Label>Marca</Label>
-              <Input value={form.brand} onChange={e => update('brand', e.target.value)} placeholder="HP, Lenovo..." />
+              <Label>Marca {availableBrands.length > 0 && <span className="text-xs text-muted-foreground">(del catálogo)</span>}</Label>
+              {availableBrands.length > 0 ? (
+                <Select value={form.brand} onValueChange={handleBrandChange}>
+                  <SelectTrigger><SelectValue placeholder="Seleccionar marca..." /></SelectTrigger>
+                  <SelectContent>
+                    {availableBrands.map(b => (
+                      <SelectItem key={b} value={b}>{b}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input value={form.brand} onChange={e => update('brand', e.target.value)} placeholder="HP, Lenovo..." />
+              )}
             </div>
             <div className="grid gap-1.5">
-              <Label>Modelo</Label>
-              <Input value={form.model} onChange={e => update('model', e.target.value)} placeholder="ProBook 450..." />
+              <Label>Modelo {modelsForBrand.length > 0 && <span className="text-xs text-muted-foreground">(del catálogo)</span>}</Label>
+              {modelsForBrand.length > 0 ? (
+                <Select value={form.model} onValueChange={handleModelChange}>
+                  <SelectTrigger><SelectValue placeholder="Seleccionar modelo..." /></SelectTrigger>
+                  <SelectContent>
+                    {modelsForBrand.map(m => (
+                      <SelectItem key={m.id} value={m.model}>{m.model}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input value={form.model} onChange={e => update('model', e.target.value)} placeholder={form.brand ? 'Sin modelos cargados' : 'Selecciona marca primero'} />
+              )}
             </div>
           </div>
           <div className="grid gap-1.5">
