@@ -283,7 +283,7 @@ function ColumnFilterRow({ columns, filters, onFilterChange }: {
 // ---------- Main page ----------
 
 export default function AssignmentsPage() {
-  const { assignments, operators, getAssetById, getUserById, getStatusById, getStatusClass, getLocationById } = useData();
+  const { assignments, operators, getAssetById, getUserById, getStatusById, getStatusClass, getLocationById, getOperatorById } = useData();
   const { canManageAssets } = useRole();
   const [search, setSearch] = useState('');
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
