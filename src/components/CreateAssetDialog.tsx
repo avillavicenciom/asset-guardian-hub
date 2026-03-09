@@ -127,9 +127,8 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
         location_id: form.location_id ? Number(form.location_id) : null,
         notes: form.notes.trim() || null,
         tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-      });
+      }, `Activo creado: ${form.type} ${form.brand} ${form.model} — S/N: ${form.serial_number}`);
       toast.success('Activo creado correctamente');
-      addAuditEntry('CREAR', 'Activos', `Activo creado: ${form.type} ${form.brand} ${form.model} — S/N: ${form.serial_number}`);
       setForm({ asset_tag: '', serial_number: '', sgad: '', category: defaultCategory, type: '', brand: '', model: '', status_id: '', location_id: '', notes: '', tags: '' });
       onOpenChange(false);
       onCreated();
