@@ -9,6 +9,7 @@ export function useData() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [repairs, setRepairs] = useState<Repair[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
+  const [operators, setOperators] = useState<Operator[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchAll = useCallback(async () => {
