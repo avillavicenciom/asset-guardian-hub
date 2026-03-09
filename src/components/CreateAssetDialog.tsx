@@ -116,6 +116,7 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
       await api.create('assets', {
         asset_tag: form.asset_tag.trim() || null,
         serial_number: form.serial_number.trim(),
+        sgad: form.sgad.trim() || null,
         category: form.category,
         type: form.type,
         brand: form.brand.trim() || null,
