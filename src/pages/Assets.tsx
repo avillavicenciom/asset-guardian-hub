@@ -205,6 +205,7 @@ const ALL_COLUMNS: ColumnDef[] = [
 interface ColumnsConfig {
   visible: string[];
   order: string[];
+  version?: number;
 }
 
 function getDefaultConfig(): ColumnsConfig {
