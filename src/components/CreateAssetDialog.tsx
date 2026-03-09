@@ -26,6 +26,7 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
   const [form, setForm] = useState({
     asset_tag: '',
     serial_number: '',
+    sgad: '',
     category: defaultCategory,
     type: '',
     brand: '',
