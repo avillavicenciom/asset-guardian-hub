@@ -22,7 +22,8 @@ interface AssignAssetDialogProps {
 }
 
 export default function AssignAssetDialog({ open, onOpenChange, preselectedAssetId }: AssignAssetDialogProps) {
-  const { assets, users, statuses, operators, getStatusById } = useData();
+  const { assets, users, statuses, operators, getStatusById, getStatusByCode, refresh } = useData();
+  const { currentOperator } = useAuth();
 
   const [assignTo, setAssignTo] = useState<AssignTo>('user');
   const [selectedAssetId, setSelectedAssetId] = useState<string>(preselectedAssetId?.toString() || '');
@@ -34,6 +35,7 @@ export default function AssignAssetDialog({ open, onOpenChange, preselectedAsset
   const [reasonText, setReasonText] = useState('');
   const [assetSearch, setAssetSearch] = useState('');
   const [userSearch, setUserSearch] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   // Available assets: DISPONIBLE or POR_ASIGNAR
   const availableAssets = useMemo(() => {
@@ -55,15 +57,55 @@ export default function AssignAssetDialog({ open, onOpenChange, preselectedAsset
 
   const techOperators = operators.filter(o => o.role === 'TECH' && o.is_active);
 
-  const canSubmit = selectedAssetId && (
+  const canSubmit = selectedAssetId && !submitting && (
     (assignTo === 'user' && selectedUserId) ||
     (assignTo === 'technician' && selectedOperatorId)
   );
 
-  const handleSubmit = () => {
-    // In mock mode, just close — would create assignment + update status
-    onOpenChange(false);
-    resetForm();
+  const handleSubmit = async () => {
+    if (!canSubmit || !currentOperator) return;
+    setSubmitting(true);
+
+    try {
+      const assetId = parseInt(selectedAssetId);
+
+      // Determine target status
+      const targetStatusCode = assignTo === 'technician' ? 'POR_ASIGNAR' : 'ASIGNADO';
+      const targetStatus = getStatusByCode(targetStatusCode);
+
+      if (!targetStatus) {
+        toast.error(`Estado "${targetStatusCode}" no encontrado en el catálogo`);
+        return;
+      }
+
+      // Create assignment record
+      await api.create('assignments', {
+        asset_id: assetId,
+        user_id: assignTo === 'user' ? parseInt(selectedUserId) : null,
+        assigned_by_operator_id: currentOperator.id,
+        delivery_mode: deliveryMode,
+        delivery_reason_code: deliveryMode === 'TECH_VALIDATED' ? reasonCode : null,
+        delivery_reason_text: deliveryMode === 'TECH_VALIDATED' ? reasonText : null,
+        assigned_at: new Date().toISOString(),
+      });
+
+      // Update asset status
+      await api.update('assets', assetId, {
+        status_id: targetStatus.id,
+      });
+
+      toast.success(assignTo === 'technician' 
+        ? 'Equipo asignado al técnico correctamente' 
+        : 'Equipo asignado al usuario correctamente');
+
+      await refresh();
+      onOpenChange(false);
+      resetForm();
+    } catch (err: any) {
+      toast.error(err.message || 'Error al asignar equipo');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const resetForm = () => {
