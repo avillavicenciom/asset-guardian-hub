@@ -26,6 +26,7 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
   const [form, setForm] = useState({
     asset_tag: '',
     serial_number: '',
+    sgad: '',
     category: defaultCategory,
     type: '',
     brand: '',
@@ -115,6 +116,7 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
       await api.create('assets', {
         asset_tag: form.asset_tag.trim() || null,
         serial_number: form.serial_number.trim(),
+        sgad: form.sgad.trim() || null,
         category: form.category,
         type: form.type,
         brand: form.brand.trim() || null,
@@ -123,9 +125,9 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
         location_id: form.location_id ? Number(form.location_id) : null,
         notes: form.notes.trim() || null,
         tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-      });
+      }, `Activo creado: ${form.type} ${form.brand} ${form.model} — S/N: ${form.serial_number}`);
       toast.success('Activo creado correctamente');
-      setForm({ asset_tag: '', serial_number: '', category: defaultCategory, type: '', brand: '', model: '', status_id: '', location_id: '', notes: '', tags: '' });
+      setForm({ asset_tag: '', serial_number: '', sgad: '', category: defaultCategory, type: '', brand: '', model: '', status_id: '', location_id: '', notes: '', tags: '' });
       onOpenChange(false);
       onCreated();
     } catch (err: any) {
@@ -165,10 +167,14 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div className="grid gap-1.5">
               <Label>Número de serie *</Label>
               <Input value={form.serial_number} onChange={e => update('serial_number', e.target.value)} placeholder="SN123456" />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>SGAD</Label>
+              <Input value={form.sgad} onChange={e => update('sgad', e.target.value)} placeholder="SGAD-001" />
             </div>
             <div className="grid gap-1.5">
               <Label>ID Inventario</Label>

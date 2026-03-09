@@ -100,6 +100,7 @@ export interface Asset {
   id: number;
   asset_tag: string | null;
   serial_number: string;
+  sgad: string | null;
   category: AssetCategory;
   type: string;
   brand: string | null;
