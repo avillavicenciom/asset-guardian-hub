@@ -15,13 +15,14 @@ export function useData() {
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [s, u, a, asgn, r, l] = await Promise.all([
+      const [s, u, a, asgn, r, l, ops] = await Promise.all([
         api.getAll<StatusCatalog>('statuses'),
         api.getAll<User>('users'),
         api.getAll<Asset>('assets'),
         api.getAll<Assignment>('assignments'),
         api.getAll<Repair>('repairs'),
         api.getAll<Location>('locations'),
+        api.getAll<Operator>('operators'),
       ]);
       setStatuses(s);
       setUsers(u);
@@ -29,6 +30,7 @@ export function useData() {
       setAssignments(asgn);
       setRepairs(r);
       setLocations(l);
+      setOperators(ops);
     } catch (err) {
       console.error('Error al cargar datos:', err);
     } finally {
