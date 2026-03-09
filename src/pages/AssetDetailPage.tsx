@@ -118,9 +118,9 @@ export default function AssetDetailPage() {
       </div>
 
       {/* === TOP ROW: 3 cards like the reference image === */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_1fr] gap-0 mb-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr] gap-4 mb-6 items-stretch">
         {/* Card 1: Activo IT */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-card border rounded-xl p-6">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-card border rounded-xl p-6 relative">
           <div className="flex items-center gap-2 mb-1">
             <div className="p-1.5 rounded-md bg-primary/10 text-primary">
               {typeIcons[asset.type] || <Monitor className="w-5 h-5" />}
@@ -132,7 +132,7 @@ export default function AssetDetailPage() {
           </div>
 
           {/* Photo from model */}
-          <div className="mt-4 mb-3">
+          <div className="mt-4 mb-3 relative">
             {assetModel?.photo_url ? (
               <img src={assetModel.photo_url} alt={`${asset.brand} ${asset.model}`} className="w-full h-40 object-contain rounded-lg bg-muted/30" />
             ) : (
@@ -140,6 +140,10 @@ export default function AssetDetailPage() {
                 {typeIcons[asset.type] || <Monitor className="w-12 h-12 text-muted-foreground/30" />}
               </div>
             )}
+            {/* Link icon at bottom-right of the photo */}
+            <div className="absolute -bottom-2 -right-2 p-2 bg-primary rounded-full text-primary-foreground shadow-md z-10">
+              <Link2 className="w-4 h-4" />
+            </div>
           </div>
 
           <p className="text-sm font-semibold">{asset.type} {asset.brand} {asset.model}</p>
@@ -154,13 +158,6 @@ export default function AssetDetailPage() {
             </div>
           )}
         </motion.div>
-
-        {/* Link icon between cards */}
-        <div className="hidden md:flex items-center justify-center px-3">
-          <div className="p-2.5 bg-primary rounded-full text-primary-foreground shadow-md">
-            <Link2 className="w-4 h-4" />
-          </div>
-        </div>
 
         {/* Card 2: Colaborador / Usuario asignado */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-card border rounded-xl p-6 flex flex-col items-center justify-center text-center">

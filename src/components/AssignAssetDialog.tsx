@@ -84,21 +84,8 @@ export default function AssignAssetDialog({ open, onOpenChange, preselectedAsset
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Asset selection - hidden when preselected */}
-          {hasPreselected ? (
-            <div className="space-y-2">
-              <Label>Equipo</Label>
-              <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg border">
-                <Package className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium">
-                  {(() => {
-                    const a = assets.find(a => a.id === preselectedAssetId);
-                    return a ? `${a.brand} ${a.model} — ${a.serial_number}` : 'Equipo seleccionado';
-                  })()}
-                </span>
-              </div>
-            </div>
-          ) : (
+          {/* Asset selection - completely hidden when preselected */}
+          {!hasPreselected && (
             <div className="space-y-2">
               <Label>Equipo</Label>
               <div className="relative mb-2">
