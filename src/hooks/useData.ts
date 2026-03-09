@@ -79,9 +79,9 @@ export function useData() {
   const refresh = fetchAll;
 
   return {
-    statuses, users, assets, assignments, repairs, locations,
+    statuses, users, assets, assignments, repairs, locations, operators,
     loading, refresh,
     getStatusById, getStatusByCode, getUserById, getAssetById, getStatusClass,
-    getLocationById, getAssignedUserName, getActiveAssignmentForAsset,
+    getLocationById, getOperatorById, getAssignedUserName, getActiveAssignmentForAsset,
   };
 }
