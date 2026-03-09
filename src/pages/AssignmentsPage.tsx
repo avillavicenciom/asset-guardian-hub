@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Assignment, DeliveryReasonCode, DELIVERY_REASONS } from '@/data/types';
-import { operators } from '@/data/mockData';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
