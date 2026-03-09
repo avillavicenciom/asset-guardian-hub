@@ -48,6 +48,7 @@ export interface ColumnDef {
 }
 
 const STORAGE_KEY = 'asset-columns-config';
+const CONFIG_VERSION = 2; // Bump when columns change to reset stale configs
 
 const ALL_COLUMNS: ColumnDef[] = [
 {
@@ -204,19 +205,26 @@ const ALL_COLUMNS: ColumnDef[] = [
 interface ColumnsConfig {
   visible: string[];
   order: string[];
+  version?: number;
 }
 
 function getDefaultConfig(): ColumnsConfig {
   return {
     visible: ALL_COLUMNS.filter((c) => c.defaultVisible).map((c) => c.key),
-    order: ALL_COLUMNS.map((c) => c.key)
+    order: ALL_COLUMNS.map((c) => c.key),
+    version: CONFIG_VERSION,
   };
 }
 
 function loadConfig(): ColumnsConfig {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Reset if config version is outdated
+      if (parsed.version !== CONFIG_VERSION) return getDefaultConfig();
+      return parsed;
+    }
   } catch {}
   return getDefaultConfig();
 }

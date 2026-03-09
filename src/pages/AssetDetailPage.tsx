@@ -118,7 +118,7 @@ export default function AssetDetailPage() {
       </div>
 
       {/* === TOP ROW: 3 cards like the reference image === */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr] gap-4 mb-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_1fr] gap-0 md:gap-0 mb-6 items-stretch">
         {/* Card 1: Activo IT */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-card border rounded-xl p-6 relative">
           <div className="flex items-center gap-2 mb-1">
@@ -132,7 +132,7 @@ export default function AssetDetailPage() {
           </div>
 
           {/* Photo from model */}
-          <div className="mt-4 mb-3 relative">
+          <div className="mt-4 mb-3">
             {assetModel?.photo_url ? (
               <img src={assetModel.photo_url} alt={`${asset.brand} ${asset.model}`} className="w-full h-40 object-contain rounded-lg bg-muted/30" />
             ) : (
@@ -140,15 +140,11 @@ export default function AssetDetailPage() {
                 {typeIcons[asset.type] || <Monitor className="w-12 h-12 text-muted-foreground/30" />}
               </div>
             )}
-            {/* Link icon at bottom-right of the photo */}
-            <div className="absolute -bottom-2 -right-2 p-2 bg-primary rounded-full text-primary-foreground shadow-md z-10">
-              <Link2 className="w-4 h-4" />
-            </div>
           </div>
 
           <p className="text-sm font-semibold">{asset.type} {asset.brand} {asset.model}</p>
           <p className="text-xs text-muted-foreground">S/N: {asset.serial_number}</p>
-          {(asset as any).sgad && <p className="text-xs text-muted-foreground">SGAD: {(asset as any).sgad}</p>}
+          {asset.sgad && <p className="text-xs text-muted-foreground">SGAD: {asset.sgad}</p>}
           {status && (
             <div className="mt-2">
               <span className={`status-badge ${getStatusClass(status.code)}`}>
@@ -159,34 +155,49 @@ export default function AssetDetailPage() {
           )}
         </motion.div>
 
+        {/* Link icon centered between cards */}
+        <div className="hidden md:flex items-center justify-center px-2">
+          <div className="p-2.5 bg-primary rounded-full text-primary-foreground shadow-lg z-10">
+            <Link2 className="w-4 h-4" />
+          </div>
+        </div>
+
         {/* Card 2: Colaborador / Usuario asignado */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-card border rounded-xl p-6 flex flex-col items-center justify-center text-center">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-card border rounded-xl p-6 flex flex-col">
           {isAssigned ? (
             <>
-              <div className="flex items-center gap-2 mb-1 self-start">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <p className="text-sm font-bold">Colaborador</p>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="p-1.5 rounded-md bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">Colaborador</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">USUARIO FINAL</p>
+                </div>
               </div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground self-start mb-4">USUARIO FINAL</p>
 
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl mb-3">
-                {(assignedUser?.display_name || activeAssignment?.manual_user_name || '?').split(' ').map(n => n[0]).slice(0, 2).join('')}
+              <div className="flex-1 flex flex-col items-center justify-center text-center mt-4">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl mb-3">
+                  {(assignedUser?.display_name || activeAssignment?.manual_user_name || '?').split(' ').map(n => n[0]).slice(0, 2).join('')}
+                </div>
+
+                <p className="text-base font-semibold">{assignedUser?.display_name || activeAssignment?.manual_user_name || 'Usuario'}</p>
+                {assignedUser?.department && (
+                  <p className="text-xs text-muted-foreground mt-0.5">Departamento de {assignedUser.department}</p>
+                )}
+                {assignedUser?.site && (
+                  <p className="text-xs text-muted-foreground">Sede: {assignedUser.site}</p>
+                )}
               </div>
-
-              <p className="text-base font-semibold">{assignedUser?.display_name || activeAssignment?.manual_user_name || 'Usuario'}</p>
-              {assignedUser?.department && (
-                <p className="text-xs text-muted-foreground mt-0.5">Departamento de {assignedUser.department}</p>
-              )}
-              {assignedUser?.site && (
-                <p className="text-xs text-muted-foreground">Sede: {assignedUser.site}</p>
-              )}
             </>
           ) : (
-            <>
-              <User className="w-12 h-12 text-muted-foreground/30 mb-3" />
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+              <div className="p-1.5 rounded-md bg-muted text-muted-foreground mb-3">
+                <User className="w-8 h-8" />
+              </div>
               <p className="text-sm font-semibold text-muted-foreground">Sin asignar</p>
               <p className="text-xs text-muted-foreground mt-1">Este equipo no está asignado a ningún colaborador</p>
-            </>
+            </div>
           )}
         </motion.div>
 
@@ -264,7 +275,11 @@ export default function AssetDetailPage() {
                   <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Ubicación de uso</p>
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-muted-foreground" />
-                    <p className="text-sm">{location ? `${location.center} (${location.site})` : 'No especificada'}</p>
+                    <p className="text-sm">
+                      {assignedUser?.site 
+                        ? `${assignedUser.site}${assignedUser.department ? ` — ${assignedUser.department}` : ''}`
+                        : location ? `${location.center} (${location.site})` : 'No especificada'}
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-1">
