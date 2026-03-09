@@ -83,6 +83,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Wrapper for API calls that auto-audit
+  const auditedApi = {
+    create: async (resource: string, data: any, auditModule: string, auditDetails: string) => {
+      const result = await api.create(resource, data);
+      await addAuditEntry('CREAR', auditModule, auditDetails);
+      return result;
+    },
+    update: async (resource: string, id: number, data: any, auditModule: string, auditDetails: string) => {
+      const result = await api.update(resource, id, data);
+      await addAuditEntry('EDITAR', auditModule, auditDetails);
+      return result;
+    },
+    delete: async (resource: string, id: number, auditModule: string, auditDetails: string) => {
+      const result = await api.delete(resource, id);
+      await addAuditEntry('ELIMINAR', auditModule, auditDetails);
+      return result;
+    },
+  };
+
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       const user = await api.login(username, password) as any;
