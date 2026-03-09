@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { User } from '@/data/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { User, Department } from '@/data/types';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function EditUserDialog({ open, onOpenChange, user, onUpdated }: Props) {
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [form, setForm] = useState({
     display_name: '',
     email: '',
@@ -24,6 +26,12 @@ export default function EditUserDialog({ open, onOpenChange, user, onUpdated }: 
     contract_end: '',
   });
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      api.getAll<Department>('departments').then(setDepartments).catch(() => {});
+    }
+  }, [open]);
 
   useEffect(() => {
     if (user) {
@@ -52,7 +60,7 @@ export default function EditUserDialog({ open, onOpenChange, user, onUpdated }: 
         display_name: form.display_name.trim(),
         email: form.email.trim() || null,
         username: form.username.trim() || null,
-        department: form.department.trim() || null,
+        department: form.department || null,
         site: form.site.trim() || null,
         contract_end: form.contract_end || null,
       });
@@ -87,8 +95,15 @@ export default function EditUserDialog({ open, onOpenChange, user, onUpdated }: 
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
-              <Label htmlFor="edit_department">Departamento</Label>
-              <Input id="edit_department" value={form.department} onChange={e => update('department', e.target.value)} />
+              <Label>Departamento</Label>
+              <Select value={form.department} onValueChange={v => update('department', v)}>
+                <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
+                <SelectContent>
+                  {departments.map(d => (
+                    <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="edit_site">Ubicación</Label>
