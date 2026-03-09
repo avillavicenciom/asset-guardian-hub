@@ -211,7 +211,8 @@ interface ColumnsConfig {
 function getDefaultConfig(): ColumnsConfig {
   return {
     visible: ALL_COLUMNS.filter((c) => c.defaultVisible).map((c) => c.key),
-    order: ALL_COLUMNS.map((c) => c.key)
+    order: ALL_COLUMNS.map((c) => c.key),
+    version: CONFIG_VERSION,
   };
 }
 
