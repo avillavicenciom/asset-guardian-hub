@@ -98,8 +98,8 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
     key: 'operator',
     label: 'Operador',
     defaultVisible: true,
-    getValue: (a) => {
-      const op = operators.find(o => o.id === a.assigned_by_operator_id);
+    getValue: (a, h) => {
+      const op = h.getOperatorById?.(a.assigned_by_operator_id);
       return op?.name || '';
     },
     width: 'min-w-[140px]',
