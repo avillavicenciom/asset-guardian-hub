@@ -80,7 +80,8 @@ export default function ReturnAssetDialog({ open, onOpenChange, assignment, onRe
       user,
       observations,
       returnDate,
-      receivedByOperatorId: currentOperator.id,
+      operatorName: currentOperator.name,
+      operatorEmail: currentOperator.email,
     });
     toast.success('Acta de devolución descargada');
   };

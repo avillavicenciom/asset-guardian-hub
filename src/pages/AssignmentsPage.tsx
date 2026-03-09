@@ -293,7 +293,7 @@ export default function AssignmentsPage() {
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const [returningAssignment, setReturningAssignment] = useState<Assignment | null>(null);
 
-  const helpers = useMemo(() => ({ getAssetById, getUserById, getStatusById, getStatusClass, getLocationById }), [getAssetById, getUserById, getStatusById, getStatusClass, getLocationById]);
+  const helpers = useMemo(() => ({ getAssetById, getUserById, getStatusById, getStatusClass, getLocationById, getOperatorById }), [getAssetById, getUserById, getStatusById, getStatusClass, getLocationById, getOperatorById]);
 
   useEffect(() => { saveConfig(columnsConfig); }, [columnsConfig]);
 
