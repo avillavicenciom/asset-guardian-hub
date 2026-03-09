@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useData } from '@/hooks/useData';
 import { Assignment, DeliveryReasonCode, DELIVERY_REASONS } from '@/data/types';
-import { operators } from '@/data/mockData';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -98,8 +98,8 @@ const ALL_COLUMNS: AssignmentColumnDef[] = [
     key: 'operator',
     label: 'Operador',
     defaultVisible: true,
-    getValue: (a) => {
-      const op = operators.find(o => o.id === a.assigned_by_operator_id);
+    getValue: (a, h) => {
+      const op = h.getOperatorById?.(a.assigned_by_operator_id);
       return op?.name || '';
     },
     width: 'min-w-[140px]',
@@ -283,7 +283,7 @@ function ColumnFilterRow({ columns, filters, onFilterChange }: {
 // ---------- Main page ----------
 
 export default function AssignmentsPage() {
-  const { assignments, getAssetById, getUserById, getStatusById, getStatusClass, getLocationById } = useData();
+  const { assignments, operators, getAssetById, getUserById, getStatusById, getStatusClass, getLocationById, getOperatorById } = useData();
   const { canManageAssets } = useRole();
   const [search, setSearch] = useState('');
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
@@ -293,7 +293,7 @@ export default function AssignmentsPage() {
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const [returningAssignment, setReturningAssignment] = useState<Assignment | null>(null);
 
-  const helpers = useMemo(() => ({ getAssetById, getUserById, getStatusById, getStatusClass, getLocationById }), [getAssetById, getUserById, getStatusById, getStatusClass, getLocationById]);
+  const helpers = useMemo(() => ({ getAssetById, getUserById, getStatusById, getStatusClass, getLocationById, getOperatorById }), [getAssetById, getUserById, getStatusById, getStatusClass, getLocationById, getOperatorById]);
 
   useEffect(() => { saveConfig(columnsConfig); }, [columnsConfig]);
 
@@ -451,7 +451,8 @@ export default function AssignmentsPage() {
                           onClick={() => {
                             const asset = getAssetById(assignment.asset_id);
                             const user = assignment.user_id ? getUserById(assignment.user_id) : undefined;
-                            downloadReceipt({ assignment, asset, user });
+                            const op = getOperatorById(assignment.assigned_by_operator_id);
+                            downloadReceipt({ assignment, asset, user, operatorName: op?.name });
                             toast.success('Acuse de recibo descargado', {
                               description: 'Adjunta este archivo al correo SMTP para enviar al usuario.',
                             });

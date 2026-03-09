@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { StatusCatalog, User, Asset, Assignment, Repair, Location } from '@/data/types';
+import { StatusCatalog, User, Asset, Assignment, Repair, Location, Operator } from '@/data/types';
 import { api } from '@/lib/api';
 
 export function useData() {
@@ -9,18 +9,20 @@ export function useData() {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [repairs, setRepairs] = useState<Repair[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
+  const [operators, setOperators] = useState<Operator[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [s, u, a, asgn, r, l] = await Promise.all([
+      const [s, u, a, asgn, r, l, ops] = await Promise.all([
         api.getAll<StatusCatalog>('statuses'),
         api.getAll<User>('users'),
         api.getAll<Asset>('assets'),
         api.getAll<Assignment>('assignments'),
         api.getAll<Repair>('repairs'),
         api.getAll<Location>('locations'),
+        api.getAll<Operator>('operators'),
       ]);
       setStatuses(s);
       setUsers(u);
@@ -28,6 +30,7 @@ export function useData() {
       setAssignments(asgn);
       setRepairs(r);
       setLocations(l);
+      setOperators(ops);
     } catch (err) {
       console.error('Error al cargar datos:', err);
     } finally {
@@ -44,6 +47,7 @@ export function useData() {
   const getUserById = (id: number) => users.find(u => u.id === id);
   const getAssetById = (id: number) => assets.find(a => a.id === id);
   const getLocationById = (id: number) => locations.find(l => l.id === id);
+  const getOperatorById = (id: number) => operators.find(o => o.id === id);
 
   const getActiveAssignmentForAsset = (assetId: number) =>
     assignments.find(a => a.asset_id === assetId && !a.returned_at);
@@ -75,9 +79,9 @@ export function useData() {
   const refresh = fetchAll;
 
   return {
-    statuses, users, assets, assignments, repairs, locations,
+    statuses, users, assets, assignments, repairs, locations, operators,
     loading, refresh,
     getStatusById, getStatusByCode, getUserById, getAssetById, getStatusClass,
-    getLocationById, getAssignedUserName, getActiveAssignmentForAsset,
+    getLocationById, getOperatorById, getAssignedUserName, getActiveAssignmentForAsset,
   };
 }

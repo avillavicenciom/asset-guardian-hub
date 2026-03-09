@@ -1,5 +1,4 @@
 import { Assignment, Asset, User } from '@/data/types';
-import { operators } from '@/data/mockData';
 
 interface ReturnReceiptData {
   assignment: Assignment;
@@ -7,12 +6,12 @@ interface ReturnReceiptData {
   user: User | undefined;
   observations: string;
   returnDate: string;
-  receivedByOperatorId: number;
+  operatorName?: string;
+  operatorEmail?: string;
 }
 
 export function generateReturnReceiptHTML(data: ReturnReceiptData): string {
-  const { assignment, asset, user, observations, returnDate, receivedByOperatorId } = data;
-  const operator = operators.find(o => o.id === receivedByOperatorId);
+  const { assignment, asset, user, observations, returnDate, operatorName, operatorEmail } = data;
   const userName = user?.display_name || assignment.manual_user_name || 'N/A';
   const department = user?.department || '—';
   const assignedDate = new Date(assignment.assigned_at).toLocaleDateString('es-ES', {
@@ -90,8 +89,8 @@ export function generateReturnReceiptHTML(data: ReturnReceiptData): string {
   <div class="section">
     <h2>Operador que recibe</h2>
     <table>
-      <tr><td>Nombre</td><td>${operator?.name || '—'}</td></tr>
-      <tr><td>Email</td><td>${operator?.email || '—'}</td></tr>
+      <tr><td>Nombre</td><td>${operatorName || '—'}</td></tr>
+      <tr><td>Email</td><td>${operatorEmail || '—'}</td></tr>
     </table>
   </div>
 

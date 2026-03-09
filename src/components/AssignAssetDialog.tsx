@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useData } from '@/hooks/useData';
-import { operators } from '@/data/mockData';
+
 import { DeliveryReasonCode, DELIVERY_REASONS } from '@/data/types';
 
 type AssignTo = 'user' | 'technician';
@@ -19,7 +19,7 @@ interface AssignAssetDialogProps {
 }
 
 export default function AssignAssetDialog({ open, onOpenChange, preselectedAssetId }: AssignAssetDialogProps) {
-  const { assets, users, statuses, getStatusById } = useData();
+  const { assets, users, statuses, operators, getStatusById } = useData();
 
   const [assignTo, setAssignTo] = useState<AssignTo>('user');
   const [selectedAssetId, setSelectedAssetId] = useState<string>(preselectedAssetId?.toString() || '');
