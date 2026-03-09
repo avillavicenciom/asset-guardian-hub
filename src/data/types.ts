@@ -5,6 +5,19 @@ export interface StatusCatalog {
   is_terminal: boolean;
 }
 
+export interface Department {
+  id: number;
+  name: string;
+}
+
+export interface RepairStatus {
+  id: number;
+  code: string;
+  label: string;
+  color: string;
+  sort_order: number;
+}
+
 export interface User {
   id: number;
   display_name: string;
@@ -136,6 +149,16 @@ export interface DeliveryEvidence {
   created_at: string;
 }
 
+export type IncidentType = 'HARDWARE' | 'SOFTWARE' | 'ACCESORIO' | 'PREVENTIVO' | 'OTRO';
+
+export const INCIDENT_TYPES: Record<IncidentType, string> = {
+  HARDWARE: 'Hardware',
+  SOFTWARE: 'Software',
+  ACCESORIO: 'Accesorio',
+  PREVENTIVO: 'Mantenimiento preventivo',
+  OTRO: 'Otro',
+};
+
 export interface Repair {
   id: number;
   asset_id: number;
@@ -144,6 +167,10 @@ export interface Repair {
   provider: string | null;
   ticket_ref: string | null;
   diagnosis: string | null;
+  action_performed: string | null;
+  incident_type: IncidentType | null;
+  is_warranty: boolean;
+  repair_status_id: number | null;
   cost: number | null;
   result_status_id: number | null;
   technician_id: number | null;

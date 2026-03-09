@@ -32,7 +32,6 @@ app.post('/api/auth/login', async (req, res) => {
     if (rows.length === 0) return res.status(401).json({ error: 'Credenciales inválidas' });
     const user = rows[0];
     user.permissions = user.permissions ? JSON.parse(user.permissions) : [];
-    // Audit log
     await pool.query(
       'INSERT INTO audit_log (operator_id, operator_name, action, module, details) VALUES (?, ?, ?, ?, ?)',
       [user.id, user.name, 'LOGIN', 'Auth', `Inicio de sesión: ${user.username}`]
@@ -61,7 +60,6 @@ app.post('/api/auth/register', async (req, res) => {
 
 // ============ GENERIC CRUD HELPER ============
 function crudRoutes(path, table, options = {}) {
-  // GET ALL
   app.get(`/api/${path}`, async (req, res) => {
     try {
       const [rows] = await pool.query(`SELECT * FROM ${table} ORDER BY id DESC`);
@@ -78,7 +76,6 @@ function crudRoutes(path, table, options = {}) {
     }
   });
 
-  // GET BY ID
   app.get(`/api/${path}/:id`, async (req, res) => {
     try {
       const [rows] = await pool.query(`SELECT * FROM ${table} WHERE id = ?`, [req.params.id]);
@@ -95,7 +92,6 @@ function crudRoutes(path, table, options = {}) {
     }
   });
 
-  // CREATE
   app.post(`/api/${path}`, async (req, res) => {
     try {
       const data = { ...req.body };
@@ -118,7 +114,6 @@ function crudRoutes(path, table, options = {}) {
     }
   });
 
-  // UPDATE
   app.put(`/api/${path}/:id`, async (req, res) => {
     try {
       const data = { ...req.body };
@@ -139,7 +134,6 @@ function crudRoutes(path, table, options = {}) {
     }
   });
 
-  // DELETE
   app.delete(`/api/${path}/:id`, async (req, res) => {
     try {
       await pool.query(`DELETE FROM ${table} WHERE id = ?`, [req.params.id]);
@@ -166,10 +160,11 @@ crudRoutes('repair-parts', 'repair_parts');
 crudRoutes('audit-log', 'audit_log');
 crudRoutes('status-history', 'asset_status_history');
 crudRoutes('delivery-evidence', 'delivery_evidence');
+crudRoutes('departments', 'departments');
+crudRoutes('repair-statuses', 'repair_statuses');
 
 // ============ EXTRA ENDPOINTS ============
 
-// Assignments by asset
 app.get('/api/assets/:id/assignments', async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -182,7 +177,6 @@ app.get('/api/assets/:id/assignments', async (req, res) => {
   }
 });
 
-// Status history by asset
 app.get('/api/assets/:id/status-history', async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -202,7 +196,6 @@ app.get('/api/assets/:id/status-history', async (req, res) => {
   }
 });
 
-// Repairs by asset
 app.get('/api/assets/:id/repairs', async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -215,7 +208,6 @@ app.get('/api/assets/:id/repairs', async (req, res) => {
   }
 });
 
-// Dashboard stats
 app.get('/api/dashboard/stats', async (req, res) => {
   try {
     const [[totalAssets]] = await pool.query('SELECT COUNT(*) as count FROM assets');
@@ -240,13 +232,5 @@ app.get('/api/dashboard/stats', async (req, res) => {
 // ============ START SERVER ============
 app.listen(PORT, () => {
   console.log(`\n🚀 Asset Guardian API corriendo en http://localhost:${PORT}`);
-  console.log(`📋 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📦 Endpoints disponibles:`);
-  console.log(`   GET/POST       /api/assets`);
-  console.log(`   GET/PUT/DELETE  /api/assets/:id`);
-  console.log(`   GET/POST       /api/users`);
-  console.log(`   GET/POST       /api/assignments`);
-  console.log(`   GET/POST       /api/repairs`);
-  console.log(`   POST           /api/auth/login`);
-  console.log(`   GET            /api/dashboard/stats\n`);
+  console.log(`📋 Health check: http://localhost:${PORT}/api/health\n`);
 });
