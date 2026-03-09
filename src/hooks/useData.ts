@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { StatusCatalog, User, Asset, Assignment, Repair, Location } from '@/data/types';
+import { StatusCatalog, User, Asset, Assignment, Repair, Location, Operator } from '@/data/types';
 import { api } from '@/lib/api';
 
 export function useData() {
