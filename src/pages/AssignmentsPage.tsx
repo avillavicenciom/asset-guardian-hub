@@ -451,7 +451,8 @@ export default function AssignmentsPage() {
                           onClick={() => {
                             const asset = getAssetById(assignment.asset_id);
                             const user = assignment.user_id ? getUserById(assignment.user_id) : undefined;
-                            downloadReceipt({ assignment, asset, user });
+                            const op = getOperatorById(assignment.assigned_by_operator_id);
+                            downloadReceipt({ assignment, asset, user, operatorName: op?.name });
                             toast.success('Acuse de recibo descargado', {
                               description: 'Adjunta este archivo al correo SMTP para enviar al usuario.',
                             });
