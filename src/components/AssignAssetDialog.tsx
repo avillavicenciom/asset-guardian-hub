@@ -84,29 +84,42 @@ export default function AssignAssetDialog({ open, onOpenChange, preselectedAsset
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Asset selection */}
-          <div className="space-y-2">
-            <Label>Equipo</Label>
-            {!preselectedAssetId && (
+          {/* Asset selection - hidden when preselected */}
+          {hasPreselected ? (
+            <div className="space-y-2">
+              <Label>Equipo</Label>
+              <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg border">
+                <Package className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">
+                  {(() => {
+                    const a = assets.find(a => a.id === preselectedAssetId);
+                    return a ? `${a.brand} ${a.model} — ${a.serial_number}` : 'Equipo seleccionado';
+                  })()}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label>Equipo</Label>
               <div className="relative mb-2">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                 <Input placeholder="Buscar equipo..." value={assetSearch} onChange={e => setAssetSearch(e.target.value)} className="pl-8 h-8 text-xs" />
               </div>
-            )}
-            <Select value={selectedAssetId} onValueChange={setSelectedAssetId}>
-              <SelectTrigger>
-                <Package className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Seleccionar equipo" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableAssets.map(a => (
-                  <SelectItem key={a.id} value={a.id.toString()}>
-                    {a.brand} {a.model} — {a.serial_number}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+              <Select value={selectedAssetId} onValueChange={setSelectedAssetId}>
+                <SelectTrigger>
+                  <Package className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Seleccionar equipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableAssets.map(a => (
+                    <SelectItem key={a.id} value={a.id.toString()}>
+                      {a.brand} {a.model} — {a.serial_number}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Assign to toggle */}
           <div className="space-y-2">
