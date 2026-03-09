@@ -12,6 +12,37 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
+// Audit callback - set by AuthContext
+let _auditCallback: ((action: string, module: string, details: string) => void) | null = null;
+
+export function setAuditCallback(cb: ((action: string, module: string, details: string) => void) | null) {
+  _auditCallback = cb;
+}
+
+const RESOURCE_LABELS: Record<string, string> = {
+  'assets': 'Activos',
+  'users': 'Usuarios',
+  'assignments': 'Asignaciones',
+  'repairs': 'Reparaciones',
+  'operators': 'Operadores',
+  'technicians': 'Técnicos',
+  'statuses': 'Estados',
+  'asset-types': 'Tipos de Activo',
+  'asset-models': 'Modelos',
+  'locations': 'Ubicaciones',
+  'hardware-parts': 'Repuestos',
+  'departments': 'Departamentos',
+  'repair-statuses': 'Estados de Reparación',
+  'repair-parts': 'Piezas de Reparación',
+};
+
+function auditCrud(action: string, resource: string, details?: string) {
+  if (!_auditCallback) return;
+  if (resource === 'audit-log') return; // Don't audit the audit itself
+  const module = RESOURCE_LABELS[resource] || resource;
+  _auditCallback(action, module, details || `${action} en ${module}`);
+}
+
 export const api = {
   // Auth
   login: (username: string, password: string) =>
@@ -19,15 +50,24 @@ export const api = {
   register: (data: { name: string; email: string; username: string; password: string }) =>
     request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
 
-  // Generic CRUD
+  // Generic CRUD with auto-audit
   getAll: <T>(resource: string) => request<T[]>(`/${resource}`),
   getById: <T>(resource: string, id: number) => request<T>(`/${resource}/${id}`),
-  create: <T>(resource: string, data: Partial<T>) =>
-    request<T>(`/${resource}`, { method: 'POST', body: JSON.stringify(data) }),
-  update: <T>(resource: string, id: number, data: Partial<T>) =>
-    request<T>(`/${resource}/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (resource: string, id: number) =>
-    request(`/${resource}/${id}`, { method: 'DELETE' }),
+  create: async <T>(resource: string, data: Partial<T>, auditDetails?: string) => {
+    const result = await request<T>(`/${resource}`, { method: 'POST', body: JSON.stringify(data) });
+    auditCrud('CREAR', resource, auditDetails || `Registro creado en ${RESOURCE_LABELS[resource] || resource}`);
+    return result;
+  },
+  update: async <T>(resource: string, id: number, data: Partial<T>, auditDetails?: string) => {
+    const result = await request<T>(`/${resource}/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+    auditCrud('EDITAR', resource, auditDetails || `Registro #${id} editado en ${RESOURCE_LABELS[resource] || resource}`);
+    return result;
+  },
+  delete: async (resource: string, id: number, auditDetails?: string) => {
+    const result = await request(`/${resource}/${id}`, { method: 'DELETE' });
+    auditCrud('ELIMINAR', resource, auditDetails || `Registro #${id} eliminado de ${RESOURCE_LABELS[resource] || resource}`);
+    return result;
+  },
 
   // Dashboard
   dashboardStats: () => request<Record<string, number>>('/dashboard/stats'),
