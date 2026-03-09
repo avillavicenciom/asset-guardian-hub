@@ -86,6 +86,14 @@ const ALL_COLUMNS: ColumnDef[] = [
   width: 'min-w-[170px]'
 },
 {
+  key: 'sgad',
+  label: 'SGAD',
+  defaultVisible: true,
+  getValue: (a) => (a as any).sgad || '',
+  render: (a) => <span className="text-sm">{(a as any).sgad || '—'}</span>,
+  width: 'min-w-[120px]'
+},
+{
   key: 'asset_tag',
   label: 'ID Inventario',
   defaultVisible: true,
