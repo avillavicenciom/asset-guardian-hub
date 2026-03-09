@@ -275,7 +275,11 @@ export default function AssetDetailPage() {
                   <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Ubicación de uso</p>
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-muted-foreground" />
-                    <p className="text-sm">{location ? `${location.center} (${location.site})` : 'No especificada'}</p>
+                    <p className="text-sm">
+                      {assignedUser?.site 
+                        ? `${assignedUser.site}${assignedUser.department ? ` — ${assignedUser.department}` : ''}`
+                        : location ? `${location.center} (${location.site})` : 'No especificada'}
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-1">
