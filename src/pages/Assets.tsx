@@ -48,6 +48,7 @@ export interface ColumnDef {
 }
 
 const STORAGE_KEY = 'asset-columns-config';
+const CONFIG_VERSION = 2; // Bump when columns change to reset stale configs
 
 const ALL_COLUMNS: ColumnDef[] = [
 {
