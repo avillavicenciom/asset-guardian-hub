@@ -127,7 +127,7 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
         tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       });
       toast.success('Activo creado correctamente');
-      setForm({ asset_tag: '', serial_number: '', category: defaultCategory, type: '', brand: '', model: '', status_id: '', location_id: '', notes: '', tags: '' });
+      setForm({ asset_tag: '', serial_number: '', sgad: '', category: defaultCategory, type: '', brand: '', model: '', status_id: '', location_id: '', notes: '', tags: '' });
       onOpenChange(false);
       onCreated();
     } catch (err: any) {
