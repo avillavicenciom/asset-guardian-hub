@@ -167,10 +167,14 @@ export default function CreateAssetDialog({ open, onOpenChange, onCreated, defau
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div className="grid gap-1.5">
               <Label>Número de serie *</Label>
               <Input value={form.serial_number} onChange={e => update('serial_number', e.target.value)} placeholder="SN123456" />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>SGAD</Label>
+              <Input value={form.sgad} onChange={e => update('sgad', e.target.value)} placeholder="SGAD-001" />
             </div>
             <div className="grid gap-1.5">
               <Label>ID Inventario</Label>
