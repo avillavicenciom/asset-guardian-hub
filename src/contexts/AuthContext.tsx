@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { Operator, Permission, ALL_PERMISSIONS } from '@/data/types';
 import { api } from '@/lib/api';
+import { setAuditCallback } from '@/lib/api';
 
 export interface AuditEntry {
   id: string;
