@@ -47,6 +47,7 @@ export function useData() {
   const getUserById = (id: number) => users.find(u => u.id === id);
   const getAssetById = (id: number) => assets.find(a => a.id === id);
   const getLocationById = (id: number) => locations.find(l => l.id === id);
+  const getOperatorById = (id: number) => operators.find(o => o.id === id);
 
   const getActiveAssignmentForAsset = (assetId: number) =>
     assignments.find(a => a.asset_id === assetId && !a.returned_at);
