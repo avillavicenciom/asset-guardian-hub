@@ -58,18 +58,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .catch(() => setAuditLog([]));
   }, []);
 
-  const addAuditEntry = async (action: string, module: string, details: string) => {
+  const addAuditEntry = useCallback(async (action: string, module: string, details: string) => {
     if (!currentOperator) return;
     try {
-      await api.create('audit-log', {
-        operator_id: currentOperator.id,
-        operator_name: currentOperator.name,
-        action,
-        module,
-        details,
+      // Use fetch directly to avoid recursive audit
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      await fetch(`${API_BASE}/audit-log`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          operator_id: currentOperator.id,
+          operator_name: currentOperator.name,
+          action,
+          module,
+          details,
+        }),
       });
       // Refrescar
-      const rows = await api.getAll<any>('audit-log');
+      const res = await fetch(`${API_BASE}/audit-log`);
+      const rows = await res.json();
       setAuditLog(rows.map((r: any) => ({
         id: String(r.id),
         timestamp: r.created_at || r.timestamp || new Date().toISOString(),
@@ -82,26 +89,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error('Error al registrar auditoría:', err);
     }
-  };
+  }, [currentOperator]);
 
-  // Wrapper for API calls that auto-audit
-  const auditedApi = {
-    create: async (resource: string, data: any, auditModule: string, auditDetails: string) => {
-      const result = await api.create(resource, data);
-      await addAuditEntry('CREAR', auditModule, auditDetails);
-      return result;
-    },
-    update: async (resource: string, id: number, data: any, auditModule: string, auditDetails: string) => {
-      const result = await api.update(resource, id, data);
-      await addAuditEntry('EDITAR', auditModule, auditDetails);
-      return result;
-    },
-    delete: async (resource: string, id: number, auditModule: string, auditDetails: string) => {
-      const result = await api.delete(resource, id);
-      await addAuditEntry('ELIMINAR', auditModule, auditDetails);
-      return result;
-    },
-  };
+  // Register audit callback for auto-auditing API calls
+  useEffect(() => {
+    if (currentOperator) {
+      setAuditCallback(addAuditEntry);
+    } else {
+      setAuditCallback(null);
+    }
+    return () => setAuditCallback(null);
+  }, [currentOperator, addAuditEntry]);
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
