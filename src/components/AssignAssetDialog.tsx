@@ -23,6 +23,7 @@ export default function AssignAssetDialog({ open, onOpenChange, preselectedAsset
 
   const [assignTo, setAssignTo] = useState<AssignTo>('user');
   const [selectedAssetId, setSelectedAssetId] = useState<string>(preselectedAssetId?.toString() || '');
+  const hasPreselected = !!preselectedAssetId;
   const [selectedUserId, setSelectedUserId] = useState<string>('');
   const [selectedOperatorId, setSelectedOperatorId] = useState<string>('');
   const [deliveryMode, setDeliveryMode] = useState<'SIGNED' | 'TECH_VALIDATED'>('SIGNED');
