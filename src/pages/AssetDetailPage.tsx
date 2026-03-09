@@ -163,33 +163,41 @@ export default function AssetDetailPage() {
         </div>
 
         {/* Card 2: Colaborador / Usuario asignado */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-card border rounded-xl p-6 flex flex-col items-center justify-center text-center">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-card border rounded-xl p-6 flex flex-col">
           {isAssigned ? (
             <>
-              <div className="flex items-center gap-2 mb-1 self-start">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <p className="text-sm font-bold">Colaborador</p>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="p-1.5 rounded-md bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold">Colaborador</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">USUARIO FINAL</p>
+                </div>
               </div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground self-start mb-4">USUARIO FINAL</p>
 
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl mb-3">
-                {(assignedUser?.display_name || activeAssignment?.manual_user_name || '?').split(' ').map(n => n[0]).slice(0, 2).join('')}
+              <div className="flex-1 flex flex-col items-center justify-center text-center mt-4">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl mb-3">
+                  {(assignedUser?.display_name || activeAssignment?.manual_user_name || '?').split(' ').map(n => n[0]).slice(0, 2).join('')}
+                </div>
+
+                <p className="text-base font-semibold">{assignedUser?.display_name || activeAssignment?.manual_user_name || 'Usuario'}</p>
+                {assignedUser?.department && (
+                  <p className="text-xs text-muted-foreground mt-0.5">Departamento de {assignedUser.department}</p>
+                )}
+                {assignedUser?.site && (
+                  <p className="text-xs text-muted-foreground">Sede: {assignedUser.site}</p>
+                )}
               </div>
-
-              <p className="text-base font-semibold">{assignedUser?.display_name || activeAssignment?.manual_user_name || 'Usuario'}</p>
-              {assignedUser?.department && (
-                <p className="text-xs text-muted-foreground mt-0.5">Departamento de {assignedUser.department}</p>
-              )}
-              {assignedUser?.site && (
-                <p className="text-xs text-muted-foreground">Sede: {assignedUser.site}</p>
-              )}
             </>
           ) : (
-            <>
-              <User className="w-12 h-12 text-muted-foreground/30 mb-3" />
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+              <div className="p-1.5 rounded-md bg-muted text-muted-foreground mb-3">
+                <User className="w-8 h-8" />
+              </div>
               <p className="text-sm font-semibold text-muted-foreground">Sin asignar</p>
               <p className="text-xs text-muted-foreground mt-1">Este equipo no está asignado a ningún colaborador</p>
-            </>
+            </div>
           )}
         </motion.div>
 
