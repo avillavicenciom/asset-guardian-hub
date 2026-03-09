@@ -1,14 +1,13 @@
 import { Assignment, Asset, User } from '@/data/types';
-import { operators } from '@/data/mockData';
 
 interface ReceiptData {
   assignment: Assignment;
   asset: Asset | undefined;
   user: User | undefined;
+  operatorName?: string;
 }
 
-export function generateReceiptHTML({ assignment, asset, user }: ReceiptData): string {
-  const operator = operators.find(o => o.id === assignment.assigned_by_operator_id);
+export function generateReceiptHTML({ assignment, asset, user, operatorName }: ReceiptData): string {
   const userName = user?.display_name || assignment.manual_user_name || 'N/A';
   const userEmail = user?.email || assignment.manual_user_email || 'N/A';
   const date = new Date(assignment.assigned_at).toLocaleDateString('es-ES', {
@@ -67,7 +66,7 @@ export function generateReceiptHTML({ assignment, asset, user }: ReceiptData): s
     <h2>Datos de la asignación</h2>
     <table>
       <tr><td>Fecha de asignación</td><td>${date}</td></tr>
-      <tr><td>Operador</td><td>${operator?.name || '—'}</td></tr>
+      <tr><td>Operador</td><td>${operatorName || '—'}</td></tr>
       <tr><td>Modo de entrega</td><td><span class="badge ${assignment.delivery_mode === 'SIGNED' ? 'badge-signed' : 'badge-validated'}">${assignment.delivery_mode === 'SIGNED' ? 'Firmado por usuario' : 'Validado por técnico'}</span></td></tr>
       ${assignment.delivery_reason_code ? `<tr><td>Motivo</td><td>${assignment.delivery_reason_code}</td></tr>` : ''}
       ${assignment.delivery_reason_text ? `<tr><td>Detalle</td><td>${assignment.delivery_reason_text}</td></tr>` : ''}

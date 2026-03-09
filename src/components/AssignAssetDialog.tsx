@@ -19,7 +19,7 @@ interface AssignAssetDialogProps {
 }
 
 export default function AssignAssetDialog({ open, onOpenChange, preselectedAssetId }: AssignAssetDialogProps) {
-  const { assets, users, statuses, getStatusById } = useData();
+  const { assets, users, statuses, operators, getStatusById } = useData();
 
   const [assignTo, setAssignTo] = useState<AssignTo>('user');
   const [selectedAssetId, setSelectedAssetId] = useState<string>(preselectedAssetId?.toString() || '');
