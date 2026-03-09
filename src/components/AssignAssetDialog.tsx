@@ -256,7 +256,7 @@ export default function AssignAssetDialog({ open, onOpenChange, preselectedAsset
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
           <Button onClick={handleSubmit} disabled={!canSubmit}>
-            {assignTo === 'technician' ? 'Asignar a técnico' : 'Asignar equipo'}
+            {submitting ? 'Asignando...' : (assignTo === 'technician' ? 'Asignar a técnico' : 'Asignar equipo')}
           </Button>
         </DialogFooter>
       </DialogContent>
