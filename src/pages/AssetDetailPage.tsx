@@ -118,7 +118,7 @@ export default function AssetDetailPage() {
       </div>
 
       {/* === TOP ROW: 3 cards like the reference image === */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_1fr] gap-0 mb-6 items-stretch">
         {/* Card 1: Activo IT */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-card border rounded-xl p-6">
           <div className="flex items-center gap-2 mb-1">
@@ -132,7 +132,7 @@ export default function AssetDetailPage() {
           </div>
 
           {/* Photo from model */}
-          <div className="mt-4 mb-3 relative">
+          <div className="mt-4 mb-3">
             {assetModel?.photo_url ? (
               <img src={assetModel.photo_url} alt={`${asset.brand} ${asset.model}`} className="w-full h-40 object-contain rounded-lg bg-muted/30" />
             ) : (
@@ -140,9 +140,6 @@ export default function AssetDetailPage() {
                 {typeIcons[asset.type] || <Monitor className="w-12 h-12 text-muted-foreground/30" />}
               </div>
             )}
-            <div className="absolute bottom-2 right-2 p-1.5 bg-primary rounded-full text-primary-foreground">
-              <Link2 className="w-3.5 h-3.5" />
-            </div>
           </div>
 
           <p className="text-sm font-semibold">{asset.type} {asset.brand} {asset.model}</p>
@@ -157,6 +154,13 @@ export default function AssetDetailPage() {
             </div>
           )}
         </motion.div>
+
+        {/* Link icon between cards */}
+        <div className="hidden md:flex items-center justify-center px-3">
+          <div className="p-2.5 bg-primary rounded-full text-primary-foreground shadow-md">
+            <Link2 className="w-4 h-4" />
+          </div>
+        </div>
 
         {/* Card 2: Colaborador / Usuario asignado */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-card border rounded-xl p-6 flex flex-col items-center justify-center text-center">
