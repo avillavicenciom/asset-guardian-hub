@@ -219,7 +219,12 @@ function getDefaultConfig(): ColumnsConfig {
 function loadConfig(): ColumnsConfig {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Reset if config version is outdated
+      if (parsed.version !== CONFIG_VERSION) return getDefaultConfig();
+      return parsed;
+    }
   } catch {}
   return getDefaultConfig();
 }
