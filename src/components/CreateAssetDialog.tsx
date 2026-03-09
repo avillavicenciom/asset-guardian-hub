@@ -9,7 +9,6 @@ import { AssetType, AssetModel, Location } from '@/data/types';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { useData } from '@/hooks/useData';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface Props {
   open: boolean;
