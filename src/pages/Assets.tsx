@@ -131,12 +131,12 @@ const ALL_COLUMNS: ColumnDef[] = [
     const name = h.getAssignedUserName(a.id);
     if (!name) {
       const status = h.getStatusById(a.status_id);
-      return <span className="text-xs text-muted-foreground italic">{status?.code === 'DISPONIBLE' ? 'Disponible' : '—'}</span>;
+      return <span className="text-sm text-muted-foreground italic">{status?.code === 'DISPONIBLE' ? 'Disponible' : '—'}</span>;
     }
     return (
       <div className="flex items-center gap-1.5">
           <User className="w-3 h-3 text-muted-foreground shrink-0" />
-          <span className="text-xs font-medium">{name}</span>
+          <span className="text-sm">{name}</span>
         </div>);
 
   },
