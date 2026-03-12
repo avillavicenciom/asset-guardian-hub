@@ -56,11 +56,7 @@ const ALL_COLUMNS: ColumnDef[] = [
   label: 'Tipo',
   defaultVisible: true,
   getValue: (a) => a.type,
-  render: (a) =>
-  <div className="flex items-center gap-2">
-        <div className="p-1.5 rounded-md bg-muted">{typeIcons[a.type] || <Monitor className="w-3.5 h-3.5" />}</div>
-        <span className="text-xs text-muted-foreground">{a.type}</span>
-      </div>,
+  render: (a) => <span className="text-sm">{a.type}</span>,
 
   width: 'min-w-[120px]'
 },
