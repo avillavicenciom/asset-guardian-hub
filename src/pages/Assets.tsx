@@ -374,7 +374,7 @@ function AssetDataGrid({
   const allSelected = items.length > 0 && items.every((i) => selectedIds.has(i.id));
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="bg-card rounded-xl border overflow-hidden border-muted-foreground">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="bg-card rounded-xl border overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
