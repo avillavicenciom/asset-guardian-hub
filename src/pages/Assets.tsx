@@ -158,7 +158,7 @@ const ALL_COLUMNS: ColumnDef[] = [
     return (
       <div className="flex items-center gap-1.5">
           <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />
-          <span className="text-xs">{loc.country}, {loc.site}, {loc.center}</span>
+          <span className="text-sm">{loc.country}, {loc.site}, {loc.center}</span>
         </div>);
 
   },
