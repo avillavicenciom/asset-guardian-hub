@@ -106,12 +106,19 @@ const ALL_COLUMNS: ColumnDef[] = [
   render: (a, h) => {
     const status = h.getStatusById(a.status_id);
     if (!status) return null;
+    const isAssigned = status.code === 'ASIGNADO';
+    const isAvailable = status.code === 'DISPONIBLE';
+    const colorClass = isAssigned
+      ? 'text-[hsl(var(--status-assigned))]'
+      : isAvailable
+      ? 'text-[hsl(var(--status-available))]'
+      : 'text-muted-foreground';
     return (
-      <span className={`status-badge ${h.getStatusClass(status.code)}`}>
-          <span className="w-1.5 h-1.5 rounded-full bg-current" />
-          {status.label}
-        </span>);
-
+      <span className={`inline-flex items-center gap-1 text-sm font-medium ${colorClass}`}>
+        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+        {status.label}
+      </span>
+    );
   },
   width: 'min-w-[140px]'
 },
