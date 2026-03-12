@@ -56,11 +56,7 @@ const ALL_COLUMNS: ColumnDef[] = [
   label: 'Tipo',
   defaultVisible: true,
   getValue: (a) => a.type,
-  render: (a) =>
-  <div className="flex items-center gap-2">
-        <div className="p-1.5 rounded-md bg-muted">{typeIcons[a.type] || <Monitor className="w-3.5 h-3.5" />}</div>
-        <span className="text-xs text-muted-foreground">{a.type}</span>
-      </div>,
+  render: (a) => <span className="text-sm">{a.type}</span>,
 
   width: 'min-w-[120px]'
 },
@@ -110,12 +106,19 @@ const ALL_COLUMNS: ColumnDef[] = [
   render: (a, h) => {
     const status = h.getStatusById(a.status_id);
     if (!status) return null;
+    const isAssigned = status.code === 'ASIGNADO';
+    const isAvailable = status.code === 'DISPONIBLE';
+    const colorClass = isAssigned
+      ? 'text-[hsl(var(--status-assigned))]'
+      : isAvailable
+      ? 'text-[hsl(var(--status-available))]'
+      : 'text-muted-foreground';
     return (
-      <span className={`status-badge ${h.getStatusClass(status.code)}`}>
-          <span className="w-1.5 h-1.5 rounded-full bg-current" />
-          {status.label}
-        </span>);
-
+      <span className={`inline-flex items-center gap-1 text-sm font-medium ${colorClass}`}>
+        <span className="w-1.5 h-1.5 rounded-full bg-current" />
+        {status.label}
+      </span>
+    );
   },
   width: 'min-w-[140px]'
 },
@@ -128,12 +131,12 @@ const ALL_COLUMNS: ColumnDef[] = [
     const name = h.getAssignedUserName(a.id);
     if (!name) {
       const status = h.getStatusById(a.status_id);
-      return <span className="text-xs text-muted-foreground italic">{status?.code === 'DISPONIBLE' ? 'Disponible' : '—'}</span>;
+      return <span className="text-sm text-muted-foreground italic">{status?.code === 'DISPONIBLE' ? 'Disponible' : '—'}</span>;
     }
     return (
       <div className="flex items-center gap-1.5">
           <User className="w-3 h-3 text-muted-foreground shrink-0" />
-          <span className="text-xs font-medium">{name}</span>
+          <span className="text-sm">{name}</span>
         </div>);
 
   },
@@ -155,7 +158,7 @@ const ALL_COLUMNS: ColumnDef[] = [
     return (
       <div className="flex items-center gap-1.5">
           <MapPin className="w-3 h-3 text-muted-foreground shrink-0" />
-          <span className="text-xs">{loc.country}, {loc.site}, {loc.center}</span>
+          <span className="text-sm">{loc.country}, {loc.site}, {loc.center}</span>
         </div>);
 
   },
